@@ -1,4 +1,3 @@
-# import numpy as np
 import openslide
 import os
 import cv2
@@ -6,17 +5,21 @@ import sys
 import numpy as np
 
 def read_files(path):
-    """from a dir read the .svs files, then we can divide the large slide into small ones"""
-    for f in os.listdir(path):
-        if f[-4:] == '.svs':
-            yield os.path.join(path, f)
+    """From a dir read the .svs files, then we can divide the large slide into small ones
+    path: the path of all .svs files, str."""
+    # for f in os.listdir(path):
+    #     if f[-4:] == '.svs':
+    #         yield os.path.join(path, f)
+    return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
-def divide(slide, level=1, width_rel=250):
-    """the origin image is too large, the function can segment the large one into small tiles.
-    slide is the path of the target slide; level points varying definition of images, 0 is the largest;
-    width_rel is the width of output images. In this project, we set the height equals to the width. """
-    # read slide
-    large_image = openslide.OpenSlide(slide)
+def divide(slide_path, level=1, width_rel=250):
+    """The origin slide is too large, the function can segment the large one into small tiles.
+    In this project, we set the height equals to the width.
+    Slide_path: the path of the target slide, str; 
+    level: varying definition of images, 0 is the largest, int;
+    width_rel: the width and the length of output images, int."""
+    # read slide, here we downsize 400 (20*20) times
+    large_image = openslide.OpenSlide(slide_path)
     tile = width_rel * 20
     # get reference and target location
     dimensions = large_image.level_dimensions
@@ -27,6 +30,10 @@ def divide(slide, level=1, width_rel=250):
     widths_point = list(range(0, dimension_ref[0], tile))
     heights_point = list(range(0, dimension_ref[1], tile))
     # begin segment tiles
+    cwp = os.getcwd()
+    case_name = os.path.basename(slide_path)[:-4]
+    # print(case_name)
+    os.makedirs(os.path.join(cwp, case_name), exist_ok=True)
     for i, x in enumerate(widths_point):
         for j, y in enumerate(heights_point):
             # locate start point
@@ -42,24 +49,46 @@ def divide(slide, level=1, width_rel=250):
             small_image = large_image.read_region(location=loc, level=level, size=size)
             # filter the useless image
             if is_useless(small_image):
-                break
+                continue
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(os.getcwd(), '{:02d}{:02d}.png'.format(j, i))
+            fp = os.path.join(cwp, case_name, '{:02d}{:02d}.png'.format(j, i))
             resize_image.save(fp)
     
 def is_useless(image):
-    # 
+    """Help to judge whether the small image is informative.
+    If a image has more information, it should be darker in gray mode.
+    image: a Pillow object"""
+    # if the width different from the height, it's the marginal part.
     if image.width != image.height:
         return True
     gray = image.convert("L")
+    # 230 is a magic number, and it is not good. However, currently, I haven't found a better way
+    # to select the informative images.
     return np.mean(gray) > 230
 
+def show_progress(cur_done, total, status='', bar_length=60):
+    """Show the progress on the terminal.
+    cur_done: the number of finished work, int;
+    totoal: the number of overall work, int;
+    status: trivial words, str;
+    bar_length: the length of bar showing on the screen, int."""
+    percent = cur_done / total
+    done = int(percent * bar_length)
+    show = '=' * done + '/' * (bar_length - done)
+    sys.stdout.write('[{}] {:.2f}% {}'.format(show, percent*100, status))
+    sys.stdout.flush()
+
 def main():
-    slide = sys.argv[1]
-    print(slide)
-    divide(slide)
+    path = os.getcwd()
+    slides = read_files(path)
+    work_load = len(slides)
+    done = 0
+    for slide_path in slides:
+        divide(slide_path)
+        done += 1
+        show_progress(done, work_load, status='Please wait')
 
 if __name__ == '__main__':
     main()

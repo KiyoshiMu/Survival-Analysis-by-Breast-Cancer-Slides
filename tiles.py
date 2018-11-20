@@ -1,6 +1,5 @@
 import openslide
 import os
-import cv2
 import sys
 import numpy as np
 
@@ -12,7 +11,7 @@ def read_files(path):
     #         yield os.path.join(path, f)
     return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
-def divide(slide_path, level=1, width_rel=250):
+def divide(slide_path, out_dir, level=1, width_rel=250):
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width.
     Slide_path: the path of the target slide, str; 
@@ -33,7 +32,8 @@ def divide(slide_path, level=1, width_rel=250):
     cwp = os.getcwd()
     case_name = os.path.basename(slide_path)[:-4]
     # print(case_name)
-    os.makedirs(os.path.join(cwp, case_name), exist_ok=True)
+    out_path = os.path.join(cwp, out_dir, case_name)
+    os.makedirs(out_path, exist_ok=True)
     for i, x in enumerate(widths_point):
         for j, y in enumerate(heights_point):
             # locate start point
@@ -53,7 +53,7 @@ def divide(slide_path, level=1, width_rel=250):
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(cwp, case_name, '{:02d}{:02d}.png'.format(j, i))
+            fp = os.path.join(out_path, '{:02d}{:02d}.png'.format(j, i))
             resize_image.save(fp)
     
 def is_useless(image):
@@ -81,12 +81,13 @@ def show_progress(cur_done, total, status='', bar_length=60):
     sys.stdout.flush()
 
 def main():
-    path = os.getcwd()
+    path = sys.argv[1]
     slides = read_files(path)
     work_load = len(slides)
     done = 0
+    out_dir = sys.argv[2]
     for slide_path in slides:
-        divide(slide_path)
+        divide(slide_path, out_dir)
         done += 1
         show_progress(done, work_load, status='Please wait')
 

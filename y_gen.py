@@ -2,6 +2,7 @@ import random
 import pandas as pd
 import os
 import shutil
+import sys
 from tiles import show_progress
 
 """The 'Target.xlsx' shounld under the current work directory.
@@ -17,15 +18,15 @@ def helper(path, dst, step=10, start=0):
         new = os.path.join(dst, '{:05d}.png'.format(i))
         shutil.copy(old, new)
 
-def case_search(works, step=10):
+def case_search(works, out_dir, step=10):
     """Cases should be put in different directories. 
     After runnung, it formed data and created a y_value.txt.
     works: a list including all the dir names, list;
     step: the number of small images used from a slide, It ranges from 1 to 20, int."""
     # prepare directory and reference data
-    parent = os.path.dirname(cwp)
-    images_path = os.path.join(parent, 'images')
-    os.makedirs(images_path, exist_ok=True)
+    cwp = os.getcwd()
+    out_path = os.path.join(cwp, out_dir)
+    os.makedirs(out_path, exist_ok=True)
     refer = pd.read_excel('Target.xlsx', index_col=[0])
     # begin work
     count = 0
@@ -39,7 +40,7 @@ def case_search(works, step=10):
         except KeyError:
             print('Case {} does not belong to the project.'.format(case_name))
             continue
-        helper(fp, images_path, step=step, start=count)
+        helper(fp, out_path, step=step, start=count)
         # prepare a file to record the relationship between cases and selected small images
         with open('case_to_num.txt', 'a') as c2n:
             line = '{} {} {:05d}\n'.format(f, case_name, count)
@@ -54,19 +55,20 @@ def case_search(works, step=10):
         
         show_progress(done, total, status='y_dataset is under preparation')
 
-def find_dir():
+def find_dir(path):
     res = []
-    for f in os.listdir(cwp):
-        fp = os.path.join(cwp, f)
+    for f in os.listdir(path):
+        fp = os.path.join(path, f)
         # all small images are under directories
         if os.path.isdir(fp):
             res.append(fp)
     return res
             
 def main():
-    works = find_dir()
-    case_search(works)
+    images_path = sys.argv[1]
+    out_dir = sys.argv[2]
+    works = find_dir(images_path)
+    case_search(works, out_dir)
 
 if __name__ == "__main__":
-    cwp = os.getcwd()
     main()

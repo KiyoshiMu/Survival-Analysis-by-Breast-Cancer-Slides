@@ -41,6 +41,7 @@ class Cox(Layer):
 # print('tte_mean_train', tte_mean_train, 'init_alpha: ',init_alpha,'mean uncensored train: ',mean_u)
 
 """SCNN model, mock the exact structure of PNS"""
+# complex
 def gen_model():
     model = Sequential()
     model.add(Conv2D(64, (3, 3), activation='relu', input_shape=(250, 250, 3)))

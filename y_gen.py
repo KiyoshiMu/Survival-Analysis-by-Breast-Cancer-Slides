@@ -12,21 +12,23 @@ the correspondent y values, i.e. 2D arrays.
 def helper(path, dst, step=10, start=0):
     """Under the case directory, we randomly select files to construct data."""
     f_list = os.listdir(path)[1:]
+    if len(f_list) < step:
+        step = len(f_list)
     random.shuffle(f_list)
     for i, f in enumerate(f_list[:step], start):
         old = os.path.join(path, f)
         new = os.path.join(dst, '{:05d}.png'.format(i))
         shutil.copy(old, new)
+    return step
 
-def case_search(works, out_dir, step=10):
+def case_search(works, out_path, step=10):
     """Cases should be put in different directories. 
     After runnung, it formed data and created a y_value.txt.
     works: a list including all the dir names, list;
     step: the number of small images used from a slide, It ranges from 1 to 20, int."""
     # prepare directory and reference data
-    cwp = os.getcwd()
-    out_path = os.path.join(cwp, out_dir)
-    os.makedirs(out_path, exist_ok=True)
+    dst_images = os.path.join(out_path, 'dataset')
+    os.makedirs(dst_images, exist_ok=True)
     refer = pd.read_excel('Target.xlsx', index_col=[0])
     # begin work
     count = 0
@@ -40,15 +42,15 @@ def case_search(works, out_dir, step=10):
         except KeyError:
             print('Case {} does not belong to the project.'.format(case_name))
             continue
-        helper(fp, out_path, step=step, start=count)
+        done_time = helper(fp, dst_images, step=step, start=count)
         # prepare a file to record the relationship between cases and selected small images
         with open('case_to_num.txt', 'a') as c2n:
             line = '{} {} {:05d}\n'.format(f, case_name, count)
             c2n.write(line)
         # form the y value for each small image
-        with open('y_values.txt', 'a') as y:
+        with open(os.path.join(out_path,'y_values.txt'), 'a') as y:
             
-            for _ in range(step):
+            for _ in range(done_time):
                 count += 1
                 line = '{:05d} {} {}\n'.format(count, duration, event)
                 y.write(line)
@@ -66,9 +68,9 @@ def find_dir(path):
             
 def main():
     images_path = sys.argv[1]
-    out_dir = sys.argv[2]
+    out_path = sys.argv[2]
     works = find_dir(images_path)
-    case_search(works, out_dir)
+    case_search(works, out_path)
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,6 @@
 from keras.models import Sequential
-from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import img_to_array, ImageDataGenerator
 from keras.layers import MaxPooling2D, Conv2D, Flatten, Dense, Dropout, BatchNormalization, Lambda
-from keras.preprocessing.image import ImageDataGenerator
 from keras.engine.topology import Layer
 from keras import backend as K
 from keras.optimizers import Adagrad, RMSprop
@@ -119,6 +118,10 @@ def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size):
     y_train = (pd.read_csv(y_train_p, delimiter=r'\s+', index_col=0)).values
     x_val = read_dir(x_val_p)
     y_val = (pd.read_csv(y_val_p, delimiter=r'\s+', index_col=0)).values
+    print('{} training images have prepared, shape is {}\
+    and {}'.format(len(x_train), np.shape(x_train), np.shape(y_train)))
+    print('{} validation images have prepared, shape is {}\
+    and {}'.format(len(x_val), np.shape(x_val), np.shape(y_val)))
 
     cheak_list = [EarlyStopping(monitor='loss', patience=10),
                 ModelCheckpoint(filepath=os.path.join(dst, 'modelcc.h5')
@@ -141,6 +144,7 @@ def read_dir(dir_path):
     for f in os.listdir(dir_path):
         imagePath = os.path.join(dir_path, f)
         image = cv2.imread(imagePath)
+        image = cv2.resize(image, (250, 250))
         image = img_to_array(image)
         data.append(image)
     return np.array(data, dtype="float")

@@ -42,7 +42,7 @@ def case_search(works, out_path, step=10):
         except KeyError:
             print('Case {} does not belong to the project.'.format(case_name))
             continue
-        done_time = helper(fp, dst_images, step=step, start=count)
+        done_images = helper(fp, dst_images, step=step, start=count)
         # prepare a file to record the relationship between cases and selected small images
         with open('case_to_num.txt', 'a') as c2n:
             line = '{} {} {:05d}\n'.format(f, case_name, count)
@@ -50,7 +50,7 @@ def case_search(works, out_path, step=10):
         # form the y value for each small image
         with open(os.path.join(out_path,'y_values.txt'), 'a') as y:
             
-            for _ in range(done_time):
+            for _ in range(done_images):
                 count += 1
                 line = '{:05d} {} {}\n'.format(count, duration, event)
                 y.write(line)

@@ -188,7 +188,7 @@ def main():
     x_val_p = sys.argv[3]
     y_val_p = sys.argv[4]
     dst = sys.argv[5]
-    batch_size = sys.argv[6]
+    batch_size = int(sys.argv[6])
     os.makedirs(dst, exist_ok=True)
     run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size)
 

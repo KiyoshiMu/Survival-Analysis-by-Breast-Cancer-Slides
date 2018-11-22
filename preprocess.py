@@ -24,11 +24,11 @@ def train_val_test(x_strat, y_start, dst):
             begin = os.path.join(x_strat, file_name)
             end = os.path.join(end_path, file_name)
             shutil.copy(begin, end)
-        start_point = end_point
         # y data prepare
         y = Y.iloc[desk[start_point:end_point]]
         y = y.sort_index()
         y.to_csv(os.path.join(dst, '{}.txt'.format(dir_name)), index=False, sep=' ')
+        start_point = end_point
 
 if __name__ == '__main__':
     x_strat = sys.argv[1]

@@ -24,12 +24,15 @@ def train_val_test(x_strat, y_start, dst):
             begin = os.path.join(x_strat, file_name)
             end = os.path.join(end_path, file_name)
             shutil.copy(begin, end)
+        start_point = end_point
         # y data prepare
         y = Y.iloc[desk[start_point:end_point]]
+        y.sort_index(inplace=True)
         y.to_csv(os.path.join(dst, '{}.txt'.format(dir_name)), index=False, sep=' ')
 
 if __name__ == '__main__':
     x_strat = sys.argv[1]
     y_start = sys.argv[2]
     dst = sys.argv[3]
+    ramdon.seed(42)
     train_val_test(x_strat, y_start, dst)

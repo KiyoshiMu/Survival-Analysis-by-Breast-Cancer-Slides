@@ -38,7 +38,7 @@ def case_search(works, out_path, step=10):
     with open(os.path.join(out_path,'case_to_num.txt'), 'w') as c2n:
         c2n.write('f_name, case_name, count\n')
     with open(os.path.join(out_path,'y_values.txt'), 'w') as y:
-        y.write('count duration event\n')
+        y.write('id duration event\n')
 
     for done, fp in enumerate(works, start=1):
         f = os.path.split(fp)[-1]

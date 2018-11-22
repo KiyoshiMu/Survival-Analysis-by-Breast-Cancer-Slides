@@ -33,6 +33,13 @@ def case_search(works, out_path, step=10):
     # begin work
     count = 0
     total = len(works)
+
+    # write headers 
+    with open(os.path.join(out_path,'case_to_num.txt'), 'w') as c2n:
+        c2n.write('f_name, case_name, count\n')
+    with open(os.path.join(out_path,'y_values.txt'), 'w') as y:
+        y.write('count duration event\n')
+
     for done, fp in enumerate(works, start=1):
         f = os.path.split(fp)[-1]
         # the case name is formed by the front 12 characters of each slide name
@@ -44,12 +51,11 @@ def case_search(works, out_path, step=10):
             continue
         done_images = helper(fp, dst_images, step=step, start=count)
         # prepare a file to record the relationship between cases and selected small images
-        with open('case_to_num.txt', 'a') as c2n:
+        with open(os.path.join(out_path,'case_to_num.txt'), 'a') as c2n:
             line = '{} {} {:05d}\n'.format(f, case_name, count)
             c2n.write(line)
         # form the y value for each small image
         with open(os.path.join(out_path,'y_values.txt'), 'a') as y:
-            
             for _ in range(done_images):
                 count += 1
                 line = '{:05d} {} {}\n'.format(count, duration, event)

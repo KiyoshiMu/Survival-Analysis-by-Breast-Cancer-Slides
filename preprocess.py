@@ -27,7 +27,7 @@ def train_val_test(x_strat, y_start, dst):
         start_point = end_point
         # y data prepare
         y = Y.iloc[desk[start_point:end_point]]
-        y.sort_index(inplace=True)
+        y = y.sort_index()
         y.to_csv(os.path.join(dst, '{}.txt'.format(dir_name)), index=False, sep=' ')
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ def train_val_test(x_strat, y_start, dst):
 
     total = len(X)
     train_num = int(total * 0.8)
-    val_num = int(total * 0.1)
+    val_num = int(total * 0.9)
     start_point = 0
     desk = list(range(total))
     random.shuffle(desk)
@@ -34,5 +34,5 @@ if __name__ == '__main__':
     x_strat = sys.argv[1]
     y_start = sys.argv[2]
     dst = sys.argv[3]
-    ramdon.seed(42)
+    random.seed(42)
     train_val_test(x_strat, y_start, dst)

@@ -1,4 +1,5 @@
 from keras.models import Sequential
+from keras.preprocessing.image import img_to_array
 from keras.layers import MaxPooling2D, Conv2D, Flatten, Dense, Dropout, BatchNormalization, Lambda
 from keras.preprocessing.image import ImageDataGenerator
 from keras.engine.topology import Layer
@@ -115,9 +116,9 @@ def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size):
     model = gen_model()
     print(model.summary())
     x_train = read_dir(x_train_p)
-    y_train = (pd.read_csv(y_train_p, delimiter=r'\s+', index_col=0)).value
+    y_train = (pd.read_csv(y_train_p, delimiter=r'\s+', index_col=0)).values
     x_val = read_dir(x_val_p)
-    y_val = (pd.read_csv(y_val_p, delimiter=r'\s+', index_col=0)).value
+    y_val = (pd.read_csv(y_val_p, delimiter=r'\s+', index_col=0)).values
 
     cheak_list = [EarlyStopping(monitor='loss', patience=10),
                 ModelCheckpoint(filepath=os.path.join(dst, 'modelcc.h5')
@@ -140,7 +141,7 @@ def read_dir(dir_path):
     for f in os.listdir(dir_path):
         imagePath = os.path.join(dir_path, f)
         image = cv2.imread(imagePath)
-        image = cv2.img_to_array(image)
+        image = img_to_array(image)
         data.append(image)
     return data
 
@@ -184,7 +185,7 @@ def main():
     y_val_p = sys.argv[4]
     dst = sys.argv[5]
     batch_size = sys.argv[6]
-
+    os.makedirs(dst, exist_ok=True)
     run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size)
 
 if __name__ == "__main__":

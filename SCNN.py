@@ -143,7 +143,7 @@ def read_dir(dir_path):
         image = cv2.imread(imagePath)
         image = img_to_array(image)
         data.append(image)
-    return data
+    return np.array(data, dtype="float")
 
 def data_flow():
     aug = ImageDataGenerator(

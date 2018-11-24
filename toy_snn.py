@@ -17,8 +17,8 @@ def negative_log_likelihood(E):
 		log_risk = K.log(K.cumsum(hazard_ratio))
 		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
-		
-		return K.sum(censored_likelihood) / K.sum(E) * (-1)
+		num_observed_event = K.sum([int(e) for e in E])
+		return K.sum(censored_likelihood) / num_observed_event * (-1)
 	return loss
 
 def gen_model(input_shape):

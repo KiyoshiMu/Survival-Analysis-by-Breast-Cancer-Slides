@@ -8,9 +8,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from lifelines.utils import concordance_index
 import numpy as np
 import pandas as pd
-import os
-import sys
-import cv2
+import os ,sys, cv2, random
 import matplotlib.pyplot as plt
 
 #Loss Function
@@ -20,7 +18,7 @@ def negative_log_likelihood(E):
 		log_risk = K.log(K.cumsum(hazard_ratio))
 		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
-		neg_likelihood = K.sum(censored_likelihood) / K.sum(E) * (-1)
+		neg_likelihood = K.sum(censored_likelihood) * (-1)
 		return neg_likelihood
 	return loss
 
@@ -51,17 +49,16 @@ def gen_model():
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01)))
     return model
 
-def read_dir(dir_path):
+def read_dir(dir_path, time):
     data = []
-    pool = os.listdir(dir_path)
-    pool.sort(key=lambda x:int(x.split('.')[0]))
-    for f in os.listdir(dir_path):
-        imagePath = os.path.join(dir_path, f)
+    pool = random.sample(dir_path, time)
+    for imagePath in os.listdir(pool):
         image = cv2.imread(imagePath)
         image = cv2.resize(image, (256, 256))
         image = img_to_array(image)
         data.append(image)
-    return np.array(data, dtype="float")
+    sample = [int(os.path.basename(f).split('.')[0]) for f in pool]
+    return np.array(data, dtype="float"), sample
 
 def data_flow():
     aug = ImageDataGenerator(
@@ -96,9 +93,9 @@ def plot_process(history, dst):
     plt.legend()
     plt.savefig(os.path.join(dst, 'Training and validation loss.png'), dpi=300)
 
-def gen_data(x_p, y_p):
-    x = read_dir(x_p)
-    y = pd.read_csv(y_p, delimiter=r'\s+', index_col=0)
+def gen_data(x_p, y_dataset, amount):
+    x, samples = read_dir(x_p, amount)
+    y = y_dataset[samples]
     E = y['event'].values
     T = y['duration'].values
     #Sorting for NNL!
@@ -115,31 +112,34 @@ def eval(model, x, y, e):
     ci=concordance_index(y,-hr_pred,e)
     return ci
 
-def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size):
+def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size, epochs=300):
     model = gen_model()
     print(model.summary())
-    x_train, y_train, e_train = gen_data(x_train_p, y_train_p)
-    x_val, y_val, e_val = gen_data(x_val_p, y_val_p)
-    print('{} training images have prepared, shape is {}\
-    and {}'.format(len(x_train), np.shape(x_train), np.shape(y_train)))
-    print('{} validation images have prepared, shape is {}\
-    and {}'.format(len(x_val), np.shape(x_val), np.shape(y_val)))
-
+    y_train_dataset = pd.read_csv(y_train_p, delimiter=r'\s+', index_col=0)
+    y_val_dataset = pd.read_csv(y_val_p, delimiter=r'\s+', index_col=0)
+    x_train_p = [os.path.join(x_train_p, f) for f in os.listdir(x_train_p)]
+    x_val_p = [os.path.join(x_val_p, f) for f in os.listdir(x_val_p)]
     ada = Adagrad(lr=1e-3, decay=0.1)
     # rmsprop=RMSprop(lr=1e-5, rho=0.9, epsilon=1e-8)
-    model.compile(loss=negative_log_likelihood(e_train), optimizer=ada)
-
     cheak_list = [EarlyStopping(monitor='loss', patience=10),
                 ModelCheckpoint(filepath=os.path.join(dst, 'modelcc.h5')
                 , monitor='loss', save_best_only=True),
                 TensorBoard(log_dir=os.path.join(dst, 'cell_log'), 
                 histogram_freq=0)]
-
     aug = data_flow()
-    history = model.fit_generator(
+
+    for i in range(epochs):
+        model.compile(loss=negative_log_likelihood(e_train), optimizer=ada)
+        x_train, y_train, e_train = gen_data(x_train_p, y_train_dataset, batch_size)
+        x_val, y_val, e_val = gen_data(x_val_p, y_val_dataset, amount=100)
+    # print('{} training images have prepared, shape is {}\
+    # and {}'.format(len(x_train), np.shape(x_train), np.shape(y_train)))
+    # print('{} validation images have prepared, shape is {}\
+    # and {}'.format(len(x_val), np.shape(x_val), np.shape(y_val)))
+        model.fit_generator(
         aug.flow(x_train, y_train, batch_size=batch_size),
-        steps_per_epoch=len(x_train) // batch_size,
-        epochs=300,
+        steps_per_epoch=1,
+        epochs=1,
         callbacks=cheak_list,
         shuffle=False)
     
@@ -150,7 +150,7 @@ def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size):
                 Concordance Index for validation dataset:{}'.format(ci, ci_val)
         out.write(line)
 
-    plot_process(history, dst)
+    # plot_process(history, dst)
 
 def main():
     x_train_p = sys.argv[1]

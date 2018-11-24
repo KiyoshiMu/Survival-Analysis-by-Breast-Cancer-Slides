@@ -18,7 +18,7 @@ def negative_log_likelihood(E):
 	def loss(y_true,y_pred):
 		hazard_ratio = K.exp(y_pred)
 		log_risk = K.log(K.cumsum(hazard_ratio))
-		uncensored_likelihood = y_pred.T - log_risk
+		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
 		neg_likelihood = K.sum(censored_likelihood) * (-1)
 		return neg_likelihood
@@ -99,8 +99,8 @@ def plot_process(history, dst):
 def gen_data(x_p, y_p):
     x = read_dir(x_p)
     y = pd.read_csv(y_p, delimiter=r'\s+', index_col=0)
-    E = y['event']
-    T = y['duration']
+    E = y['event'].values
+    T = y['duration'].values
     #Sorting for NNL!
     sort_idx = np.argsort(T)[::-1] #!
     x=x[sort_idx]

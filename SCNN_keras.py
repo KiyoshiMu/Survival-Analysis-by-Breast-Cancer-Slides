@@ -20,7 +20,7 @@ def negative_log_likelihood(E):
 		log_risk = K.log(K.cumsum(hazard_ratio))
 		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
-		neg_likelihood = K.sum(censored_likelihood) * (-1)
+		neg_likelihood = K.sum(censored_likelihood) / K.sum(E) * (-1)
 		return neg_likelihood
 	return loss
 
@@ -103,9 +103,9 @@ def gen_data(x_p, y_p):
     T = y['duration'].values
     #Sorting for NNL!
     sort_idx = np.argsort(T)[::-1] #!
-    x=x[sort_idx]
-    T=T[sort_idx]
-    E=E[sort_idx]
+    x = x[sort_idx]
+    T = T[sort_idx]
+    E = E[sort_idx]
 
     return x, T, E
 

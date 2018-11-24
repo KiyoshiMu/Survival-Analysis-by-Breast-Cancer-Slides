@@ -18,7 +18,7 @@ def negative_log_likelihood(E):
 		log_risk = K.log(K.cumsum(hazard_ratio))
 		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
-		num_observed_event = K.sum([float(e) for e in E]) or 1
+		num_observed_event = K.sum([float(e) for e in E]) + 1
 		return K.sum(censored_likelihood) / num_observed_event * (-1)
 	return loss
 
@@ -57,7 +57,8 @@ def read_dir(dir_path, time):
         image = cv2.resize(image, (256, 256))
         image = img_to_array(image)
         data.append(image)
-    sample = [int(os.path.basename(f).split('.')[0]) for f in pool]
+    # change the sample line later !!!
+    sample = [int(os.path.basename(f).split('.')[0])-1 for f in pool]
     return np.array(data, dtype="float"), sample
 
 def data_flow():

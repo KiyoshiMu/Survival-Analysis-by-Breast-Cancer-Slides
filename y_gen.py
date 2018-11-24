@@ -57,9 +57,9 @@ def case_search(works, out_path, step=10):
         # form the y value for each small image
         with open(os.path.join(out_path,'y_values.txt'), 'a') as y:
             for _ in range(done_images):
-                count += 1
                 line = '{:05d} {} {}\n'.format(count, duration, event)
                 y.write(line)
+                count += 1
         
         show_progress(done, total, status='y_dataset is under preparation')
 

@@ -95,7 +95,7 @@ def plot_process(history, dst):
 
 def gen_data(x_p, y_dataset, amount):
     x, samples = read_dir(x_p, amount)
-    y = y_dataset[samples]
+    y = y_dataset.loc[samples]
     E = y['event'].values
     T = y['duration'].values
     #Sorting for NNL!

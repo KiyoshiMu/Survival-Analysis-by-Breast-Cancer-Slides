@@ -34,9 +34,9 @@ def gen_model():
     model.add(BatchNormalization())
     model.add(MaxPooling2D())
 
-    model.add(SeparableConv2D(256, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D())
+    # model.add(SeparableConv2D(256, (3, 3), activation='relu', padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(MaxPooling2D())
 
     model.add(SeparableConv2D(128, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
@@ -58,7 +58,7 @@ def read_dir(dir_path, time):
         image = img_to_array(image)
         data.append(image)
     # change the sample line later !!!
-    sample = [int(os.path.basename(f).split('.')[0])-1 for f in pool]
+    sample = [int(os.path.basename(f).split('.')[0])+1 for f in pool]
     return np.array(data, dtype="float"), sample
 
 def data_flow():

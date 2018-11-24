@@ -52,7 +52,7 @@ def gen_model():
 def read_dir(dir_path, time):
     data = []
     pool = random.sample(dir_path, time)
-    for imagePath in os.listdir(pool):
+    for imagePath in pool:
         image = cv2.imread(imagePath)
         image = cv2.resize(image, (256, 256))
         image = img_to_array(image)

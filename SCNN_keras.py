@@ -2,7 +2,7 @@ from keras.models import Sequential
 from keras.preprocessing.image import img_to_array, ImageDataGenerator
 from keras.layers import MaxPooling2D, SeparableConv2D, Flatten, Dense, Dropout, BatchNormalization
 from keras import backend as K
-from keras.regularizers import l2, activity_l2
+from keras.regularizers import l2
 from keras.optimizers import Adagrad, RMSprop
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from lifelines.utils import concordance_index
@@ -47,8 +47,8 @@ def gen_model():
     model.add(Flatten())
     model.add(Dense(256))
     model.add(Dropout(0.3))
-    model.add(Dense(1, activation="linear", init='glorot_uniform', 
-    W_regularizer=l2(0.01), activity_regularizer=activity_l2(0.01)))
+    model.add(Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
+    kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01)))
     return model
 
 def read_dir(dir_path):

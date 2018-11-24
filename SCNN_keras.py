@@ -18,10 +18,10 @@ def negative_log_likelihood(E):
 		log_risk = K.log(K.cumsum(hazard_ratio))
 		uncensored_likelihood = K.transpose(y_pred) - log_risk
 		censored_likelihood = uncensored_likelihood * E
-		neg_likelihood = K.sum(censored_likelihood) * (-1)
-		return neg_likelihood
+		num_observed_event = K.sum([int(e) for e in E]) or 1
+		return K.sum(censored_likelihood) / num_observed_event * (-1)
 	return loss
-
+    
 """SCNN model, a much small structure of PNS"""
 # complex
 def gen_model():
@@ -128,7 +128,7 @@ def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size, epochs=30
                 histogram_freq=0)]
     aug = data_flow()
 
-    for i in range(epochs):
+    for _ in range(epochs):
         model.compile(loss=negative_log_likelihood(e_train), optimizer=ada)
         x_train, y_train, e_train = gen_data(x_train_p, y_train_dataset, batch_size)
         x_val, y_val, e_val = gen_data(x_val_p, y_val_dataset, amount=100)

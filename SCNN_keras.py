@@ -129,20 +129,22 @@ def run_model(x_train_p, y_train_p, x_val_p, y_val_p, dst, batch_size, epochs=30
     aug = data_flow()
 
     for _ in range(epochs):
-        model.compile(loss=negative_log_likelihood(e_train), optimizer=ada)
+        
         x_train, y_train, e_train = gen_data(x_train_p, y_train_dataset, batch_size)
         x_val, y_val, e_val = gen_data(x_val_p, y_val_dataset, amount=100)
     # print('{} training images have prepared, shape is {}\
     # and {}'.format(len(x_train), np.shape(x_train), np.shape(y_train)))
     # print('{} validation images have prepared, shape is {}\
     # and {}'.format(len(x_val), np.shape(x_val), np.shape(y_val)))
+        model.compile(loss=negative_log_likelihood(e_train), optimizer=ada)
         model.fit_generator(
         aug.flow(x_train, y_train, batch_size=batch_size),
         steps_per_epoch=1,
         epochs=1,
         callbacks=cheak_list,
         shuffle=False)
-    
+
+    x_train, y_train, e_train = gen_data(x_train_p, y_train_dataset, 1000)
     ci = eval(model, x_train, y_train, e_train)
     ci_val = eval(model, x_val, y_val, e_val)
     with open(os.path.join(dst, 'outcome.txt'), 'w+') as out:

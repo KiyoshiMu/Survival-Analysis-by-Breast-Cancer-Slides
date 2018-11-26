@@ -1,3 +1,6 @@
+import os
+os.environ['KERAS_BACKEND'] = 'tensorflow'
+
 from keras.models import Sequential
 from keras.preprocessing.image import img_to_array, ImageDataGenerator
 from keras.layers import MaxPooling2D, SeparableConv2D, Flatten, Dense, Dropout, BatchNormalization
@@ -8,7 +11,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from lifelines.utils import concordance_index
 import numpy as np
 import pandas as pd
-import os ,sys, cv2, random
+import sys, cv2, random
 import matplotlib.pyplot as plt
 
 #Loss Function
@@ -58,7 +61,7 @@ def read_dir(dir_path, time):
         image = img_to_array(image)
         data.append(image)
     # change the sample line later !!!
-    sample = [int(os.path.basename(f).split('.')[0])+1 for f in pool]
+    sample = [int(os.path.basename(f).split('.')[0]) for f in pool]
     return np.array(data, dtype="float"), sample
 
 def data_flow():

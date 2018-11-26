@@ -11,15 +11,18 @@ def read_files(path):
     #         yield os.path.join(path, f)
     return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
-def divide(slide_path, out_dir, level=1, width_rel=250):
+def divide(slide_path, out_dir, level=1, width_rel=256, mag=0.5):
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width.
     Slide_path: the path of the target slide, str; 
     level: varying definition of images, 0 is the largest, int;
-    width_rel: the width and the length of output images, int."""
-    # read slide, here we downsize 400 (20*20) times
+    width_rel: the width and the length of output images, int.
+    mag: the magnitude or the object power, float"""
+    # Read slide. level 0 is mag X40, level 1 is mag X10 and so on.
+    # here we downsize 400 (20*20) times  (20 = level 1 's mag X10 / mag)
     large_image = openslide.OpenSlide(slide_path)
-    tile = width_rel * 20
+    time = 10 / mag
+    tile = width_rel * time
     # get reference and target location
     dimensions = large_image.level_dimensions
     dimension_ref = dimensions[0]

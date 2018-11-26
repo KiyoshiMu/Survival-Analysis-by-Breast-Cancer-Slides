@@ -23,9 +23,12 @@ def negative_log_likelihood(E):
 
 def gen_model(input_shape):
     model = Sequential()
-    model.add(Dense(64, activation='relu', kernel_initializer='glorot_uniform',
+    model.add(Dense(128, activation='relu', kernel_initializer='glorot_uniform',
     input_shape=input_shape))
-    model.add(Dense(64, activation='relu', kernel_initializer='glorot_uniform'))
+    model.add(Dense(128, activation='relu', kernel_initializer='glorot_uniform'))
+    model.add(Dropout(0.7))
+    # model.add(Dense(128, activation='relu', kernel_initializer='glorot_uniform'))
+    # model.add(Dropout(0.5))
     model.add(Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01)))
 
@@ -47,7 +50,7 @@ def gen_data(fp):
 def run_model(fp, dst):
     x, t_e = gen_data(fp)
     x_train, x_test, t_e_train, t_e_test = train_test_split(x, t_e, test_size=0.2, random_state=42)
-    print(t_e_train[:10])
+    # print(t_e_train[:10])
     y_train, e_train = t_e_train[:, 0], t_e_train[:, 1]
     y_test, e_test = t_e_test[:, 0], t_e_test[:, 1]
 
@@ -76,6 +79,7 @@ def run_model(fp, dst):
         x_train, y_train,
         batch_size=len(e_train),
         epochs=10000,
+        verbose=False,
         callbacks=cheak_list,
         shuffle=False)
     
@@ -85,6 +89,7 @@ def run_model(fp, dst):
     with open(os.path.join(dst, 'toy_outcome.txt'), 'w+') as out:
         line = 'Concordance Index for training dataset:{},\
                 Concordance Index for test dataset:{}'.format(ci, ci_val)
+        print(line)
         out.write(line)
 
 if __name__ == "__main__":

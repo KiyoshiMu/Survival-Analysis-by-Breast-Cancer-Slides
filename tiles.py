@@ -3,18 +3,18 @@ import os
 import sys
 import numpy as np
 
-def read_files(path):
+def read_files(path: str) -> list:
     """From a dir read the .svs files, then we can divide the large slide into small ones
-    path: the path of all .svs files, str."""
+    path: the path of all .svs files."""
     # for f in os.listdir(path):
     #     if f[-4:] == '.svs':
     #         yield os.path.join(path, f)
     return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
-def divide(slide_path, out_dir, level=1, width_rel=256, mag=0.5):
+def divide(slide_path: str, out_dir: str, level=1, width_rel=256, mag=0.5) -> None:
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width.
-    Slide_path: the path of the target slide, str; 
+    Slide_path: the path of the target slide; 
     level: varying definition of images, 0 is the largest, int;
     width_rel: the width and the length of output images, int.
     mag: the magnitude or the object power, float"""
@@ -59,7 +59,7 @@ def divide(slide_path, out_dir, level=1, width_rel=256, mag=0.5):
             fp = os.path.join(out_path, '{:02d}{:02d}.png'.format(j, i))
             resize_image.save(fp)
     
-def is_useless(image):
+def is_useless(image) -> bool:
     """Help to judge whether the small image is informative.
     If a image has more information, it should be darker in gray mode.
     image: a Pillow object"""
@@ -71,10 +71,10 @@ def is_useless(image):
     # to select the informative images.
     return np.mean(gray) > 230
 
-def show_progress(cur_done, total, status='', bar_length=60):
+def show_progress(cur_done: int, total: int, status='', bar_length=60):
     """Show the progress on the terminal.
-    cur_done: the number of finished work, int;
-    totoal: the number of overall work, int;
+    cur_done: the number of finished work;
+    totoal: the number of overall work;
     status: trivial words, str;
     bar_length: the length of bar showing on the screen, int."""
     percent = cur_done / total

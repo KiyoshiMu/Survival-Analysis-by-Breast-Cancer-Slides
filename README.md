@@ -22,6 +22,14 @@ Luckily, the GDC download software (GDC Data Transfer Tool) published by NIH hav
 
 TODO
 
+## Progress
+
+Search the cancer location on the server by other programs like the Baidu's ncrf or SCNN.
+
+Using the location of cancer, I could get the patch in which only important cancar areas are.
+
+Download the patches, I can use the computer with GPU to train my own model.
+
 ## Links
 
 [Data Source]

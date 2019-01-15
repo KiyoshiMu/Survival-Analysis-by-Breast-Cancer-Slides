@@ -19,7 +19,7 @@ def read_lowest(svs_p):
 
 def output_lowest(svs_p, dst):
     image = read_lowest(svs_p)
-    fn = get_name(svs_p)
+    fn = f'{get_name(svs_p)}.png'
     fp = os.path.join(dst, fn)
     image.save(fp)
 
@@ -28,7 +28,20 @@ def process_dir(dir_p, dst):
     for slide_p in get_files(dir_p):
         output_lowest(slide_p, dst)
 
+def collect_power(dir_p, dst):
+    os.makedirs(dst, exist_ok=True)
+    with open(os.path.join(dst, 'power.txt'), 'w+') as recorder:
+        recorder.write('Name\tPower\n')
+        for slide_p in get_files(dir_p):
+            power = openslide.OpenSlide(slide_p).properties.get('openslide.objective-power', 0)
+            line = f'{get_name(slide_p)}\t{power}\n'
+            recorder.write(line)
+
 if __name__ == "__main__":
     dir_p = sys.argv[1]
     dst = sys.argv[2]
-    process_dir(dir_p, dst)
+    func = sys.argv[3]
+    if func == 'view':
+        process_dir(dir_p, dst)
+    else:
+        collect_power(dir_p, dst)

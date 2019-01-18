@@ -11,19 +11,20 @@ def read_files(path: str) -> list:
     #         yield os.path.join(path, f)
     return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
-def divide(slide_path: str, out_dir: str, level=1, width_rel=256, mag=0.5) -> None:
+def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None:
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width.
     Slide_path: the path of the target slide; 
     level: varying definition of images, 0 is the largest, int;
     width_rel: the width and the length of output images, int.
     mag: the magnitude or the object power, float"""
-    # Read slide. level 0 is mag X40, level 1 is mag X10 and so on.
-    # here we downsize 400 (20*20) times  (20 = level 1 's mag X10 / mag)
+    # Read slide. level 0 is mag X40 or X20.
+    # here we downsize ((level 0 's mag / mag)**2) times  
     large_image = openslide.OpenSlide(slide_path)
-    time = 10 / mag
+    ori_mag = int(large_image.properties.get('openslide.objective-power'))
+    time = ori_mag / mag
     tile = width_rel * time
-    # get reference and target location
+    # get reference and target location, use a reference level instead of the maxiumn power level may make reduce the cose of resize
     dimensions = large_image.level_dimensions
     dimension_ref = dimensions[0]
     dimension = dimensions[level]
@@ -56,7 +57,7 @@ def divide(slide_path: str, out_dir: str, level=1, width_rel=256, mag=0.5) -> No
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(out_path, '{:02d}{:02d}.png'.format(j, i))
+            fp = os.path.join(out_path, '{:010d}{:010d}.png'.format(j, i))
             resize_image.save(fp)
     
 def is_useless(image) -> bool:

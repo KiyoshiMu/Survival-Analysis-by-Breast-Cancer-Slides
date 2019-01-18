@@ -29,7 +29,7 @@ def get_name(slide_path):
     case_name = os.path.splitext(os.path.basename(slide_path))[0]
     return case_name
 
-def logger():
+def gen_logger():
     logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
@@ -47,7 +47,7 @@ def divide_prepare(slide_path, width:int):
 
     dimensions = slide.level_dimensions
     dimension_ref = dimensions[0]
-    ratio = int(properties.get(f'openslide.level[{str(level)}].downsample'))
+    ratio = round(float(properties.get(f'openslide.level[{str(level)}].downsample')))
     ori_mag = int(properties.get('openslide.objective-power'))
     d_step = width * ratio
 
@@ -132,9 +132,9 @@ def is_useless(image) -> bool:
     """Help to judge whether the small image is informative.
     If a image has more information, it should be darker in gray mode.
     image: a Pillow object"""
-    # if the width different from the height, it's the marginal part.
-    if image.width != image.height:
-        return True
+    # # if the width different from the height, it's the marginal part.
+    # if image.width != image.height:
+    #     return True
     gray = image.convert("L")
     # 230 is a magic number, and it is not good. However, currently, I haven't found a better way
     # to select the informative images.
@@ -158,6 +158,7 @@ def main():
     work_load = len(slides)
     done = 0
     out_dir = sys.argv[2]
+    gen_logger()
     for slide_path in slides:
         devide_certain(slide_path, out_dir)
         done += 1

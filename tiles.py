@@ -18,7 +18,7 @@ def base_10x(properties:dict) ->int and bool:
     level_count = int(properties.get('openslide.level-count', 0))
     assert ori_mag != 0 and level_count != 0
     for level in range(1, level_count, 1):
-        ratio = int(properties.get(f'openslide.level[{str(level)}].downsample', 0))
+        ratio = round(float(properties.get(f'openslide.level[{str(level)}].downsample', 0)))
         assert ratio != 0
         if ori_mag / ratio == 10:
             return level, True

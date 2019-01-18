@@ -23,7 +23,7 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
     large_image = openslide.OpenSlide(slide_path)
     ori_mag = int(large_image.properties.get('openslide.objective-power'))
     time = ori_mag / mag
-    tile = width_rel * time
+    tile = int(width_rel * time)
     # get reference and target location, use a reference level instead of the maxiumn power level may make reduce the cose of resize
     dimensions = large_image.level_dimensions
     dimension_ref = dimensions[0]

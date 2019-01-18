@@ -2,6 +2,7 @@ import openslide
 import os
 import sys
 import numpy as np
+import logging
 
 def read_files(path: str) -> list:
     """From a dir read the .svs files, then we can divide the large slide into small ones
@@ -11,6 +12,73 @@ def read_files(path: str) -> list:
     #         yield os.path.join(path, f)
     return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
 
+def base_10x(properties:dict) ->int and bool:
+    
+    ori_mag = int(properties.get('openslide.objective-power', 0))
+    level_count = int(properties.get('openslide.level-count', 0))
+    assert ori_mag != 0 and level_count != 0
+    for level in range(1, level_count, 1):
+        ratio = int(properties.get(f'openslide.level[{str(level)}].downsample', 0))
+        assert ratio != 0
+        if ori_mag / ratio == 10:
+            return level, True
+        elif ori_mag / ratio < 10:
+            return level-1, False
+
+def get_name(slide_path):
+    case_name = os.path.splitext(os.path.basename(slide_path))[0]
+    return case_name
+
+def logger():
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='dividing.log',
+                    filemode='w')
+
+def divide_prepare(slide_path, width:int):
+    slide = openslide.OpenSlide(slide_path)
+    properties = slide.properties
+    try:
+        level, base10 = base_10x(properties)
+    except AssertionError:
+        print(f'{get_name(slide_path)}')
+        return
+
+    dimensions = slide.level_dimensions
+    dimension_ref = dimensions[0]
+    ratio = int(properties.get(f'openslide.level[{str(level)}].downsample'))
+    ori_mag = int(properties.get('openslide.objective-power'))
+    d_step = width * ratio
+
+    if base10:
+        size = (width, width)
+    else:
+        w_new = width * (ori_mag / ratio / 10)
+        size = (w_new, w_new)
+
+    return slide, level, base10, dimension_ref, d_step, size
+
+def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
+    slide, level, base10, dimension_ref, d_step, size = divide_prepare(slide_path, width)
+    # begin segment tiles
+    cwp = os.getcwd()
+    case_name = get_name(slide_path)
+    out_path = os.path.join(cwp, out_dir, case_name)
+    os.makedirs(out_path, exist_ok=True)
+
+    # set start points of tiles
+    for i, x in enumerate(range(0, dimension_ref[0], d_step)):
+        for j, y in enumerate(range(0, dimension_ref[1], d_step)):
+            loc = (x, y)
+            small_image = slide.read_region(location=loc, level=level, size=size)
+            if is_useless(small_image):
+                continue
+            if not base10:
+                small_image = small_image.resize((width, width))
+            fp = os.path.join(out_path, '{:010d}{:010d}.png'.format(j, i))
+            small_image.save(fp)
+        
 def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None:
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width.
@@ -34,7 +102,7 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
     heights_point = list(range(0, dimension_ref[1], tile))
     # begin segment tiles
     cwp = os.getcwd()
-    case_name = os.path.basename(slide_path)[:-4]
+    case_name = get_name(slide_path)
     # print(case_name)
     out_path = os.path.join(cwp, out_dir, case_name)
     os.makedirs(out_path, exist_ok=True)
@@ -91,7 +159,7 @@ def main():
     done = 0
     out_dir = sys.argv[2]
     for slide_path in slides:
-        divide(slide_path, out_dir)
+        devide_certain(slide_path, out_dir)
         done += 1
         show_progress(done, work_load, status='Please wait')
 

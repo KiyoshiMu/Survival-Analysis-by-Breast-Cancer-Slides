@@ -30,11 +30,17 @@ def get_name(slide_path):
     return case_name
 
 def gen_logger():
-    logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename='dividing.log',
-                    filemode='w')
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    formatter = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
+    file_handler = logging.FileHandler('../dividing.log')
+    file_handler.setLevel(logging.ERROR)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
+    return logger
 
 def divide_prepare(slide_path, width:int):
     slide = openslide.OpenSlide(slide_path)
@@ -42,7 +48,7 @@ def divide_prepare(slide_path, width:int):
     try:
         level, base10 = base_10x(properties)
     except AssertionError:
-        print(f'{get_name(slide_path)}')
+        logger.exception(f'{get_name(slide_path)} magnitude power information flows')
         return
 
     dimensions = slide.level_dimensions
@@ -152,17 +158,25 @@ def show_progress(cur_done: int, total: int, status='', bar_length=60):
     sys.stdout.write('[{}] {:.2f}% {}'.format(show, percent*100, status))
     sys.stdout.flush()
 
-def main():
-    path = sys.argv[1]
+def batch_tiling(path, out_dir):
+    filter_func = None
+    if os.path.isdir(out_dir):
+        cache = os.listdir(out_dir)
+        filter_func = lambda x:get_name(x) not in cache
     slides = read_files(path)
     work_load = len(slides)
     done = 0
-    out_dir = sys.argv[2]
-    gen_logger()
-    for slide_path in slides:
-        devide_certain(slide_path, out_dir)
+    
+    for slide_path in filter(filter_func, slides):
+        try:
+            devide_certain(slide_path, out_dir)
+        except:
+            logger.exception(f'{get_name(slide_path)} encountered error in batch')
         done += 1
         show_progress(done, work_load, status='Please wait')
 
+logger = gen_logger()
 if __name__ == '__main__':
-    main()
+    path = sys.argv[1]
+    out_dir = sys.argv[2]
+    batch_tiling(path, out_dir)

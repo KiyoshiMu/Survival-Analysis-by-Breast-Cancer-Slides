@@ -2,18 +2,10 @@ import openslide
 import os
 import sys
 import numpy as np
-import logging
-
-def read_files(path: str) -> list:
-    """From a dir read the .svs files, then we can divide the large slide into small ones
-    path: the path of all .svs files."""
-    # for f in os.listdir(path):
-    #     if f[-4:] == '.svs':
-    #         yield os.path.join(path, f)
-    return [os.path.join(path, i) for i in os.listdir(path) if i[-4:] == '.svs']
+from tqdm import tqdm
+from tools import get_files, get_name, gen_logger
 
 def base_10x(properties:dict) ->int and bool:
-    
     ori_mag = int(properties.get('openslide.objective-power', 0))
     level_count = int(properties.get('openslide.level-count', 0))
     assert ori_mag != 0 and level_count != 0
@@ -24,23 +16,6 @@ def base_10x(properties:dict) ->int and bool:
             return level, True
         elif ori_mag / ratio < 10:
             return level-1, False
-
-def get_name(slide_path):
-    case_name = os.path.splitext(os.path.basename(slide_path))[0]
-    return case_name
-
-def gen_logger():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    formatter = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
-    file_handler = logging.FileHandler('../dividing.log')
-    file_handler.setLevel(logging.ERROR)
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-
-    return logger
 
 def divide_prepare(slide_path, width:int):
     slide = openslide.OpenSlide(slide_path)
@@ -66,6 +41,9 @@ def divide_prepare(slide_path, width:int):
     return slide, level, base10, dimension_ref, d_step, size
 
 def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
+    """The origin slide is too large, the function can segment the large one into small tiles.
+    In this project, we set the height equals to the width. It aims to tile images in 10X power using
+    less resource as possibel"""
     slide, level, base10, dimension_ref, d_step, size = divide_prepare(slide_path, width)
     # begin segment tiles
     cwp = os.getcwd()
@@ -82,7 +60,7 @@ def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
                 continue
             if not base10:
                 small_image = small_image.resize((width, width))
-            fp = os.path.join(out_path, '{:010d}{:010d}.png'.format(j, i))
+            fp = os.path.join(out_path, '{:010d}{:010d}.tif'.format(j, i))
             small_image.save(fp)
         
 def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None:
@@ -131,7 +109,7 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(out_path, '{:010d}{:010d}.png'.format(j, i))
+            fp = os.path.join(out_path, '{:010d}{:010d}.tif'.format(j, i))
             resize_image.save(fp)
     
 def is_useless(image) -> bool:
@@ -146,34 +124,22 @@ def is_useless(image) -> bool:
     # to select the informative images.
     return np.mean(gray) > 230
 
-def show_progress(cur_done: int, total: int, status='', bar_length=60):
-    """Show the progress on the terminal.
-    cur_done: the number of finished work;
-    totoal: the number of overall work;
-    status: trivial words, str;
-    bar_length: the length of bar showing on the screen, int."""
-    percent = cur_done / total
-    done = int(percent * bar_length)
-    show = '=' * done + '/' * (bar_length - done)
-    sys.stdout.write('[{}] {:.2f}% {}'.format(show, percent*100, status))
-    sys.stdout.flush()
-
 def batch_tiling(path, out_dir):
     filter_func = None
     if os.path.isdir(out_dir):
         cache = os.listdir(out_dir)
         filter_func = lambda x:get_name(x) not in cache
-    slides = read_files(path)
+    slides = get_files(path)
     work_load = len(slides)
-    done = 0
-    
+
+    pbar = tqdm(total=work_load)
     for slide_path in filter(filter_func, slides):
         try:
             devide_certain(slide_path, out_dir)
         except:
             logger.exception(f'{get_name(slide_path)} encountered error in batch')
-        done += 1
-        show_progress(done, work_load, status='Please wait')
+        pbar.update(1)
+    pbar.close()
 
 logger = gen_logger()
 if __name__ == '__main__':

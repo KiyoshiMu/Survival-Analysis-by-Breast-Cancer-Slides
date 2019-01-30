@@ -1,5 +1,5 @@
 import os, sys, openslide
-
+"""Extract tiff image under 20X power. However, the file is too large to be analyzed further. It's  useless now."""
 def get_files(dir_p):
     return [os.path.join(item[0], fn) for item in os.walk(dir_p) 
     for fn in item[2] if item[2] and fn[-4:]=='.svs']

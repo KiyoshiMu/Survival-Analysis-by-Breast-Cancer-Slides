@@ -7,7 +7,8 @@ def get_files(path: str, suffix='svs') -> list:
     # for f in os.listdir(path):
     #     if f[-4:] == '.svs':
     #         yield os.path.join(path, f)
-    return [os.path.join(path, i) for i in os.listdir(path) if os.path.splitext(i)[-1] == suffix]
+    result = [os.path.join(path, i) for i in os.listdir(path) if i.rsplit('.', 1)[-1]==suffix]
+    return result
 
 def get_name(slide_path):
     case_name = os.path.splitext(os.path.basename(slide_path))[0]

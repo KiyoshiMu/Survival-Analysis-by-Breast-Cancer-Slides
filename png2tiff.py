@@ -7,7 +7,7 @@ from tools import get_name, gen_logger, get_files
 def convert(img_p: str, out_path: str) -> None:
     img = cv2.imread(img_p)
     name = get_name(img_p)
-    cv2.imwrite(os.path.join(out_path, f'{name}.tif'), img)
+    cv2.imwrite(os.path.join(out_path, f'{name}.tiff'), img)
 
 def convert_dir(dir_p, out_path):
     for img_p in get_files(dir_p, suffix='png'):

@@ -4,6 +4,7 @@ import sys
 import numpy as np
 from tqdm import tqdm
 from tools import get_files, get_name, gen_logger
+import argparse
 
 def base_10x(properties:dict) ->int and bool:
     ori_mag = int(properties.get('openslide.objective-power', 0))
@@ -60,7 +61,7 @@ def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
                 continue
             if not base10:
                 small_image = small_image.resize((width, width))
-            fp = os.path.join(out_path, '{:010d}{:010d}.tif'.format(j, i))
+            fp = os.path.join(out_path, '{:010d}{:010d}.tiff'.format(j, i))
             small_image.save(fp)
         
 def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None:
@@ -109,7 +110,7 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(out_path, '{:010d}{:010d}.tif'.format(j, i))
+            fp = os.path.join(out_path, '{:010d}{:010d}.tiff'.format(j, i))
             resize_image.save(fp)
     
 def is_useless(image) -> bool:
@@ -143,6 +144,8 @@ def batch_tiling(path, out_dir):
 
 logger = gen_logger()
 if __name__ == '__main__':
-    path = sys.argv[1]
-    out_dir = sys.argv[2]
-    batch_tiling(path, out_dir)
+    parse = argparse.ArgumentParser(description='A patch to separate large .svs file into 10X 96*96 .tif files.')
+    parse.add_argument('-i', required=True)
+    parse.add_argument('-o', required=True)
+    command = parse.parse_args()
+    batch_tiling(command.i, command.o)

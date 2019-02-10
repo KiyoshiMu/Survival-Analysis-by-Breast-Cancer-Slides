@@ -24,7 +24,7 @@ def chunk(dir_p, n):
     case_names = [os.path.join(dir_p, case_name) for case_name in os.listdir(dir_p)]
     for case_name_p in case_names:
         files = get_files(case_name_p, suffix='tiff')
-        gen_chunk(files,n)
+        yield gen_chunk(files,n)
 
 def get_model_classif_nasnet():
     inputs = Input((96, 96, 3))

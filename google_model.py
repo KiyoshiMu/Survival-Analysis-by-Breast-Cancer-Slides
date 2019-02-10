@@ -1,5 +1,5 @@
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import numpy as np
+import pandas as pd
 import os
 import cv2
 import matplotlib.pyplot as plt
@@ -42,6 +42,7 @@ def get_model_classif_nasnet():
 def main(dir_p, dst='..'):
     for batch in chunk(dir_p, 32):   
         X = [preprocess_input(cv2.imread(x)) for x in batch]
+        X = np.array(X)
         preds_batch = predict(X)
         record = {key:value for key, value in zip(batch, preds_batch)}
         save_pickle(record, dst, name='outcome')

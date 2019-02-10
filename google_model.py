@@ -12,11 +12,6 @@ from keras.optimizers import Adam
 from tools import get_files, save_pickle
 import sys
 
-def gen_chunk(fps, n):
-    for i in range(n, len(fps), n):
-        pps = fps[i-n:i]
-        yield pps
-
 def predict(X):
     return ((model.predict(X).ravel()*model.predict(X[:, ::-1, :, :]).ravel()*model.predict(X[:, ::-1, ::-1, :]).ravel()*model.predict(X[:, :, ::-1, :]).ravel())**0.25).tolist()
 
@@ -24,7 +19,9 @@ def chunk(dir_p, n):
     case_names = [os.path.join(dir_p, case_name) for case_name in os.listdir(dir_p)]
     for case_name_p in case_names:
         files = get_files(case_name_p, suffix='tiff')
-        yield gen_chunk(files,n)
+        for i in range(n, len(files), n):
+            pps = files[i-n:i]
+            yield pps
 
 def get_model_classif_nasnet():
     inputs = Input((96, 96, 3))

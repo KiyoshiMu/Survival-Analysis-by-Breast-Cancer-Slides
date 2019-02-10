@@ -33,3 +33,5 @@ git clone https://github.com/jaredleekatzman/DeepSurv.git
 pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
 cd DeepSurv
 pip install .
+
+nohup python png2tiff.py -i ../0119test/ -o ../tiff > /dev/null 2>&1 &

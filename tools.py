@@ -1,5 +1,15 @@
 import logging
 import os
+import pickle
+
+def save_pickle(data, dst, name='record'):
+    with open(os.path.join(dst, f'{name}.pkl'), 'ab+') as record:
+        pickle.dump(data, record, pickle.HIGHEST_PROTOCOL)
+
+def load_pickle(pkl_path):
+    with open(pkl_path, 'rb') as temp:
+        container = pickle.load(temp)
+    return container
 
 def get_files(path: str, suffix='svs') -> list:
     """From a dir read the .svs files, then we can divide the large slide into small ones

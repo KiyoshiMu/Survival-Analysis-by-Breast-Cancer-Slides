@@ -9,14 +9,14 @@ from keras.losses import binary_crossentropy
 from keras.models import Model
 from keras.applications.nasnet import NASNetMobile, preprocess_input
 from keras.optimizers import Adam
-from tools import get_files, save_pickle
+from tools import get_files, save_pickle, load_pickle
 import sys
 
 def predict(X):
     return ((model.predict(X).ravel()*model.predict(X[:, ::-1, :, :]).ravel()*model.predict(X[:, ::-1, ::-1, :]).ravel()*model.predict(X[:, :, ::-1, :]).ravel())**0.25).tolist()
 
-def chunk(dir_p, n):
-    case_names = [os.path.join(dir_p, case_name) for case_name in os.listdir(dir_p)]
+def chunk(dir_p, n, done):
+    case_names = [os.path.join(dir_p, case_name) for case_name in os.listdir(dir_p) if case_name not in done]
     for case_name_p in case_names:
         files = get_files(case_name_p, suffix='tiff')
         for i in range(n, len(files), n):
@@ -40,12 +40,13 @@ def get_model_classif_nasnet():
     return model
 
 def main(dir_p, dst='..'):
-    for batch in chunk(dir_p, 32):   
+    done = load_pickle('done.pkl')
+    for batch in chunk(dir_p, 32, done):   
         X = [preprocess_input(cv2.imread(x)) for x in batch]
         X = np.array(X)
         preds_batch = predict(X)
         record = {key:value for key, value in zip(batch, preds_batch)}
-        save_pickle(record, dst, name='outcome')
+        save_pickle(record, dst, name='outcome_plus')
 
 if __name__ == "__main__":
     model = get_model_classif_nasnet()

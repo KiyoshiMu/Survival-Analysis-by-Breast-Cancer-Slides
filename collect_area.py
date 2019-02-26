@@ -43,15 +43,15 @@ def profile_threshold(case_dict, result, threshold=0.98):
     return outcome, thresh_temp
 
 def download_fps(selected_area):
-    try:
-        os.makedirs('../download', exist_ok=True)
-        for case_n, areas in selected_area.items():
-            case_p = f'../download/{case_n}'
-            os.makedirs(case_p, exist_ok=True)
-            for area in areas:
+    os.makedirs('../download', exist_ok=True)
+    for case_n, areas in selected_area.items():
+        case_p = f'../download/{case_n}'
+        os.makedirs(case_p, exist_ok=True)
+        for area in areas:
+            try:
                 shutil.copy(area, case_p)
-    except:
-        logger.exception('encountered error in batch')
+            except:
+                logger.exception('encountered error in batch')
         
 if __name__ == "__main__":
     result = weird_load(sys.argv[1])

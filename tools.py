@@ -28,7 +28,7 @@ def gen_logger(name='dividing.log'):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
-    formatter = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s", "%Y-%m-%d %H:%M:%S")
     file_handler = logging.FileHandler(f'../{name}')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)

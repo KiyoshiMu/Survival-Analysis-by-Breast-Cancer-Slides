@@ -40,7 +40,7 @@ def get_model_classif_nasnet():
     return model
 
 def main(dir_p, dst='..'):
-    done = load_pickle('done.pkl')
+    done = load_pickle('data/done.pkl')
     for batch in chunk(dir_p, 32, done):   
         X = [preprocess_input(cv2.imread(x)) for x in batch]
         X = np.array(X)

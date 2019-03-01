@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 
 def save_pickle(data, dst, name='record'):
     with open(os.path.join(dst, f'{name}.pkl'), 'ab+') as record:
@@ -33,6 +34,11 @@ def gen_logger(name='dividing.log'):
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
 
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+
     logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
     return logger

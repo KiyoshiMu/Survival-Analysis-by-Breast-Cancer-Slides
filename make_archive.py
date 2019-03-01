@@ -30,7 +30,7 @@ def move_slide(slides_p):
     fn_match_dict = fn_match(slides_p)
     for case in archive:
         if os.path.getsize(os.path.join(archive_p, case)) < 1000:
-            src = os.path.join(slides_p, fn_match_dict[case])
+            src = os.path.join(slides_p, fn_match_dict[os.path.splitext(case)[0]])
             shutil.copy(src, special_p)
             logger.info(f'{case} slide is moved')
 

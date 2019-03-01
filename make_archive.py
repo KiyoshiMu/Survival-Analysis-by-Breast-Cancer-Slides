@@ -36,11 +36,11 @@ def move_slide(slides_p):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('func',nargs=1, type=str, default='a')
-    parser.add_argument('-i', '--input', nargs=1)
-    # parser.add_argument('-o','--out', nargs=1)
+    parser.add_argument('func', type=str, default='a')
+    parser.add_argument('-i', '--input')
+    # parser.add_argument('-o','--out')
     command = parser.parse_args()
     if command.func == 'a':
-        make_archive(command.i)
+        make_archive(command.input)
     else:
-        move_slide(command.i)
+        move_slide(command.input)

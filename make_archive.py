@@ -28,9 +28,10 @@ def move_slide(slides_p):
     special_p = '../special'
     os.makedirs(special_p, exist_ok=True)
     fn_match_dict = fn_match(slides_p)
-    for case in archive:
-        if os.path.getsize(os.path.join(archive_p, case)) < 1000:
-            src = os.path.join(slides_p, fn_match_dict[os.path.splitext(case)[0]])
+    for fn in archive:
+        if os.path.getsize(os.path.join(archive_p, fn)) < 1000:
+            case = os.path.splitext(fn)[0]
+            src = os.path.join(slides_p, fn_match_dict[case])
             shutil.copy(src, special_p)
             logger.info(f'{case} slide is moved')
 

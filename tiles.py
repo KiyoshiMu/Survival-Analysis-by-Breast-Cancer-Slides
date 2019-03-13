@@ -24,24 +24,24 @@ def divide_prepare(slide_path, width:int):
     try:
         level, base10 = base_10x(properties)
     except AssertionError:
-        logger.exception(f'{get_name(slide_path)} magnitude power information flows')
+        logger.exception(f'{get_name(slide_path)} magnitude power information loses')
         return
 
     dimensions = slide.level_dimensions
     dimension_ref = dimensions[0]
     ratio = round(float(properties.get(f'openslide.level[{str(level)}].downsample')))
     ori_mag = int(properties.get('openslide.objective-power'))
-    d_step = width * ratio
+    
+    if not base10:
+        width = width * (ori_mag / ratio / 10)
 
-    if base10:
-        size = (width, width)
-    else:
-        w_new = width * (ori_mag / ratio / 10)
-        size = (w_new, w_new)
+    width = int(width)
+    d_step = width * ratio
+    size = (width, width)
 
     return slide, level, base10, dimension_ref, d_step, size
 
-def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
+def divide_certain(slide_path: str, out_dir: str, width=96) -> None:
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width. It aims to tile images in 10X power using
     less resource as possibel"""
@@ -56,6 +56,7 @@ def devide_certain(slide_path: str, out_dir: str, width=96) -> None:
     for i, x in enumerate(range(0, dimension_ref[0], d_step)):
         for j, y in enumerate(range(0, dimension_ref[1], d_step)):
             loc = (x, y)
+            # print(loc, level, size)
             small_image = slide.read_region(location=loc, level=level, size=size)
             if is_useless(small_image):
                 continue
@@ -136,7 +137,7 @@ def batch_tiling(path, out_dir):
     pbar = tqdm(total=work_load)
     for slide_path in filter(filter_func, slides):
         try:
-            devide_certain(slide_path, out_dir)
+            divide(slide_path, out_dir)
         except:
             logger.exception(f'{get_name(slide_path)} encountered error in batch')
         pbar.update(1)

@@ -5,6 +5,8 @@ import numpy as np
 from tqdm import tqdm
 from tools import get_files, get_name, gen_logger
 import argparse
+# from zipfile import ZipFile
+import pickle
 
 def base_10x(properties:dict) ->int and bool:
     ori_mag = int(properties.get('openslide.objective-power', 0))
@@ -87,10 +89,10 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
     widths_point = list(range(0, dimension_ref[0], tile))
     heights_point = list(range(0, dimension_ref[1], tile))
     # begin segment tiles
-    cwp = os.getcwd()
+
     case_name = get_name(slide_path)
     # print(case_name)
-    out_path = os.path.join(cwp, out_dir, case_name)
+    out_path = os.path.join(out_dir, case_name)
     os.makedirs(out_path, exist_ok=True)
     for i, x in enumerate(widths_point):
         for j, y in enumerate(heights_point):
@@ -128,14 +130,15 @@ def is_useless(image) -> bool:
 
 def batch_tiling(path, out_dir):
     filter_func = None
-    if os.path.isdir(out_dir):
-        cache = os.listdir(out_dir)
-        filter_func = lambda x:get_name(x) not in cache
-    slides = get_files(path)
+    # if os.path.isdir(out_dir):
+    cache = os.listdir('c:\special')
+    cache.extend(os.listdir('e:\special'))
+    filter_func = lambda x:get_name(x) not in cache
+    slides = list(filter(filter_func, get_files(path)))
     work_load = len(slides)
 
     pbar = tqdm(total=work_load)
-    for slide_path in filter(filter_func, slides):
+    for slide_path in slides:
         try:
             divide(slide_path, out_dir)
         except:

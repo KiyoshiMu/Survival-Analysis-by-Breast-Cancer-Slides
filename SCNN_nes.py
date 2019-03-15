@@ -26,7 +26,7 @@ def model_creator():
     out = Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01))(out)
     model = Model(inputs, out)
-    model.load_weights('../model.h5', by_name='NASNet')
+    model.load_weights('model.h5', by_name='NASNet')
     model.layers[1].trainable = False
     model.summary()
     return model
@@ -51,7 +51,7 @@ def case2path(x_p):
         result[case] = os.path.join(x_p, dir_n)
     return pd.DataFrame.from_dict(result, orient='index', columns=['path'])
 
-def merge_table_creator(selected_p, target_p='../data/Target.xlsx'):
+def merge_table_creator(selected_p, target_p='data/Target.xlsx'):
     target = pd.read_excel(target_p)
     case_path_df = case2path(selected_p)
     merge_table = case_path_df.merge(target, left_index=True, right_on='sample')
@@ -78,11 +78,11 @@ def train_table_creator(merge_table, train_ratio=0.8):
 
 def read_dir(dir_p, aug=True):
     pool = os.listdir(dir_p)
-    sel = random.choices(pool, k=1)
+    sel = random.choice(pool)
     x = os.path.join(dir_p, sel)
     return cv2.imread(x)
     
-def chunk(df_sort, batch_size, epochs=100):
+def chunk(df_sort, batch_size, epochs=10):
     population = list(range(len(df_sort)))
     for _ in range(epochs):
         chunk_idx = random.choices(population, k=batch_size)
@@ -116,13 +116,13 @@ def train(selected_p, dst='..'):
     TensorBoard(log_dir=os.path.join(dst, 'toy_log'), 
     histogram_freq=0)]
 
-    for (X, Y, E), (X_val, Y_val, _) in zip(data_gen(train_table, 64, seq=seq), 
+    for (X, Y, E), (X_val, Y_val, _) in zip(data_gen(train_table, 128, seq=seq), 
     data_gen(test_tabel, 128)):
         model.compile(loss=negative_log_likelihood(E), optimizer=ada)
         model.fit(
             X, Y,
             batch_size=len(E),
-            epochs=1,
+            epochs=10,
             verbose=True,
             callbacks=cheak_list,
             shuffle=False,

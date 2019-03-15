@@ -1,18 +1,20 @@
 import os
 os.environ['KERAS_BACKEND'] = 'tensorflow'
 
-from keras.models import Sequential
+from keras.models import Model
 from keras.preprocessing.image import img_to_array, ImageDataGenerator
-from keras.layers import MaxPooling2D, SeparableConv2D, Flatten, Dense, Dropout, BatchNormalization
+from keras.layers import Input, GlobalMaxPooling2D, GlobalAveragePooling2D, Flatten, Concatenate, Dropout, Dense
+from keras.applications.nasnet import NASNetMobile, preprocess_input
 from keras import backend as K
 from keras.regularizers import l2
 from keras.optimizers import Adagrad, RMSprop
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
-from lifelines.utils import concordance_index
+# from lifelines.utils import concordance_index
 import numpy as np
 import pandas as pd
 import sys, cv2, random
 import matplotlib.pyplot as plt
+from google_model import get_model_class_nasnet
 
 #Loss Function
 def negative_log_likelihood(E):
@@ -29,7 +31,7 @@ def negative_log_likelihood(E):
 # complex
 def gen_model():
     model = Sequential()
-    model.add(SeparableConv2D(64, (3, 3), activation='relu', padding='same', input_shape=(256, 256, 3)))
+    model.add(SeparableConv2D(64, (3, 3), activation='relu', padding='same', input_shape=(96, 96, 3)))
     model.add(BatchNormalization())
     model.add(MaxPooling2D())
 
@@ -52,12 +54,26 @@ def gen_model():
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01)))
     return model
 
+def gen_model_NAS():
+    inputs = Input((96, 96, 3))
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    x = base_model(inputs)
+    out1 = GlobalMaxPooling2D()(x)
+    out2 = GlobalAveragePooling2D()(x)
+    out3 = Flatten()(x)
+    out = Concatenate(axis=-1)([out1, out2, out3])
+    out = Dropout(0.5)(out)
+    out = Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
+    kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01))(out)
+    model = Model(inputs, out)
+    return model
+
 def read_dir(dir_path, time):
     data = []
     pool = random.sample(dir_path, time)
     for imagePath in pool:
         image = cv2.imread(imagePath)
-        image = cv2.resize(image, (256, 256))
+        image = cv2.resize(image, (96, 96))
         image = img_to_array(image)
         data.append(image)
     # change the sample line later !!!

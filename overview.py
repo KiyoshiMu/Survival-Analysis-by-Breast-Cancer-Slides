@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 funcs = {}
 def record_funcs(func):
-    funcs[func.__name__.split('_')[0][:3]] = func
+    funcs[func.__name__.split('_')[-1][:3]] = func
     return func
 
 def get_files(dir_p):
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     parse.add_argument('-f')
     parse.add_argument('-o', required=True)
     command = parse.parse_args()
-    func = funcs.get(command.f, 'pro')
+    func = funcs.get(command.f, collect_properties)
     dir_p = command.dir
     dst = command.o
     func(dir_p, dst)

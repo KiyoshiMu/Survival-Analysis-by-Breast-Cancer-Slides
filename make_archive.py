@@ -3,7 +3,7 @@ import shutil
 import argparse
 from tools import load_pickle, gen_logger
 
-logger = gen_logger('make_archive.log')
+logger = gen_logger('make_archive')
 def make_archive(cases_p, done='data/done.pkl'):
     done_case = load_pickle(done)
     archive_p = '../archive'

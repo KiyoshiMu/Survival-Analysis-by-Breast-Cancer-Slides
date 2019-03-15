@@ -4,7 +4,7 @@ import pickle
 import sys
 
 def save_pickle(data, dst, name='record'):
-    with open(os.path.join(dst, f'{name}.pkl'), 'ab+') as record:
+    with open(os.path.join(dst, f'{name}.pkl'), 'ab') as record:
         pickle.dump(data, record, pickle.HIGHEST_PROTOCOL)
 
 def load_pickle(pkl_path):
@@ -25,7 +25,8 @@ def get_name(slide_path):
     case_name = os.path.splitext(os.path.basename(slide_path))[0]
     return case_name
 
-def gen_logger(name='dividing.log'):
+def gen_logger(name='dividing'):
+    name=f'{name}.log'
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 

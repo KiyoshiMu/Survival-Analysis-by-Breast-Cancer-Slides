@@ -13,7 +13,7 @@ from tools import get_files, save_pickle, load_pickle, gen_logger
 import sys
 import pickle
 
-logger = gen_logger('outcome++.log')
+logger = gen_logger('outcome++')
 
 def predict(X):
     return ((model.predict(X).ravel()*model.predict(X[:, ::-1, :, :]).ravel()*model.predict(X[:, ::-1, ::-1, :]).ravel()*model.predict(X[:, :, ::-1, :]).ravel())**0.25).tolist()
@@ -40,17 +40,20 @@ def get_model_classif_nasnet():
 
     return model
 
-def main(dir_p, dst='e:/'):
+def main(dir_p, dst='c:/'):
 #     done = load_pickle('data/done.pkl')
     for case_name in os.listdir(dir_p):
         case_dir = os.path.join(dir_p, case_name)
         with open(os.path.join(dst, 'outcome_++.pkl'), 'ab') as temp_pkl:
             for batch in chunk(case_dir, 32):
-                X = [preprocess_input(cv2.imread(x)) for x in batch]
-                X = np.array(X)
-                preds_batch = predict(X)
-                record = {key:value for key, value in zip(batch, preds_batch)}
-                pickle.dump(record, temp_pkl)
+                try:
+                    X = [preprocess_input(cv2.imread(x)) for x in batch]
+                    X = np.array(X)
+                    preds_batch = predict(X)
+                    record = {key:value for key, value in zip(batch, preds_batch)}
+                    pickle.dump(record, temp_pkl, pickle.HIGHEST_PROTOCOL)
+                except:
+                    logger.exception(f'{case_name} encounter mistakes')
         logger.info(f'{case_name} is completed')
 
 if __name__ == "__main__":

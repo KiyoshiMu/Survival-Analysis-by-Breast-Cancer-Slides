@@ -1,6 +1,13 @@
 import openslide
 import os
-import sys
+import argparse
+from tools import save_pickle, gen_logger
+from tqdm import tqdm
+
+funcs = {}
+def record_funcs(func):
+    funcs[func.__name__.split('_')[:3]] = func
+    return func
 
 def get_files(dir_p):
     return [os.path.join(item[0], fn) for item in os.walk(dir_p) 
@@ -23,25 +30,45 @@ def output_lowest(svs_p, dst):
     fp = os.path.join(dst, fn)
     image.save(fp)
 
+@record_funcs
 def process_dir(dir_p, dst):
     os.makedirs(dst, exist_ok=True)
     for slide_p in get_files(dir_p):
         output_lowest(slide_p, dst)
 
+@record_funcs
 def collect_power(dir_p, dst):
     os.makedirs(dst, exist_ok=True)
     with open(os.path.join(dst, 'power.txt'), 'w+') as recorder:
-        recorder.write('Name\tPower\n')
+        recorder.write('Name\tPower\t\Size\n')
         for slide_p in get_files(dir_p):
-            power = openslide.OpenSlide(slide_p).properties.get('openslide.objective-power', 0)
-            line = f'{get_name(slide_p)}\t{power}\n'
-            recorder.write(line)
+            try:
+                properties = openslide.OpenSlide(slide_p).properties
+                power = properties.get('openslide.objective-power', 0)
+                size = (properties.get('openslide.level[0].height', 0), properties.get('openslide.level[0].width', 0))
+                line = f'{get_name(slide_p)}\t{power}\t{size}\n'
+                recorder.write(line)
+            except:
+                logger.exception(f'{slide_p} encounter errors')
+                
+@record_funcs
+def collect_properties(dir_p, dst):
+    container = {}
+    for slide_p in tqdm(get_files(dir_p)):
+        try:
+            container[get_name(slide_p)] = openslide.OpenSlide(slide_p).properties
+        except:
+            logger.exception(f'{slide_p} encounter errors')
+    save_pickle(container, '..', 'properties')
 
+logger = gen_logger('overview')
 if __name__ == "__main__":
-    dir_p = sys.argv[1]
-    dst = sys.argv[2]
-    func = sys.argv[3]
-    if func == 'view':
-        process_dir(dir_p, dst)
-    else:
-        collect_power(dir_p, dst)
+    parse = argparse.ArgumentParser()
+    parse.add_argument('dir',required=True)
+    parse.add_argument('-f')
+    parse.add_argument('-o', required=True)
+    command = parse.parse_args()
+    func = funcs.get(command.f, 'pro')
+    dir_p = command.dir
+    dst = command.o
+    func(dir_p, dst)

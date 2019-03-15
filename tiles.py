@@ -146,7 +146,7 @@ def batch_tiling(path, out_dir):
         pbar.update(1)
     pbar.close()
 
-logger = gen_logger()
+logger = gen_logger('tile')
 if __name__ == '__main__':
     parse = argparse.ArgumentParser(description='A patch to separate large .svs file into 10X 96*96 .tif files.')
     parse.add_argument('-i', required=True)

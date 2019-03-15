@@ -64,7 +64,7 @@ def collect_properties(dir_p, dst):
 logger = gen_logger('overview')
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
-    parse.add_argument('dir',required=True)
+    parse.add_argument('dir')
     parse.add_argument('-f')
     parse.add_argument('-o', required=True)
     command = parse.parse_args()

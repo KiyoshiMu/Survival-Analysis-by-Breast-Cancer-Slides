@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 funcs = {}
 def record_funcs(func):
-    funcs[func.__name__.split('_')[:3]] = func
+    funcs[func.__name__.split('_')[0][:3]] = func
     return func
 
 def get_files(dir_p):
@@ -50,7 +50,7 @@ def collect_power(dir_p, dst):
                 recorder.write(line)
             except:
                 logger.exception(f'{slide_p} encounter errors')
-                
+
 @record_funcs
 def collect_properties(dir_p, dst):
     container = {}

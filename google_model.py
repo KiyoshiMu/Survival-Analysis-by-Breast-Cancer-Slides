@@ -24,7 +24,7 @@ def chunk(case_dir, n, done=None):
         pps = files[i-n:i]
         yield pps
 
-def get_model_classif_nasnet():
+def get_model_class_nasnet():
     inputs = Input((96, 96, 3))
     base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
     x = base_model(inputs)
@@ -35,8 +35,6 @@ def get_model_classif_nasnet():
     out = Dropout(0.5)(out)
     out = Dense(1, activation="sigmoid", name="3_")(out)
     model = Model(inputs, out)
-    model.compile(optimizer=Adam(0.0001), loss=binary_crossentropy, metrics=['acc'])
-    model.summary()
 
     return model
 
@@ -57,7 +55,9 @@ def main(dir_p, dst='c:/'):
         logger.info(f'{case_name} is completed')
 
 if __name__ == "__main__":
-    model = get_model_classif_nasnet()
+    model = get_model_class_nasnet()
+    model.compile(optimizer=Adam(0.0001), loss=binary_crossentropy, metrics=['acc'])
+    model.summary()
     h5_path = "model.h5"
     model.load_weights(h5_path)
     main(sys.argv[1], sys.argv[2])

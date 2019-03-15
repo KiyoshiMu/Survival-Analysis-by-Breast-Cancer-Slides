@@ -41,7 +41,7 @@ def collect_power(dir_p, dst):
     os.makedirs(dst, exist_ok=True)
     with open(os.path.join(dst, 'power.txt'), 'w+') as recorder:
         recorder.write('Name\tPower\t\Size\n')
-        for slide_p in get_files(dir_p):
+        for slide_p in tqdm(get_files(dir_p)):
             try:
                 properties = openslide.OpenSlide(slide_p).properties
                 power = properties.get('openslide.objective-power', 0)

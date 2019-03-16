@@ -24,6 +24,9 @@ def model_creator():
     out3 = Flatten()(x)
     out = Concatenate(axis=-1)([out1, out2, out3])
     out = Dropout(0.5)(out)
+    out = Dense(256)(out)
+    out = Dense(256)(out)
+    out = Dense(256)(out)
     out = Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01))(out)
     model = Model(inputs, out)
@@ -83,14 +86,18 @@ def read_dir(dir_p, aug=True):
     x = os.path.join(dir_p, sel)
     return cv2.imread(x)
     
-def chunk(df_sort, batch_size, epochs=10):
-    population = list(range(len(df_sort)))
-    for _ in range(epochs):
-        chunk_idx = random.choices(population, k=batch_size)
-        chunk_idx.sort()
-        yield df_sort.iloc[chunk_idx]
+def chunk(df_sort, batch_size=None, epochs=10):
+    if batch_size is None:
+        for _ in range(epochs):
+            yield df_sort
+    else:
+        population = list(range(len(df_sort)))
+        for _ in range(epochs):
+            chunk_idx = random.choices(population, k=batch_size)
+            chunk_idx.sort()
+            yield df_sort.iloc[chunk_idx]
 
-def data_gen(merge_table, batch_size, seq=None):
+def data_gen(merge_table, batch_size=None):
     for chunk_df in chunk(merge_table, batch_size):
         X, T, E = [], [], []
         for item in chunk_df.iterrows():
@@ -100,10 +107,14 @@ def data_gen(merge_table, batch_size, seq=None):
             X.append(read_dir(path))
             T.append(dur)
             E.append(obs)
-        if seq:
-            X = seq.augment_images(X)
+
+        yield X, np.array(T), E
+
+def x_aug(X, seq, time=100):
+    for _ in range(time):
+        X = seq.augment_images(X)
         X = [preprocess_input(x) for x in X]
-        yield np.array(X), np.array(T), E
+        yield np.array(X)
 
 def model_eval(model, x, y, e):
     hr_pred = model.predict(x)
@@ -123,17 +134,25 @@ def train(selected_p, dst='..'):
     TensorBoard(log_dir=os.path.join(dst, 'toy_log'), 
     histogram_freq=0)]
 
-    for epoch, ((X, Y, E), (X_val, Y_val, E_val)) in enumerate(zip(data_gen(train_table, 128, seq=seq), 
-    data_gen(test_tabel, 128))):
+    for epoch, ((X, Y, E), (X_val, Y_val, E_val)) in enumerate(zip(data_gen(train_table), 
+    data_gen(test_tabel))):
         model.compile(loss=negative_log_likelihood(E), optimizer=ada)
-        model.fit(
-            X, Y,
-            batch_size=len(E),
-            epochs=100,
-            verbose=True,
-            callbacks=cheak_list,
-            shuffle=False,
-            validation_data=(X_val, Y_val))
+        X_val = [preprocess_input(x) for x in X_val]
+        X_val = np.array(X_val)
+        time = 22
+        jump = time - 1
+        cheak_list_ref = None
+        for cur_time, X in enumerate(x_aug(X, seq, time=time)):
+            if cur_time == jump:
+                cheak_list_ref = cheak_list
+            model.fit(
+                X, Y,
+                batch_size=len(E),
+                epochs=50,
+                verbose=True,
+                callbacks=cheak_list_ref,
+                shuffle=False)
+
         logger.info(f'{epoch} -> train:{model_eval(model, X, Y, E)}; val:{model_eval(model, X_val, Y_val, E_val)}')
 
 logger = gen_logger('train')

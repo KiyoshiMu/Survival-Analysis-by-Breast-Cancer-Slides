@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 from tools import get_seq, gen_logger
 import argparse
+from lifelines.utils import concordance_index
 
 def model_creator():
     inputs = Input((96, 96, 3))
@@ -104,6 +105,12 @@ def data_gen(merge_table, batch_size, seq=None):
         X = [preprocess_input(x) for x in X]
         yield np.array(X), np.array(T), E
 
+def model_eval(model, x, y, e):
+    hr_pred = model.predict(x)
+    hr_pred = np.exp(hr_pred)
+    ci = concordance_index(y,-hr_pred,e)
+    return ci
+
 def train(selected_p, dst='..'):
     merge_table = merge_table_creator(selected_p)
     train_table, test_tabel = train_table_creator(merge_table)
@@ -116,17 +123,18 @@ def train(selected_p, dst='..'):
     TensorBoard(log_dir=os.path.join(dst, 'toy_log'), 
     histogram_freq=0)]
 
-    for (X, Y, E), (X_val, Y_val, _) in zip(data_gen(train_table, 128, seq=seq), 
-    data_gen(test_tabel, 128)):
+    for epoch, ((X, Y, E), (X_val, Y_val, E_val)) in enumerate(zip(data_gen(train_table, 128, seq=seq), 
+    data_gen(test_tabel, 128))):
         model.compile(loss=negative_log_likelihood(E), optimizer=ada)
         model.fit(
             X, Y,
             batch_size=len(E),
-            epochs=10,
+            epochs=100,
             verbose=True,
             callbacks=cheak_list,
             shuffle=False,
             validation_data=(X_val, Y_val))
+        logger.info(f'{epoch} -> train:{model_eval(model, X, Y, E)}; val:{model_eval(model, X_val, Y_val, E_val)}')
 
 logger = gen_logger('train')
 if __name__ == "__main__":

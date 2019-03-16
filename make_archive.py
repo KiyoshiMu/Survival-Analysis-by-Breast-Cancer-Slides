@@ -4,9 +4,9 @@ import argparse
 from tools import load_pickle, gen_logger
 
 logger = gen_logger('make_archive')
-def make_archive(cases_p, done='data/done.pkl'):
+def make_archive(cases_p, archive_p, done='data/done.pkl'):
     done_case = load_pickle(done)
-    archive_p = '../archive'
+    # archive_p = '../archive'
     os.makedirs(archive_p, exist_ok=True)
     for case in os.listdir(cases_p):
         if case in done_case:
@@ -39,9 +39,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('func', type=str, default='a')
     parser.add_argument('-i', '--input')
-    # parser.add_argument('-o','--out')
+    parser.add_argument('-o','--out')
     command = parser.parse_args()
     if command.func == 'a':
-        make_archive(command.input)
+        make_archive(command.input, command.out)
     else:
         move_slide(command.input)

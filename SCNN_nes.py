@@ -117,8 +117,11 @@ def read_train_dir(dir_p):
     x = os.path.join(dir_p, sel)
     return cv2.imread(x)
 
-def read_val_dir(dir_p, sel_num=7) -> list:
+def read_val_dir(dir_p, sel_num=10, use_filter=False) -> list:
     pool = os.listdir(dir_p)
+    pool_size = len(pool)
+    if use_filter and pool_size < sel_num:
+        raise ValueError(f'the number ({pool_size}) in dir is not enough to have a reliable validation')
     sels = random.choices(pool, k=sel_num)
     xs = [os.path.join(dir_p, sel) for sel in sels]
     return [cv2.imread(x) for x in xs]
@@ -130,15 +133,20 @@ def chunk(df_sort, batch_size=64, epochs=10):
         chunk_idx.sort()
         yield df_sort.iloc[chunk_idx]
 
-def data_val(df_sort, sel_num=22):
+def data_val(df_sort, sel_num=42, use_filter=False):
     X, T, E = [], [], []
     for item in df_sort.iterrows():
         path = item[1][0]
         dur = item[1][2]
         obs = item[1][3]
-        X.append(read_val_dir(path, sel_num=sel_num))
-        T.append(dur)
-        E.append(obs)
+        try:
+            X.append(read_val_dir(path, sel_num=sel_num, use_filter=use_filter))
+        except ValueError:
+            logger.warning(f'check imgs in {path}')
+            continue
+        else:
+            T.append(dur)
+            E.append(obs)
     T = np.array(T)
     return X, T, E
 
@@ -194,7 +202,7 @@ def model_val_eval(model, X_val, y, e):
         x_case = [preprocess_input(x) for x in x_case]
         x_case = np.array(x_case)
         hr_pred = model.predict(x_case)
-        hr_pred = sorted(hr_pred)[-1] # only the second most serious area
+        hr_pred = sorted(hr_pred)[-2] # only the second most serious area
         hr_preds.append(hr_pred)
     hr_preds = np.exp(hr_preds)
     ci = concordance_index(y,-hr_preds,e)
@@ -211,7 +219,7 @@ def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None, force_save=
         model.fit(
             X, Y,
             batch_size=event_size,
-            epochs=20,
+            epochs=50,
             verbose=True,
             callbacks=cheak_list_ref,
             shuffle=False)
@@ -230,7 +238,7 @@ def whole_train(model, train_table, test_table, cheak_list, epochs=40):
             start = False
         # force_save = False if epoch % 2 == 0 else True
         force_save = None
-        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size, force_save=force_save)
+        train_aux(model, X, Y, cheak_list, aug_time=1, event_size=event_size, force_save=force_save)
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
 def batch_train(model, train_table, test_table, cheak_list, epochs=20, batch_size=64):
@@ -243,7 +251,7 @@ def batch_train(model, train_table, test_table, cheak_list, epochs=20, batch_siz
         train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size)
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
-def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True):
+def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True, only_val=False):
     if os.path.isfile('data/train_table.xlsx') and os.path.isfile('data/test_table.xlsx'):
         train_table = pd.read_excel('data/train_table.xlsx')
         test_table = pd.read_excel('data/test_table.xlsx')
@@ -252,22 +260,31 @@ def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole
         train_table, test_table = train_table_creator(merge_table)
     model_creator = models.get(model_name, model_pns)
     model = model_creator()
+    loaded = False
     if trained is not None:
         try:
             model.load_weights(trained)
         except:
             logger.warning('Wrong weight saving file')
         else:
+            loaded = True
             model_name = os.path.splitext(os.path.basename(trained))[0] + '+'
-    cheak_list = [EarlyStopping(monitor='loss', patience=5),
-    ModelCheckpoint(filepath=os.path.join(dst, f'{model_name}.h5')
-    , monitor='loss', save_best_only=True),
-    TensorBoard(log_dir=os.path.join(dst, f'{model_name}_log'), 
-    histogram_freq=0)]
-    if whole:
-        whole_train(model, train_table, test_table, cheak_list, epochs=epochs)
+
+    if only_val and loaded:
+        X, Y, E = data_val(train_table, sel_num=42, use_filter=True)
+        X_val, Y_val, E_val = data_val(test_table, sel_num=42, use_filter=True)
+        logger.info(f'train:{model_val_eval(model, X, Y, E)} num:{len(Y)}; val:{model_val_eval(model, X_val, Y_val, E_val)} num:{len(Y_val)}')
+
     else:
-        batch_train(model, train_table, test_table, cheak_list, epochs=epochs, batch_size=64)
+        cheak_list = [EarlyStopping(monitor='loss', patience=5),
+        ModelCheckpoint(filepath=os.path.join(dst, f'{model_name}.h5')
+        , monitor='loss', save_best_only=True),
+        TensorBoard(log_dir=os.path.join(dst, f'{model_name}_log'), 
+        histogram_freq=0)]
+        if whole:
+            whole_train(model, train_table, test_table, cheak_list, epochs=epochs)
+        else:
+            batch_train(model, train_table, test_table, cheak_list, epochs=epochs, batch_size=64)
 
 logger = gen_logger('train')
 if __name__ == "__main__":
@@ -277,11 +294,12 @@ if __name__ == "__main__":
     parse.add_argument('-n', default='pns', help='the model name (pns or nas)')
     parse.add_argument('-m', help='the path of trained weights')
     parse.add_argument('-t', type=int, default=20, help='epochs')
+    parse.add_argument('-v', type=bool, default=False, help='validation only')
     command = parse.parse_args()
     try:
         logger.info(f'Begin train on {command}')
         ada = Adagrad(lr=1e-3, decay=0.1)
         seq = get_seq()
-        train(command.i, dst=command.o, model_name=command.n, trained=command.m, epochs=command.t)
+        train(command.i, dst=command.o, model_name=command.n, trained=command.m, epochs=command.t, only_val=command.v)
     except:
         logger.exception('something wrong')

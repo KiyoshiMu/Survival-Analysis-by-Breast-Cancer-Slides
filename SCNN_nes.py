@@ -104,10 +104,12 @@ def train_table_creator(merge_table, train_ratio=0.9):
     train_table.sort_values('duration', inplace=True)
     train_table.reset_index(drop=True, inplace=True)
 
-    test_tabel = merge_table.iloc[test_idx]
-    test_tabel.sort_values('duration', inplace=True)
-    test_tabel.reset_index(drop=True, inplace=True)
-    return train_table, test_tabel
+    test_table = merge_table.iloc[test_idx]
+    test_table.sort_values('duration', inplace=True)
+    test_table.reset_index(drop=True, inplace=True)
+    train_table.to_excel('data/train_table.xlsx')
+    test_table.to_excel('data/test_table.xlsx')
+    return train_table, test_table
 
 def read_train_dir(dir_p):
     pool = os.listdir(dir_p)
@@ -128,7 +130,7 @@ def chunk(df_sort, batch_size=64, epochs=10):
         chunk_idx.sort()
         yield df_sort.iloc[chunk_idx]
 
-def data_val(df_sort, sel_num=7):
+def data_val(df_sort, sel_num=22):
     X, T, E = [], [], []
     for item in df_sort.iterrows():
         path = item[1][0]
@@ -192,7 +194,7 @@ def model_val_eval(model, X_val, y, e):
         x_case = [preprocess_input(x) for x in x_case]
         x_case = np.array(x_case)
         hr_pred = model.predict(x_case)
-        hr_pred = sorted(hr_pred)[-2] # only the second most serious area
+        hr_pred = sorted(hr_pred)[-1] # only the second most serious area
         hr_preds.append(hr_pred)
     hr_preds = np.exp(hr_preds)
     ci = concordance_index(y,-hr_preds,e)
@@ -202,38 +204,39 @@ def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None, force_save=
     jump = aug_time - 1
     cheak_list_ref = None
     for cur_time, X in enumerate(x_aug(X, time=aug_time)):
-        if force_save:
+        if force_save and cur_time == jump:
             cheak_list_ref = cheak_list
         elif force_save is None and cur_time == jump:
             cheak_list_ref = cheak_list
         model.fit(
             X, Y,
             batch_size=event_size,
-            epochs=10,
+            epochs=20,
             verbose=True,
             callbacks=cheak_list_ref,
             shuffle=False)
 
-def whole_train(model, train_table, test_tabel, cheak_list, epochs=40):
+def whole_train(model, train_table, test_table, cheak_list, epochs=40):
     # whole train can allocate more resources to train on varying imgs, so epochs is 40
     start = True
     event_size = None
-    m_path = cheak_list[1].filepath
-    X_val, Y_val, E_val = data_val(test_tabel)
+    m_path = str(cheak_list[1].filepath)
+    X_val, Y_val, E_val = data_val(test_table)
     for epoch, (X, Y, E) in enumerate(data_gen_whole(train_table, epochs=epochs)):
         cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
         if start:
             model.compile(loss=negative_log_likelihood(E), optimizer=ada)
             event_size = len(E)
             start = False
-        force_save = False if epoch % 2 == 0 else True
+        # force_save = False if epoch % 2 == 0 else True
+        force_save = None
         train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size, force_save=force_save)
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
-def batch_train(model, train_table, test_tabel, cheak_list, epochs=20, batch_size=64):
+def batch_train(model, train_table, test_table, cheak_list, epochs=20, batch_size=64):
     m_path = cheak_list[1].filepath
     event_size = batch_size
-    X_val, Y_val, E_val = data_val(test_tabel)
+    X_val, Y_val, E_val = data_val(test_table)
     for epoch, (X, Y, E) in enumerate(data_gen_batch(train_table, batch_size=batch_size, epochs=epochs)):
         cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
         model.compile(loss=negative_log_likelihood(E), optimizer=ada)
@@ -241,8 +244,12 @@ def batch_train(model, train_table, test_tabel, cheak_list, epochs=20, batch_siz
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
 def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True):
-    merge_table = merge_table_creator(selected_p)
-    train_table, test_tabel = train_table_creator(merge_table)
+    if os.path.isfile('data/train_table.xlsx') and os.path.isfile('data/test_table.xlsx'):
+        train_table = pd.read_excel('data/train_table.xlsx')
+        test_table = pd.read_excel('data/test_table.xlsx')
+    else:
+        merge_table = merge_table_creator(selected_p)
+        train_table, test_table = train_table_creator(merge_table)
     model_creator = models.get(model_name, model_pns)
     model = model_creator()
     if trained is not None:
@@ -252,15 +259,15 @@ def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole
             logger.warning('Wrong weight saving file')
         else:
             model_name = os.path.splitext(os.path.basename(trained))[0] + '+'
-    cheak_list = [EarlyStopping(monitor='loss', patience=10),
+    cheak_list = [EarlyStopping(monitor='loss', patience=5),
     ModelCheckpoint(filepath=os.path.join(dst, f'{model_name}.h5')
     , monitor='loss', save_best_only=True),
     TensorBoard(log_dir=os.path.join(dst, f'{model_name}_log'), 
     histogram_freq=0)]
     if whole:
-        whole_train(model, train_table, test_tabel, cheak_list, epochs=epochs)
+        whole_train(model, train_table, test_table, cheak_list, epochs=epochs)
     else:
-        batch_train(model, train_table, test_tabel, cheak_list, epochs=epochs, batch_size=64)
+        batch_train(model, train_table, test_table, cheak_list, epochs=epochs, batch_size=64)
 
 logger = gen_logger('train')
 if __name__ == "__main__":

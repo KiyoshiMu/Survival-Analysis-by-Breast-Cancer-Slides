@@ -115,40 +115,64 @@ def read_train_dir(dir_p):
     x = os.path.join(dir_p, sel)
     return cv2.imread(x)
 
-def read_val_dir(dir_p, num=7) -> list:
+def read_val_dir(dir_p, sel_num=7) -> list:
     pool = os.listdir(dir_p)
-    sels = random.choices(pool, k=num)
+    sels = random.choices(pool, k=sel_num)
     xs = [os.path.join(dir_p, sel) for sel in sels]
     return [cv2.imread(x) for x in xs]
 
-def chunk(df_sort, batch_size=None, epochs=10):
-    if batch_size is None:
-        for _ in range(epochs):
-            yield df_sort
-    else:
-        population = list(range(len(df_sort)))
-        for _ in range(epochs):
-            chunk_idx = random.choices(population, k=batch_size)
-            chunk_idx.sort()
-            yield df_sort.iloc[chunk_idx]
+def chunk(df_sort, batch_size=64, epochs=10):
+    population = list(range(len(df_sort)))
+    for _ in range(epochs):
+        chunk_idx = random.choices(population, k=batch_size)
+        chunk_idx.sort()
+        yield df_sort.iloc[chunk_idx]
 
-def data_gen(merge_table, batch_size=None, val=False, epochs=10):
-    for chunk_df in chunk(merge_table, batch_size=batch_size, epochs=epochs):
+def data_val(df_sort, sel_num=22):
+    X, T, E = [], [], []
+    for item in df_sort.iterrows():
+        path = item[1][0]
+        dur = item[1][2]
+        obs = item[1][3]
+        X.append(read_val_dir(path, sel_num=sel_num))
+        T.append(dur)
+        E.append(obs)
+    T = np.array(T)
+    return X, T, E
+
+def data_gen_batch(df_sort, batch_size=64, epochs=10):
+    for chunk_df in chunk(df_sort, batch_size=batch_size, epochs=epochs):
         X, T, E = [], [], []
         for item in chunk_df.iterrows():
             path = item[1][0]
             dur = item[1][2]
             obs = item[1][3]
-            if val:
-                X.append(read_val_dir(path, num=7))
-            else:
-                X.append(read_train_dir(path))
+            X.append(read_train_dir(path))
             T.append(dur)
             E.append(obs)
+        T = np.array(T)
+        yield X, T, E
 
-        yield X, np.array(T), E
+def data_gen_whole(df_sort, epochs=10): # whole will not change T and E, so we can save resource
+    X, T, E, paths = [], [], [], []
+    for item in df_sort.iterrows():
+        path = item[1][0]
+        dur = item[1][2]
+        obs = item[1][3]
+        paths.append(path)
+        X.append(read_train_dir(path))
+        T.append(dur)
+        E.append(obs)
+    T = np.array(T)
+    yield X, T, E
 
-def x_aug(X, seq, time=100):
+    for _ in range(epochs-1):
+        X.clear()
+        for path in paths:
+            X.append(read_train_dir(path))
+        yield X, T, E
+
+def x_aug(X, time=100):
     for _ in range(time):
         X = seq.augment_images(X)
         X = [preprocess_input(x) for x in X]
@@ -174,11 +198,47 @@ def model_val_eval(model, X_val, y, e):
     ci = concordance_index(y,-hr_preds,e)
     return ci
     
-def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20):
+def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None):
+    jump = aug_time - 1
+    cheak_list_ref = None
+    for cur_time, X in enumerate(x_aug(X, time=aug_time)):
+        if cur_time == jump:
+            cheak_list_ref = cheak_list
+        model.fit(
+            X, Y,
+            batch_size=event_size,
+            epochs=50,
+            verbose=True,
+            callbacks=cheak_list_ref,
+            shuffle=False)
+
+def whole_train(model, train_table, test_tabel, cheak_list, epochs=20):
+    start = True
+    event_size = None
+    m_path = cheak_list[1].filepath
+    X_val, Y_val, E_val = data_val(test_tabel)
+    for epoch, (X, Y, E) in enumerate(data_gen_whole(train_table, epochs=epochs)):
+        cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
+        if start:
+            model.compile(loss=negative_log_likelihood(E), optimizer=ada)
+            event_size = len(E)
+            start = False
+        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size)
+        logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
+
+def batch_train(model, train_table, test_tabel, cheak_list, epochs=20, batch_size=64):
+    m_path = cheak_list[1].filepath
+    event_size = batch_size
+    X_val, Y_val, E_val = data_val(test_tabel)
+    for epoch, (X, Y, E) in enumerate(data_gen_batch(train_table, batch_size=batch_size, epochs=epochs)):
+        cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
+        model.compile(loss=negative_log_likelihood(E), optimizer=ada)
+        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size)
+        logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
+
+def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True):
     merge_table = merge_table_creator(selected_p)
     train_table, test_tabel = train_table_creator(merge_table)
-    ada = Adagrad(lr=1e-3, decay=0.1)
-    seq = get_seq()
     model_creator = models.get(model_name, model_pns)
     model = model_creator()
     if trained is not None:
@@ -193,25 +253,10 @@ def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20):
     , monitor='loss', save_best_only=True),
     TensorBoard(log_dir=os.path.join(dst, f'{model_name}_log'), 
     histogram_freq=0)]
-
-    for epoch, ((X, Y, E), (X_val, Y_val, E_val)) in enumerate(zip(data_gen(train_table, epochs=epochs), 
-    data_gen(test_tabel, val=True, epochs=epochs))):
-        model.compile(loss=negative_log_likelihood(E), optimizer=ada)
-        time = 20
-        jump = time - 1
-        cheak_list_ref = None
-        for cur_time, X in enumerate(x_aug(X, seq, time=time)):
-            if cur_time == jump:
-                cheak_list_ref = cheak_list
-            model.fit(
-                X, Y,
-                batch_size=len(E),
-                epochs=50,
-                verbose=True,
-                callbacks=cheak_list_ref,
-                shuffle=False)
-
-        logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
+    if whole:
+        whole_train(model, train_table, test_tabel, cheak_list, epochs=epochs)
+    else:
+        batch_train(model, train_table, test_tabel, cheak_list, epochs=epochs, batch_size=64)
 
 logger = gen_logger('train')
 if __name__ == "__main__":
@@ -224,6 +269,8 @@ if __name__ == "__main__":
     command = parse.parse_args()
     try:
         logger.info(f'Begin train on {command}')
+        ada = Adagrad(lr=1e-3, decay=0.1)
+        seq = get_seq()
         train(command.i, dst=command.o, model_name=command.n, trained=command.m, epochs=command.t)
     except:
         logger.exception('something wrong')

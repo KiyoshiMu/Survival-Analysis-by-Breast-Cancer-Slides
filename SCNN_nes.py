@@ -128,7 +128,7 @@ def chunk(df_sort, batch_size=64, epochs=10):
         chunk_idx.sort()
         yield df_sort.iloc[chunk_idx]
 
-def data_val(df_sort, sel_num=22):
+def data_val(df_sort, sel_num=7):
     X, T, E = [], [], []
     for item in df_sort.iterrows():
         path = item[1][0]
@@ -198,21 +198,24 @@ def model_val_eval(model, X_val, y, e):
     ci = concordance_index(y,-hr_preds,e)
     return ci
     
-def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None):
+def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None, force_save=None):
     jump = aug_time - 1
     cheak_list_ref = None
     for cur_time, X in enumerate(x_aug(X, time=aug_time)):
-        if cur_time == jump:
+        if force_save:
+            cheak_list_ref = cheak_list
+        elif force_save is None and cur_time == jump:
             cheak_list_ref = cheak_list
         model.fit(
             X, Y,
             batch_size=event_size,
-            epochs=50,
+            epochs=10,
             verbose=True,
             callbacks=cheak_list_ref,
             shuffle=False)
 
-def whole_train(model, train_table, test_tabel, cheak_list, epochs=20):
+def whole_train(model, train_table, test_tabel, cheak_list, epochs=40):
+    # whole train can allocate more resources to train on varying imgs, so epochs is 40
     start = True
     event_size = None
     m_path = cheak_list[1].filepath
@@ -223,7 +226,8 @@ def whole_train(model, train_table, test_tabel, cheak_list, epochs=20):
             model.compile(loss=negative_log_likelihood(E), optimizer=ada)
             event_size = len(E)
             start = False
-        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size)
+        force_save = False if epoch % 2 == 0 else True
+        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size, force_save=force_save)
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
 def batch_train(model, train_table, test_tabel, cheak_list, epochs=20, batch_size=64):

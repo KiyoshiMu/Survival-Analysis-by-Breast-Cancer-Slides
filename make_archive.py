@@ -2,19 +2,20 @@ import os
 import shutil
 import argparse
 from tools import load_pickle, gen_logger
+from tqdm import tqdm
 
 logger = gen_logger('make_archive')
 def make_archive(cases_p, archive_p, done='data/done.pkl'):
     done_case = load_pickle(done)
     # archive_p = '../archive'
     os.makedirs(archive_p, exist_ok=True)
-    for case in os.listdir(cases_p):
+    for case in tqdm(os.listdir(cases_p)):
         if case in done_case:
             continue
         try:
             shutil.make_archive(os.path.join(archive_p, case.split('.')[0]), 
             'zip', os.path.join(cases_p, case))
-            logger.info(f'{case} is completed')
+            # logger.info(f'{case} is completed')
         except:
             logger.exception(f'{case} encounts some errors')
 
@@ -37,11 +38,11 @@ def move_slide(slides_p):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('func', type=str, default='a')
-    parser.add_argument('-i', '--input')
-    parser.add_argument('-o','--out')
+    parser.add_argument('-f','--func', type=str, default='a')
+    parser.add_argument('i')
+    parser.add_argument('o')
     command = parser.parse_args()
     if command.func == 'a':
-        make_archive(command.input, command.out)
+        make_archive(command.i, command.o)
     else:
         move_slide(command.input)

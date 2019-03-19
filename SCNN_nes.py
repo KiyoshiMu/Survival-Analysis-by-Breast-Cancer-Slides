@@ -92,7 +92,7 @@ def merge_table_creator(selected_p, target_p='data/Target.xlsx'):
     merge_table.reset_index(drop=True, inplace=True)
     return merge_table
 
-def train_table_creator(merge_table, train_ratio=0.9):
+def train_table_creator(merge_table):
     idx = merge_table.index.tolist()
     random.shuffle(idx)
 
@@ -107,8 +107,8 @@ def train_table_creator(merge_table, train_ratio=0.9):
     test_table = merge_table.iloc[test_idx]
     test_table.sort_values('duration', inplace=True)
     test_table.reset_index(drop=True, inplace=True)
-    train_table.to_excel('data/train_table.xlsx')
-    test_table.to_excel('data/test_table.xlsx')
+    train_table.to_excel(train_table_p)
+    test_table.to_excel(test_table_p)
     return train_table, test_table
 
 def read_train_dir(dir_p):
@@ -252,9 +252,9 @@ def batch_train(model, train_table, test_table, cheak_list, epochs=20, batch_siz
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
 
 def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True, only_val=False):
-    if os.path.isfile('data/train_table.xlsx') and os.path.isfile('data/test_table.xlsx'):
-        train_table = pd.read_excel('data/train_table.xlsx')
-        test_table = pd.read_excel('data/test_table.xlsx')
+    if os.path.isfile(train_table_p) and os.path.isfile(test_table_p):
+        train_table = pd.read_excel(train_table_p)
+        test_table = pd.read_excel(test_table_p)
     else:
         merge_table = merge_table_creator(selected_p)
         train_table, test_table = train_table_creator(merge_table)
@@ -287,6 +287,9 @@ def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole
             batch_train(model, train_table, test_table, cheak_list, epochs=epochs, batch_size=64)
 
 logger = gen_logger('train')
+train_table_p = 'data/train_table.xlsx'
+test_table_p = 'data/test_table.xlsx'
+train_ratio = 0.5
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
     parse.add_argument('i', help='the path of directory that saves imgs for cases')

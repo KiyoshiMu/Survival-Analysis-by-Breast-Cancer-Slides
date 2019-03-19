@@ -1,6 +1,8 @@
 import openslide
 import os
 import argparse
+import sys
+sys.path.append('..')
 from tools import save_pickle, gen_logger
 from tqdm import tqdm
 

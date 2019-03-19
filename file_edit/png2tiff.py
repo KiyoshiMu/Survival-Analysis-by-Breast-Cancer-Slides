@@ -2,6 +2,8 @@ from tqdm import tqdm
 import cv2
 import argparse
 import os
+import sys
+sys.path.append('..')
 from tools import get_name, gen_logger, get_files
 
 def convert(img_p: str, out_path: str) -> None:

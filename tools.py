@@ -4,7 +4,87 @@ import pickle
 import sys
 from imgaug import augmenters as iaa
 import imgaug as ia
+import pandas as pd
+import random
 
+class Train_table_creator:
+    def __init__(self, selected_p, dst, train_ratio=0.8):
+        self.selected_p = selected_p
+        self.dst = dst
+        self.train_table_p = None
+        self.test_table_p = None
+        self.train_table = None
+        self.test_table = None
+        self.logger = gen_logger('tools')
+        self.create(train_ratio)
+
+    def create(self, train_ratio=0.8):
+        """Change the ratio, then a new train table and a test table will be created"""
+        self.train_table_p = os.path.join(self.dst, f'{train_ratio}train_table.xlsx')
+        self.test_table_p = os.path.join(self.dst, f'{train_ratio}test_table.xlsx')
+        # if self.cache or self._read_cache():
+        #     return
+        try:
+            case_path_df = self._case2path(self.selected_p)
+            merge_table = self._merge_table_creator(case_path_df)
+            self.train_table, self.test_table = self._train_table_creator(merge_table, train_ratio)
+        except:
+            self.logger.exception('check here')
+
+    def __call__(self, train_ratio=0.8):
+        return self.create(train_ratio)
+
+    def __repr__(self):
+        print(f'Current img directory is {self.selected_p}, Cache is {self.cache()}')
+
+    def cache(self):
+        return self.train_table is not None and self.test_table is not None
+
+    def _read_cache(self):
+        try:
+            self.train_table = pd.read_excel(self.train_table_p)
+            self.test_table = pd.read_excel(self.test_table_p)
+            return True
+        except FileNotFoundError:
+            return False
+            
+    def _case2path(self, x_p):
+        cur_dirs = os.listdir(x_p)
+        result = {}
+        for dir_n in cur_dirs:
+            case = dir_n[:12]
+            if case in result:
+                continue
+            result[case] = os.path.join(x_p, dir_n)
+        return pd.DataFrame.from_dict(result, orient='index', columns=['path'])
+
+    def _merge_table_creator(self, case_path_df, target_p='data/Target.xlsx'):
+        target = pd.read_excel(target_p)
+        merge_table = case_path_df.merge(target, left_index=True, right_on='sample')
+        # print(len(merge_table)/len(target))
+        merge_table.reset_index(drop=True, inplace=True)
+        return merge_table
+
+    def _train_table_creator(self, merge_table, train_ratio):
+        idx = merge_table.index.tolist()
+        random.shuffle(idx)
+
+        train_size = round(len(idx) * train_ratio)
+        train_idx = idx[:train_size]
+        test_idx = idx[train_size:]
+
+        train_table = merge_table.iloc[train_idx]
+        train_table.sort_values('duration', inplace=True)
+        train_table.reset_index(drop=True, inplace=True)
+
+        test_table = merge_table.iloc[test_idx]
+        test_table.sort_values('duration', inplace=True)
+        test_table.reset_index(drop=True, inplace=True)
+        train_table.to_excel(self.train_table_p)
+        test_table.to_excel(self.test_table_p)
+        self.logger.info('Searching Succeed')
+        return train_table, test_table
+        
 def save_pickle(data, dst, name='record'):
     with open(os.path.join(dst, f'{name}.pkl'), 'ab') as record:
         pickle.dump(data, record, pickle.HIGHEST_PROTOCOL)
@@ -27,7 +107,7 @@ def get_name(slide_path):
     case_name = os.path.splitext(os.path.basename(slide_path))[0]
     return case_name
 
-def gen_logger(name='dividing'):
+def gen_logger(name=''):
     name=f'{name}.log'
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
@@ -43,7 +123,6 @@ def gen_logger(name='dividing'):
 
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
-
     return logger
 
 def get_seq():

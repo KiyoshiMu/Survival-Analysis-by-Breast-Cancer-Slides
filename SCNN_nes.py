@@ -4,7 +4,6 @@ from keras.layers import Input, GlobalMaxPooling2D, GlobalAveragePooling2D, Flat
 from keras import backend as K
 from keras.regularizers import l2
 from keras.optimizers import Adagrad, RMSprop
-from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from keras.applications.nasnet import NASNetMobile, preprocess_input
 import os
 import cv2
@@ -14,6 +13,7 @@ import numpy as np
 from tools import get_seq, gen_logger
 import argparse
 from lifelines.utils import concordance_index
+from functools import lru_cache
 random.seed(42)
 
 models = {}
@@ -21,7 +21,7 @@ def get_model(func):
     models[func.__name__[-3:]] = func
     return func
 
-@get_model    
+@get_model
 def model_pns():
     model = Sequential()
     model.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(96, 96, 3)))
@@ -111,14 +111,18 @@ def train_table_creator(merge_table):
     test_table.to_excel(test_table_p)
     return train_table, test_table
 
+@lru_cache(maxsize=759)
+def get_pool(dir_p):
+    return os.listdir(dir_p)
+
 def read_train_dir(dir_p):
-    pool = os.listdir(dir_p)
+    pool = get_pool(dir_p)
     sel = random.choice(pool)
     x = os.path.join(dir_p, sel)
     return cv2.imread(x)
 
 def read_val_dir(dir_p, sel_num=10, use_filter=False) -> list:
-    pool = os.listdir(dir_p)
+    pool = get_pool(dir_p)
     pool_size = len(pool)
     if use_filter and pool_size < sel_num:
         raise ValueError(f'the number ({pool_size}) in dir is not enough to have a reliable validation')
@@ -208,54 +212,50 @@ def model_val_eval(model, X_val, y, e):
     ci = concordance_index(y,-hr_preds,e)
     return ci
     
-def train_aux(model, X, Y, cheak_list, aug_time=20, event_size=None, force_save=None):
-    jump = aug_time - 1
-    cheak_list_ref = None
-    for cur_time, X in enumerate(x_aug(X, time=aug_time)):
-        if force_save and cur_time == jump:
-            cheak_list_ref = cheak_list
-        elif force_save is None and cur_time == jump:
-            cheak_list_ref = cheak_list
+def train_aux(model, X, Y, aug_time=20, event_size=None):
+    for X in x_aug(X, time=aug_time):
         model.fit(
             X, Y,
             batch_size=event_size,
-            epochs=50,
-            verbose=True,
-            callbacks=cheak_list_ref,
+            epochs=22,
+            verbose=False,
             shuffle=False)
 
-def whole_train(model, train_table, test_table, cheak_list, epochs=40):
+def whole_train(model, train_table, test_table, epochs=40):
     # whole train can allocate more resources to train on varying imgs, so epochs is 40
     start = True
     event_size = None
-    m_path = str(cheak_list[1].filepath)
     X_val, Y_val, E_val = data_val(test_table)
     for epoch, (X, Y, E) in enumerate(data_gen_whole(train_table, epochs=epochs)):
-        cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
         if start:
             model.compile(loss=negative_log_likelihood(E), optimizer=ada)
             event_size = len(E)
             start = False
-        # force_save = False if epoch % 2 == 0 else True
-        force_save = None
-        train_aux(model, X, Y, cheak_list, aug_time=1, event_size=event_size, force_save=force_save)
-        logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
+        train_aux(model, X, Y, aug_time=10, event_size=event_size)
+        model.save_weights(f'{epoch}.h5')
+        val_aux(model, epoch, X, Y, E, X_val, Y_val, E_val)
 
-def batch_train(model, train_table, test_table, cheak_list, epochs=20, batch_size=64):
-    m_path = cheak_list[1].filepath
+def batch_train(model, train_table, test_table, epochs=20, batch_size=64):
     event_size = batch_size
     X_val, Y_val, E_val = data_val(test_table)
     for epoch, (X, Y, E) in enumerate(data_gen_batch(train_table, batch_size=batch_size, epochs=epochs)):
-        cheak_list[1].filepath = f'{m_path[:-3]}{epoch}epoch{m_path[-3:]}'
         model.compile(loss=negative_log_likelihood(E), optimizer=ada)
-        train_aux(model, X, Y, cheak_list, aug_time=20, event_size=event_size)
+        train_aux(model, X, Y, aug_time=20, event_size=event_size)
+        val_aux(model, epoch, X, Y, E, X_val, Y_val, E_val)
+
+def val_aux(model, epoch, X, Y, E, X_val, Y_val, E_val):
+    try:
         logger.info(f'{epoch} -> train:{model_train_eval(model, X, Y, E)}; val:{model_val_eval(model, X_val, Y_val, E_val)}')
+    except TypeError:
+        logger.warning('some cases have problems')
 
 def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole=True, only_val=False):
     if os.path.isfile(train_table_p) and os.path.isfile(test_table_p):
+        print('Read from Caches')
         train_table = pd.read_excel(train_table_p)
         test_table = pd.read_excel(test_table_p)
     else:
+        print('Create from Disk')
         merge_table = merge_table_creator(selected_p)
         train_table, test_table = train_table_creator(merge_table)
     model_creator = models.get(model_name, model_pns)
@@ -276,15 +276,10 @@ def train(selected_p, model_name='pns', dst='..', trained=None, epochs=20, whole
         logger.info(f'train:{model_val_eval(model, X, Y, E)} num:{len(Y)}; val:{model_val_eval(model, X_val, Y_val, E_val)} num:{len(Y_val)}')
 
     else:
-        cheak_list = [EarlyStopping(monitor='loss', patience=5),
-        ModelCheckpoint(filepath=os.path.join(dst, f'{model_name}.h5')
-        , monitor='loss', save_best_only=True),
-        TensorBoard(log_dir=os.path.join(dst, f'{model_name}_log'), 
-        histogram_freq=0)]
         if whole:
-            whole_train(model, train_table, test_table, cheak_list, epochs=epochs)
+            whole_train(model, train_table, test_table, epochs=epochs)
         else:
-            batch_train(model, train_table, test_table, cheak_list, epochs=epochs, batch_size=64)
+            batch_train(model, train_table, test_table, epochs=epochs, batch_size=64)
 
 logger = gen_logger('train')
 train_table_p = 'data/train_table.xlsx'
@@ -294,15 +289,17 @@ if __name__ == "__main__":
     parse = argparse.ArgumentParser()
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('-o', default='..', help='the path for output')
-    parse.add_argument('-n', default='pns', help='the model name (pns or nas)')
+    parse.add_argument('-n', default='nas', help='the model name (pns or nas)')
     parse.add_argument('-m', help='the path of trained weights')
-    parse.add_argument('-t', type=int, default=20, help='epochs')
+    parse.add_argument('-t', type=int, default=40, help='epochs')
     parse.add_argument('-v', type=bool, default=False, help='validation only')
     command = parse.parse_args()
     try:
         logger.info(f'Begin train on {command}')
         ada = Adagrad(lr=1e-3, decay=0.1)
         seq = get_seq()
-        train(command.i, dst=command.o, model_name=command.n, trained=command.m, epochs=command.t, only_val=command.v)
+        dst = command.o
+        os.makedirs(dst, exist_ok=True)
+        train(command.i, dst=dst, model_name=command.n, trained=command.m, epochs=command.t, only_val=command.v)
     except:
         logger.exception('something wrong')

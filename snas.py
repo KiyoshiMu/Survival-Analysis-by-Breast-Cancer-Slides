@@ -10,9 +10,9 @@ from models import model_nas, negative_log_likelihood
 from tools import Train_table_creator, gen_logger, get_seq
 
 random.seed(42)
-logger = gen_logger('SCNN')
+logger = gen_logger('SNAS')
 
-class SCNN:
+class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
     val_sel_num=10, aug_time=10):
         self.model = model_nas()

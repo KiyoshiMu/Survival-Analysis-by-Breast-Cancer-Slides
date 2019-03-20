@@ -77,15 +77,16 @@ Zoph B , Vasudevan V , Shlens J , et al. Learning Transferable Architectures for
 ```python
 from keras import backend as K
 def negative_log_likelihood(E):
-	def loss(y_true,y_pred):
-		hazard_ratio = K.exp(y_pred)
-		log_risk = K.log(K.cumsum(hazard_ratio))
-		uncensored_likelihood = K.transpose(y_pred) - log_risk
-		censored_likelihood = uncensored_likelihood * E
-		num_observed_event = K.sum([float(e) for e in E]) + 1
-		return K.sum(censored_likelihood) / num_observed_event * (-1)
-	return loss
+    def loss(y_true,y_pred):
+        hazard_ratio = K.exp(y_pred)
+        log_risk = K.log(K.cumsum(hazard_ratio))
+        uncensored_likelihood = K.transpose(y_pred) - log_risk
+        censored_likelihood = uncensored_likelihood * E
+        num_observed_event = K.sum([float(e) for e in E]) + 1
+        return K.sum(censored_likelihood) / num_observed_event * (-1)
+    return loss
 ```
+
 Adapted from [DeepSurv_Keras](https://github.com/mexchy1000/DeepSurv_Keras)
 
 #### Completed model

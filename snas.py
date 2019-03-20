@@ -5,6 +5,7 @@ from collections import defaultdict
 import numpy as np
 from keras.applications.nasnet import preprocess_input
 from keras.optimizers import Adagrad
+from keras.utils.vis_utils import plot_model
 from lifelines.utils import concordance_index
 from models import model_nas, negative_log_likelihood
 from tools import Train_table_creator, gen_logger, get_seq
@@ -23,6 +24,7 @@ class SNAS:
         self.test_table = trainer.test_table
         self.sel_num = val_sel_num
         self.epochs = epochs
+        self.start_epoch = 0
         self.inner_train_time = inner_train_time
         self.aug_time = aug_time
         self.trained = False
@@ -30,10 +32,10 @@ class SNAS:
         self.seq = None
         self.pool = defaultdict(list)
 
-    def _get_pool(self, dir_p):
+    def _get_pool(self, dir_p, bound=0):
         if dir_p not in self.pool:    
             self.pool[dir_p] = os.listdir(dir_p)
-        elif len(self.pool[dir_p]) == 0:
+        elif len(self.pool[dir_p]) <= bound:
             self.pool[dir_p] = os.listdir(dir_p)
         return self.pool[dir_p]
 
@@ -46,7 +48,7 @@ class SNAS:
         return cv2.imread(x)
 
     def _read_val_dir(self, dir_p, use_filter=False) -> list:
-        pool = self._get_pool(dir_p)
+        pool = self._get_pool(dir_p, bound=self.sel_num)
         pool_size = len(pool)
         if use_filter and pool_size < self.sel_num:
             raise ValueError(f'the number ({pool_size}) in dir is not enough to have a reliable validation')
@@ -112,10 +114,13 @@ class SNAS:
             yield X, T, E
 
     def _x_aug(self, X):
-        for _ in range(self.aug_time):
-            X = self.seq.augment_images(X)
-            X = [preprocess_input(x) for x in X]
+        if self.aug_time == 0:
             yield np.array(X)
+        else: 
+            for _ in range(self.aug_time):
+                X = self.seq.augment_images(X)
+                X = [preprocess_input(x) for x in X]
+                yield np.array(X)
 
     def _model_eval(self, X_val, y, e):
         hr_preds = []
@@ -144,12 +149,18 @@ class SNAS:
             self.ada = Adagrad(lr=1e-3, decay=0.1)
             self.seq = get_seq()
 
+    def plot(self):
+        plot_model(self.model, to_file=f'{self.dst}/model.png', show_shapes=True) 
+
+    def set_start_epoch(self, start_epoch):
+        self.start_epoch = start_epoch
+
     def whole_train(self):
         # whole train can allocate more resources to train on varying imgs, so epochs can be more
         start = True
         event_size = None
         self._train_init()
-        for epoch, (X, Y, E) in enumerate(self._data_gen_whole(self.train_table)):
+        for epoch, (X, Y, E) in enumerate(self._data_gen_whole(self.train_table), start=self.start_epoch):
             if start:
                 self.model.compile(loss=negative_log_likelihood(E), optimizer=self.ada)
                 event_size = len(E)
@@ -162,7 +173,7 @@ class SNAS:
     def batch_train(self, batch_size=64):
         event_size = batch_size
         self._train_init()
-        for epoch, (X, Y, E) in enumerate(self._data_gen_batch(self.train_table, batch_size=batch_size)):
+        for epoch, (X, Y, E) in enumerate(self._data_gen_batch(self.train_table, batch_size=batch_size),start=self.start_epoch):
             self.model.compile(loss=negative_log_likelihood(E), optimizer=self.ada)
             self._train_aux(X, Y, event_size=event_size)
             self.model.save_weights(os.path.join(self.dst, f'{epoch}.h5'))
@@ -175,7 +186,10 @@ class SNAS:
         except:
             logger.exception('Wrong weight saving file')
         else:
+            start_epoch = int(os.path.basename(weight_p).split('.')[0]) + 1
+            self.set_start_epoch(start_epoch)
             self.trained = True
+            logger.info('Loading Successful')
 
     def feedback(self, sel_num=None):
         if self.trained == False:

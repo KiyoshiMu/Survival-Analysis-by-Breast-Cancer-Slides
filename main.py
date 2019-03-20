@@ -1,4 +1,4 @@
-from scnn import SCNN_nes
+from snas import SNAS
 from tools import gen_logger
 import argparse
 import os
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     dst = command.o
     os.makedirs(dst, exist_ok=True)
     try:
-        model = SCNN_nes(command.i, dst, train_size_ratio=command.r, 
+        model = SNAS(command.i, dst, train_size_ratio=command.r,
         epochs=command.t, val_sel_num=command.s, aug_time=command.a)
         if command.m:
             model.load(command.m)

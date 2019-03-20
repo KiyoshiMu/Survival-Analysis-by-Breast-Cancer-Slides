@@ -28,13 +28,13 @@ class SNAS:
         self.trained = False
         self.ada = None 
         self.seq = None
-        self.pool = defaultdict(set)
+        self.pool = defaultdict(list)
 
     def _get_pool(self, dir_p):
         if dir_p not in self.pool:    
-            self.pool[dir_p] = set(os.listdir(dir_p))
+            self.pool[dir_p] = os.listdir(dir_p)
         elif len(self.pool[dir_p]) == 0:
-            self.pool[dir_p] = set(os.listdir(dir_p))
+            self.pool[dir_p] = os.listdir(dir_p)
         return self.pool[dir_p]
 
     def _read_train_dir(self, dir_p):

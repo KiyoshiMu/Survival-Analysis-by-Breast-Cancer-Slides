@@ -15,15 +15,20 @@ class Train_table_creator:
         self.test_table_p = None
         self.train_table = None
         self.test_table = None
-        self.logger = gen_logger('tools')
+        self.logger = gen_logger('tools', stream=False)
         self.create(train_ratio)
 
     def create(self, train_ratio=0.8):
         """Change the ratio, then a new train table and a test table will be created"""
         self.train_table_p = os.path.join(self.dst, f'{train_ratio}train_table.xlsx')
         self.test_table_p = os.path.join(self.dst, f'{train_ratio}test_table.xlsx')
-        # if self.cache or self._read_cache():
-        #     return
+        if self.cache():
+            self.logger.info('Use Cache')
+            return
+        if self.havefile():
+            self._read_file()
+            self.logger.info('Read from Files')
+            return
         try:
             case_path_df = self._case2path(self.selected_p)
             merge_table = self._merge_table_creator(case_path_df)
@@ -40,13 +45,12 @@ class Train_table_creator:
     def cache(self):
         return self.train_table is not None and self.test_table is not None
 
-    def _read_cache(self):
-        try:
-            self.train_table = pd.read_excel(self.train_table_p)
-            self.test_table = pd.read_excel(self.test_table_p)
-            return True
-        except FileNotFoundError:
-            return False
+    def havefile(self):
+        return os.path.isfile(self.train_table_p) and os.path.isfile(self.test_table_p)
+
+    def _read_file(self):
+        self.train_table = pd.read_excel(self.train_table_p)
+        self.test_table = pd.read_excel(self.test_table_p)
             
     def _case2path(self, x_p):
         cur_dirs = os.listdir(x_p)
@@ -107,7 +111,7 @@ def get_name(slide_path):
     case_name = os.path.splitext(os.path.basename(slide_path))[0]
     return case_name
 
-def gen_logger(name=''):
+def gen_logger(name='', stream=True):
     name=f'{name}.log'
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
@@ -116,13 +120,14 @@ def gen_logger(name=''):
     file_handler = logging.FileHandler(f'../{name}')
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
-
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(formatter)
-
     logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
+
+    if stream:
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setLevel(logging.INFO)
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+    
     return logger
 
 def get_seq():

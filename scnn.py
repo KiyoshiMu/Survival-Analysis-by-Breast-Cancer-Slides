@@ -148,6 +148,7 @@ class SCNN_nes:
                 start = False
             self._train_aux(X, Y, event_size=event_size)
             self.model.save_weights(os.path.join(self.dst, f'{epoch}.h5'))
+            logger.info(f'{epoch} done')
             self.feedback()
 
     def batch_train(self, batch_size=64):
@@ -157,13 +158,14 @@ class SCNN_nes:
             self.model.compile(loss=negative_log_likelihood(E), optimizer=self.ada)
             self._train_aux(X, Y, event_size=event_size)
             self.model.save_weights(os.path.join(self.dst, f'{epoch}.h5'))
+            logger.info(f'{epoch} done')
             self.feedback()
 
     def load(self, weight_p):
         try:
-            self.model.load_weights(trained)
+            self.model.load_weights(weight_p)
         except:
-            logger.warning('Wrong weight saving file')
+            logger.exception('Wrong weight saving file')
         else:
             self.trained = True
 

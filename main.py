@@ -3,7 +3,7 @@ from tools import gen_logger
 import argparse
 import os
 
-logger = gen_logger('main')
+logger = gen_logger('main', stream=False)
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
     parse.add_argument('i', help='the path of directory that saves imgs for cases')

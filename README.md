@@ -107,7 +107,7 @@ Adapted from [DeepSurv_Keras](https://github.com/mexchy1000/DeepSurv_Keras)
 - [ ] Analysis the performance of SNAS.
 
 - [ ] Wrap up to form a ".svs to model" end-to-end pipeline.
- 
+
 ## Links for Further Reading
 
 Data Source

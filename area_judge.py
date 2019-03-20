@@ -2,18 +2,13 @@ import numpy as np
 import pandas as pd
 import os
 import cv2
-import matplotlib.pyplot as plt
-from keras.preprocessing.image import ImageDataGenerator
-from keras.layers import Input, GlobalMaxPooling2D, GlobalAveragePooling2D, Flatten, Concatenate, Dropout, Dense
+from models import model_nas_clf
 from keras.losses import binary_crossentropy
-from keras.models import Model
-from keras.applications.nasnet import NASNetMobile, preprocess_input
+from keras.applications.nasnet import preprocess_input
 from keras.optimizers import Adam
 from tools import get_files, save_pickle, load_pickle, gen_logger
-import sys
+import argparse
 import pickle
-
-logger = gen_logger('outcome++')
 
 def predict(X):
     return ((model.predict(X).ravel()*model.predict(X[:, ::-1, :, :]).ravel()*model.predict(X[:, ::-1, ::-1, :]).ravel()*model.predict(X[:, :, ::-1, :]).ravel())**0.25).tolist()
@@ -24,25 +19,13 @@ def chunk(case_dir, n, done=None):
         pps = files[i-n:i]
         yield pps
 
-def get_model_class_nasnet():
-    inputs = Input((96, 96, 3))
-    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
-    x = base_model(inputs)
-    out1 = GlobalMaxPooling2D()(x)
-    out2 = GlobalAveragePooling2D()(x)
-    out3 = Flatten()(x)
-    out = Concatenate(axis=-1)([out1, out2, out3])
-    out = Dropout(0.5)(out)
-    out = Dense(1, activation="sigmoid", name="3_")(out)
-    model = Model(inputs, out)
-
-    return model
-
-def main(dir_p, dst='c:/'):
+def main(dir_p, dst='c:/', pkl_name='outcome', logger=None):
 #     done = load_pickle('data/done.pkl')
+    if logger is None:
+        logger = gen_logger(f'{pkl_name}')
     for case_name in os.listdir(dir_p):
         case_dir = os.path.join(dir_p, case_name)
-        with open(os.path.join(dst, 'outcome_++.pkl'), 'ab') as temp_pkl:
+        with open(os.path.join(dst, f'{pkl_name}.pkl'), 'ab') as temp_pkl:
             for batch in chunk(case_dir, 32):
                 try:
                     X = [preprocess_input(cv2.imread(x)) for x in batch]
@@ -55,9 +38,13 @@ def main(dir_p, dst='c:/'):
         logger.info(f'{case_name} is completed')
 
 if __name__ == "__main__":
-    model = get_model_class_nasnet()
+    model = model_nas_clf()
     model.compile(optimizer=Adam(0.0001), loss=binary_crossentropy, metrics=['acc'])
-    model.summary()
-    h5_path = "model.h5"
-    model.load_weights(h5_path)
-    main(sys.argv[1], sys.argv[2])
+    parse = argparse.ArgumentParser(description='This stript is used for valid area detection')
+    parse.add_argument('i', help='the directory path of cases')
+    parse.add_argument('-o', default='..', help='the path of .pkl file')
+    parse.add_argument('-n', default='outcome', help='the name of .pkl file')
+    command = parse.parse_args()
+    dst = command.o
+    os.makedirs(dst, exist_ok=True)
+    main(command.i, dst=dst, pkl_name=command.n)

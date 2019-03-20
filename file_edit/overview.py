@@ -58,16 +58,18 @@ def collect_properties(dir_p, dst):
     container = {}
     for slide_p in tqdm(get_files(dir_p)):
         try:
-            container[get_name(slide_p)] = openslide.OpenSlide(slide_p).properties
+            container[get_name(slide_p)] = dict(openslide.OpenSlide(slide_p).properties)
         except:
             logger.exception(f'{slide_p} encounter errors')
-    save_pickle(container, '..', 'properties')
+    save_pickle(container, dst, 'properties')
 
 logger = gen_logger('overview')
 if __name__ == "__main__":
-    parse = argparse.ArgumentParser()
+    parse = argparse.ArgumentParser(description='This stript is used for slide info analysis')
     parse.add_argument('dir')
-    parse.add_argument('-f')
+    parse.add_argument('-f', 
+    help='"dir" for outputing whole imgs in lowest resolution; "pow" for outputing power info;\
+    "pro" for outputing a dict of properties in .pkl file')
     parse.add_argument('-o', required=True)
     command = parse.parse_args()
     func = funcs.get(command.f, collect_properties)

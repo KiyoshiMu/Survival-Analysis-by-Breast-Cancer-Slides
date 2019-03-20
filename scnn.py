@@ -1,17 +1,18 @@
-from models import model_nas, negative_log_likelihood
-from tools import Train_table_creator, gen_logger, get_seq
-from lifelines.utils import concordance_index
-from functools import lru_cache
-from keras.optimizers import Adagrad
+import os
 import cv2
 import random
-import os
+from collections import defaultdict
 import numpy as np
 from keras.applications.nasnet import preprocess_input
-random.seed(42)
-logger = gen_logger('SCNN_nes')
+from keras.optimizers import Adagrad
+from lifelines.utils import concordance_index
+from models import model_nas, negative_log_likelihood
+from tools import Train_table_creator, gen_logger, get_seq
 
-class SCNN_nes:
+random.seed(42)
+logger = gen_logger('SCNN')
+
+class SCNN:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
     val_sel_num=10, aug_time=10):
         self.model = model_nas()
@@ -27,14 +28,20 @@ class SCNN_nes:
         self.trained = False
         self.ada = None 
         self.seq = None
+        self.pool = defaultdict(set)
 
-    @lru_cache(maxsize=759)
     def _get_pool(self, dir_p):
-        return os.listdir(dir_p)
+        if dir_p not in self.pool:    
+            self.pool[dir_p] = set(os.listdir(dir_p))
+        elif len(self.pool[dir_p]) == 0:
+            self.pool[dir_p] = set(os.listdir(dir_p))
+        return self.pool[dir_p]
 
     def _read_train_dir(self, dir_p):
+        # here I try to make sure no repetitive selections
         pool = self._get_pool(dir_p)
         sel = random.choice(pool)
+        self.pool[dir_p].remove(sel)
         x = os.path.join(dir_p, sel)
         return cv2.imread(x)
 
@@ -84,7 +91,8 @@ class SCNN_nes:
             T = np.array(T)
             yield X, T, E
 
-    def _data_gen_whole(self, df_sort): # whole will not change T and E, so we can save resource
+    def _data_gen_whole(self, df_sort):
+        # whole will not change T and E, so we can save resource
         X, T, E, paths = [], [], [], []
         for item in df_sort.iterrows():
             path = item[1][0]

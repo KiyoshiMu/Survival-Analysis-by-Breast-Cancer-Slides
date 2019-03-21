@@ -8,14 +8,14 @@ import pandas as pd
 import random
 
 class Train_table_creator:
-    def __init__(self, selected_p, dst, train_ratio=0.8):
+    def __init__(self, selected_p, dst, train_ratio=0.8, logger=None):
         self.selected_p = selected_p
         self.dst = dst
         self.train_table_p = None
         self.test_table_p = None
         self.train_table = None
         self.test_table = None
-        self.logger = gen_logger('tools', stream=False)
+        self.logger = logger if logger is not None else gen_logger('tools')
         self.create(train_ratio)
 
     def create(self, train_ratio=0.8):
@@ -64,9 +64,8 @@ class Train_table_creator:
 
     def _merge_table_creator(self, case_path_df, target_p='data/Target.xlsx'):
         target = pd.read_excel(target_p)
-        merge_table = case_path_df.merge(target, left_index=True, right_on='sample')
-        # print(len(merge_table)/len(target))
-        merge_table.reset_index(drop=True, inplace=True)
+        merge_table = (case_path_df.merge(target, left_index=True, right_on='sample')).reset_index(drop=True)
+        # merge_table.reset_index(drop=True, inplace=True)
         return merge_table
 
     def _train_table_creator(self, merge_table, train_ratio):
@@ -77,13 +76,9 @@ class Train_table_creator:
         train_idx = idx[:train_size]
         test_idx = idx[train_size:]
 
-        train_table = merge_table.iloc[train_idx]
-        train_table.sort_values('duration', inplace=True)
-        train_table.reset_index(drop=True, inplace=True)
+        train_table = ((merge_table.iloc[train_idx]).sort_values('duration')).reset_index(drop=True)
+        test_table = ((merge_table.iloc[test_idx]).sort_values('duration')).reset_index(drop=True)
 
-        test_table = merge_table.iloc[test_idx]
-        test_table.sort_values('duration', inplace=True)
-        test_table.reset_index(drop=True, inplace=True)
         train_table.to_excel(self.train_table_p)
         test_table.to_excel(self.test_table_p)
         self.logger.info('Searching Succeed')
@@ -101,9 +96,6 @@ def load_pickle(pkl_path):
 def get_files(path: str, suffix='svs') -> list:
     """From a dir read the .svs files, then we can divide the large slide into small ones
     path: the path of all .svs files."""
-    # for f in os.listdir(path):
-    #     if f[-4:] == '.svs':
-    #         yield os.path.join(path, f)
     result = [os.path.join(path, i) for i in os.listdir(path) if i.rsplit('.', 1)[-1]==suffix]
     return result
 
@@ -131,6 +123,7 @@ def gen_logger(name='', stream=True):
     return logger
 
 def get_seq():
+    """From kaggle, augment an array of images. However, in this study, the performance of SNAS is better without augmentation"""
     sometimes = lambda aug: iaa.Sometimes(0.5, aug)
     seq = iaa.Sequential(
         [

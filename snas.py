@@ -9,13 +9,11 @@ from keras.utils.vis_utils import plot_model
 from lifelines.utils import concordance_index
 from models import model_nas, negative_log_likelihood
 from tools import Train_table_creator, gen_logger, get_seq
-
 random.seed(42)
-logger = gen_logger('SNAS')
 
 class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
-    val_sel_num=10, aug_time=10):
+    val_sel_num=10, aug_time=10, logger=None):
         self.model = model_nas()
         self.dst = dst
         trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio)
@@ -31,6 +29,7 @@ class SNAS:
         self.ada = None 
         self.seq = None
         self.pool = defaultdict(list)
+        self.logger = logger if logger is not None else gen_logger('SNAS')
 
     def _get_pool(self, dir_p, bound=0):
         if dir_p not in self.pool:    
@@ -72,7 +71,7 @@ class SNAS:
             try:
                 X.append(self._read_val_dir(path, use_filter=use_filter))
             except ValueError:
-                logger.warning(f'check imgs in {path}')
+                self.logger.warning(f'check imgs in {path}')
                 continue
             else:
                 T.append(dur)
@@ -167,7 +166,7 @@ class SNAS:
                 start = False
             self._train_aux(X, Y, event_size=event_size)
             self.model.save_weights(os.path.join(self.dst, f'{epoch}.h5'))
-            logger.info(f'{epoch} done')
+            self.logger.info(f'{epoch} done')
             self.feedback()
 
     def batch_train(self, batch_size=64):
@@ -177,19 +176,19 @@ class SNAS:
             self.model.compile(loss=negative_log_likelihood(E), optimizer=self.ada)
             self._train_aux(X, Y, event_size=event_size)
             self.model.save_weights(os.path.join(self.dst, f'{epoch}.h5'))
-            logger.info(f'{epoch} done')
+            self.logger.info(f'{epoch} done')
             self.feedback()
 
     def load(self, weight_p):
         try:
             self.model.load_weights(weight_p)
         except:
-            logger.exception('Wrong weight saving file')
+            self.logger.exception('Wrong weight saving file')
         else:
             start_epoch = int(os.path.basename(weight_p).split('.')[0]) + 1
             self.set_start_epoch(start_epoch)
             self.trained = True
-            logger.info('Loading Successful')
+            self.logger.info('Loading Successful')
 
     def feedback(self, sel_num=None):
         if self.trained == False:
@@ -199,4 +198,4 @@ class SNAS:
             self.sel_num = sel_num
         X, Y, E = self._data_val(self.train_table, use_filter=True)
         X_val, Y_val, E_val = self._data_val(self.test_table, use_filter=True)
-        logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}')
+        self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}')

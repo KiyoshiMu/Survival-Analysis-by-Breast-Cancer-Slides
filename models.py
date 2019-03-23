@@ -36,7 +36,7 @@ def model_pns():
     
     return model
 
-def model_nas():
+def model_nas(d_size=256):
     inputs = Input((96, 96, 3))
     base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
     x = base_model(inputs)
@@ -45,7 +45,7 @@ def model_nas():
     out3 = Flatten()(x)
     out = Concatenate(axis=-1)([out1, out2, out3])
     out = Dropout(0.5)(out)
-    out = Dense(256, kernel_initializer='glorot_uniform', 
+    out = Dense(d_size, kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01))(out)
     out = Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01))(out)

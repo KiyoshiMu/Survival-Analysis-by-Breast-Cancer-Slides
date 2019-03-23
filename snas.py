@@ -13,10 +13,11 @@ random.seed(42)
 
 class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
-    val_sel_num=10, aug_time=10, logger=None):
-        self.model = model_nas()
+    val_sel_num=10, aug_time=10, logger=None, d_size=256):
+        self.model = model_nas(d_size=d_size)
         self.dst = dst
-        trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio)
+        self.logger = logger if logger is not None else gen_logger('SNAS')
+        trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio, logger=self.logger)
         assert trainer.cache() == True, 'imgs searching entounters error'
         self.train_table = trainer.train_table
         self.test_table = trainer.test_table
@@ -29,17 +30,18 @@ class SNAS:
         self.ada = None 
         self.seq = None
         self.pool = defaultdict(list)
-        self.logger = logger if logger is not None else gen_logger('SNAS')
+        self.train_pool = defaultdict(list)
 
     def _get_pool(self, dir_p, bound=0):
-        if dir_p not in self.pool:    
-            self.pool[dir_p] = os.listdir(dir_p)
-        elif len(self.pool[dir_p]) <= bound:
-            self.pool[dir_p] = os.listdir(dir_p)
-        return self.pool[dir_p]
+        pool = self.pool if bound == 0 else self.train_pool
+        if dir_p not in pool:
+            pool[dir_p] = os.listdir(dir_p)
+        elif len(pool[dir_p]) <= bound:
+            pool[dir_p] = os.listdir(dir_p)
+        return pool[dir_p]
 
     def _read_train_dir(self, dir_p):
-        # here I try to make sure no repetitive selections
+        # here I try to make sure no repetitive selections in training
         pool = self._get_pool(dir_p)
         sel = random.choice(pool)
         self.pool[dir_p].remove(sel)

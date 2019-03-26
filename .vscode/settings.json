@@ -3,6 +3,6 @@
     "python.unitTest.unittestEnabled": false,
     "python.unitTest.nosetestsEnabled": false,
     "python.unitTest.pyTestEnabled": false,
-    "python.pythonPath": "C:\\Anaconda3\\envs\\eos\\python.exe",
+    "python.pythonPath": "D:\\Miniconda3\\envs\\sci\\python.exe",
     "python.unitTest.promptToConfigure": false
 }

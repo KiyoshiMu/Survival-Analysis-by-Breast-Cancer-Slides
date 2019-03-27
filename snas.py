@@ -151,7 +151,7 @@ class SNAS:
             self.seq = get_seq()
 
     def plot(self):
-        plot_model(self.model, to_file=f'{self.dst}/model.png', show_shapes=True) 
+        plot_model(self.model, to_file=f'{self.dst}/model.png') 
 
     def set_start_epoch(self, start_epoch):
         self.start_epoch = start_epoch

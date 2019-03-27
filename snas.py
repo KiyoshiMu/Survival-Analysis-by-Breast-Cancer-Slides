@@ -116,6 +116,7 @@ class SNAS:
 
     def _x_aug(self, X):
         if self.aug_time == 0:
+            X = [preprocess_input(x) for x in X]
             yield np.array(X)
         else: 
             for _ in range(self.aug_time):

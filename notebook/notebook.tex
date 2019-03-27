@@ -141,7 +141,7 @@
     \def\gt{>}
     \def\lt{<}
     % Document parameters
-    \title{saved\_imgs}
+    \title{performance}
     
     
     
@@ -281,274 +281,674 @@
 
     
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
-        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
-        \PY{k+kn}{import} \PY{n+nn}{os}
-        \PY{k+kn}{import} \PY{n+nn}{sys}
+{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{re}
         \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
-        \PY{n}{sys}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{..}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        \PY{k+kn}{from} \PY{n+nn}{tools} \PY{k}{import} \PY{n}{save\PYZus{}pickle}
-\end{Verbatim}
-
-
-    \hypertarget{search-in-real-disk}{%
-\subsubsection{Search in real disk}\label{search-in-real-disk}}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}2}]:} \PY{k}{def} \PY{n+nf}{case2path}\PY{p}{(}\PY{n}{x\PYZus{}p}\PY{p}{)}\PY{p}{:}
-            \PY{n}{cur\PYZus{}dirs} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{listdir}\PY{p}{(}\PY{n}{x\PYZus{}p}\PY{p}{)}
-            \PY{n}{result} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
-            \PY{k}{for} \PY{n}{dir\PYZus{}n} \PY{o+ow}{in} \PY{n}{cur\PYZus{}dirs}\PY{p}{:}
-                \PY{n}{case} \PY{o}{=} \PY{n}{dir\PYZus{}n}\PY{p}{[}\PY{p}{:}\PY{l+m+mi}{12}\PY{p}{]}
-                \PY{k}{if} \PY{n}{case} \PY{o+ow}{in} \PY{n}{result}\PY{p}{:}
-                    \PY{k}{continue}
-                \PY{n}{result}\PY{p}{[}\PY{n}{case}\PY{p}{]} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{x\PYZus{}p}\PY{p}{,} \PY{n}{dir\PYZus{}n}\PY{p}{)}
-            \PY{k}{return} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{o}{.}\PY{n}{from\PYZus{}dict}\PY{p}{(}\PY{n}{result}\PY{p}{,} \PY{n}{orient}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{columns}\PY{o}{=}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{path}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
-        
-        \PY{k}{def} \PY{n+nf}{merge\PYZus{}table\PYZus{}creator}\PY{p}{(}\PY{n}{selected\PYZus{}p}\PY{p}{,} \PY{n}{target\PYZus{}p}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/Target.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{:}
-            \PY{n}{target} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{n}{target\PYZus{}p}\PY{p}{)}
-            \PY{n}{case\PYZus{}path\PYZus{}df} \PY{o}{=} \PY{n}{case2path}\PY{p}{(}\PY{n}{selected\PYZus{}p}\PY{p}{)}
-            \PY{n}{merge\PYZus{}table} \PY{o}{=} \PY{n}{case\PYZus{}path\PYZus{}df}\PY{o}{.}\PY{n}{merge}\PY{p}{(}\PY{n}{target}\PY{p}{,} \PY{n}{left\PYZus{}index}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{right\PYZus{}on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{sample}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-            \PY{n+nb}{print}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{merge\PYZus{}table}\PY{p}{)}\PY{o}{/}\PY{n+nb}{len}\PY{p}{(}\PY{n}{target}\PY{p}{)}\PY{p}{)}
-            \PY{n}{merge\PYZus{}table}\PY{o}{.}\PY{n}{reset\PYZus{}index}\PY{p}{(}\PY{n}{drop}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-            \PY{k}{return} \PY{n}{merge\PYZus{}table}
+        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+        \PY{k+kn}{from} \PY{n+nn}{collections} \PY{k}{import} \PY{n}{defaultdict}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{merge\PYZus{}table} \PY{o}{=} \PY{n}{merge\PYZus{}table\PYZus{}creator}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../../selected/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{pattern} \PY{o}{=} \PY{l+s+sa}{r}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(?P\PYZlt{}day\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+\PYZhy{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+\PYZhy{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{s(?P\PYZlt{}time\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+:}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+:}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+).*train:(?P\PYZlt{}train\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+.}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{snum:(?P\PYZlt{}num\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+);.*val:(?P\PYZlt{}val\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+.}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{s}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{pattern0} \PY{o}{=} \PY{l+s+sa}{r}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(?P\PYZlt{}day\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+\PYZhy{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+\PYZhy{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{s(?P\PYZlt{}time\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+:}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+:}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+).*train:(?P\PYZlt{}train\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+.}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+);.*val:(?P\PYZlt{}val\PYZgt{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+.}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{s}\PY{l+s+s1}{\PYZsq{}}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-0.9857142857142858
+{\color{incolor}In [{\color{incolor}9}]:} \PY{k}{def} \PY{n+nf}{collect}\PY{p}{(}\PY{n}{p}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../../main.log}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{pa}\PY{o}{=}\PY{n}{pattern}\PY{p}{)}\PY{p}{:}
+            \PY{k}{with} \PY{n+nb}{open}\PY{p}{(}\PY{n}{p}\PY{p}{)} \PY{k}{as} \PY{n}{log}\PY{p}{:}
+                \PY{n}{result} \PY{o}{=} \PY{n}{re}\PY{o}{.}\PY{n}{compile}\PY{p}{(}\PY{n}{pa}\PY{p}{)}
+                \PY{n}{line} \PY{o}{=} \PY{n}{result}\PY{o}{.}\PY{n}{finditer}\PY{p}{(}\PY{n}{log}\PY{o}{.}\PY{n}{read}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+            \PY{k}{return} \PY{n}{line}
+\end{Verbatim}
 
-    \end{Verbatim}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}4}]:} \PY{n}{merge\PYZus{}table}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}4}]:} \PY{k}{def} \PY{n+nf}{collect\PYZus{}aux}\PY{p}{(}\PY{n}{line}\PY{p}{)}\PY{p}{:}
+            \PY{n}{record} \PY{o}{=} \PY{n}{defaultdict}\PY{p}{(}\PY{n+nb}{list}\PY{p}{)}
+            \PY{k}{while} \PY{l+m+mi}{1}\PY{p}{:}
+                \PY{k}{try}\PY{p}{:}
+                    \PY{n}{m} \PY{o}{=} \PY{n+nb}{next}\PY{p}{(}\PY{n}{line}\PY{p}{)}
+                    \PY{k}{for} \PY{n}{k}\PY{p}{,} \PY{n}{v} \PY{o+ow}{in} \PY{n}{m}\PY{o}{.}\PY{n}{groupdict}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+                        \PY{n}{record}\PY{p}{[}\PY{n}{k}\PY{p}{]}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{v}\PY{p}{)}
+                \PY{k}{except} \PY{n+ne}{StopIteration}\PY{p}{:}
+                    \PY{k}{break}
+            \PY{k}{return} \PY{n}{record}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}25}]:}  \PY{k}{def} \PY{n+nf}{clean\PYZus{}data}\PY{p}{(}\PY{n}{record}\PY{p}{)}\PY{p}{:}
+             \PY{n}{log\PYZus{}df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{o}{.}\PY{n}{from\PYZus{}dict}\PY{p}{(}\PY{n}{record}\PY{p}{)}
+             \PY{k}{try}\PY{p}{:}
+                 \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{to\PYZus{}numeric}\PY{p}{(}\PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
+             \PY{k}{except} \PY{n+ne}{KeyError}\PY{p}{:}
+                 \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{380}
+             \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{to\PYZus{}numeric}\PY{p}{(}\PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
+             \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{to\PYZus{}numeric}\PY{p}{(}\PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
+             \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{day}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{to\PYZus{}datetime}\PY{p}{(}\PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{day}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
+             \PY{n}{log\PYZus{}df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{time}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{log\PYZus{}df}\PY{o}{.}\PY{n}{day} \PY{o}{+} \PY{n}{pd}\PY{o}{.}\PY{n}{to\PYZus{}timedelta}\PY{p}{(}\PY{n}{log\PYZus{}df}\PY{o}{.}\PY{n}{time}\PY{p}{)}
+             \PY{k}{return} \PY{n}{log\PYZus{}df}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}6}]:} \PY{k}{def} \PY{n+nf}{log\PYZus{}data\PYZus{}pipe}\PY{p}{(}\PY{n}{p}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../../main.log}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{pa}\PY{o}{=}\PY{n}{pattern}\PY{p}{)}\PY{p}{:}
+            \PY{n}{line} \PY{o}{=} \PY{n}{collect}\PY{p}{(}\PY{n}{p}\PY{p}{,} \PY{n}{pa}\PY{o}{=}\PY{n}{pa}\PY{p}{)}
+            \PY{n}{record} \PY{o}{=} \PY{n}{collect\PYZus{}aux}\PY{p}{(}\PY{n}{line}\PY{p}{)}
+            \PY{n}{log\PYZus{}df} \PY{o}{=} \PY{n}{clean\PYZus{}data}\PY{p}{(}\PY{n}{record}\PY{p}{)}
+            \PY{k}{return} \PY{n}{log\PYZus{}df}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}26}]:} \PY{n}{log\PYZus{}df0} \PY{o}{=} \PY{n}{log\PYZus{}data\PYZus{}pipe}\PY{p}{(}\PY{n}{p}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../../train.log}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{pa}\PY{o}{=}\PY{n}{pattern0}\PY{p}{)}
+         \PY{n}{log\PYZus{}df1} \PY{o}{=} \PY{n}{log\PYZus{}data\PYZus{}pipe}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}27}]:} \PY{n}{log\PYZus{}df\PYZus{}clean} \PY{o}{=} \PY{n}{log\PYZus{}df0}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{p}{)}
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{k+kc}{True}
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{0}
+\end{Verbatim}
+
+
+    Without augmentation, 256
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}28}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 00:01:35}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}20 21:29:06}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{k+kc}{False}
+         
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 00:01:35}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}20 21:29:06}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{256}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}29}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 13:13:39}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 12:15:06}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{k+kc}{False}
+         
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 13:13:39}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 12:15:06}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{256}
+\end{Verbatim}
+
+
+    log\_df\_clean.loc{[}(log\_df.time\textless{}=`2019-03-20 11:30:50')\&
+(log\_df.time\textgreater{}=`2019-03-20 09:28:06'), `aug'{]} = False
+
+log\_df\_clean.loc{[}(log\_df.time\textless{}=`2019-03-20 11:30:50')\&
+(log\_df.time\textgreater{}=`2019-03-20 09:28:06'), `size'{]} = 256
+
+    Without augmentation, 512
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}30}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 14:27:13}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 17:39:24}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{k+kc}{False}
+         
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 14:27:13}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 17:39:24}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{512}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}31}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 10:33:33}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 11:34:35}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{k+kc}{False}
+         
+         \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 10:33:33}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 11:34:35}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,}  \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{512}
+\end{Verbatim}
+
+
+    With augmentation, 512
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}32}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}20 16:29:59}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}20 18:56:42}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{512}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}33}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 20:17:59}\PY{l+s+s1}{\PYZsq{}}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 01:48:42}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{512}
+\end{Verbatim}
+
+
+    With augmentation, 256
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}34}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}19 13:37:12}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}19 12:21:56}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{256}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}35}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 20:15:05}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                          \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 17:53:31}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{256}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}36}]:} \PY{n}{log\PYZus{}df\PYZus{}clean} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mi}{1}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}37}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}\PY{o}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}4}]:}                                      path        sample  duration  observed
-        0  ../../selected/TCGA-A1-A0SB-01Z-00-DX1  TCGA-A1-A0SB       259     False
-        1  ../../selected/TCGA-A1-A0SD-01Z-00-DX1  TCGA-A1-A0SD       437     False
-        2  ../../selected/TCGA-A1-A0SE-01Z-00-DX1  TCGA-A1-A0SE      1321     False
-        3  ../../selected/TCGA-A1-A0SF-01Z-00-DX1  TCGA-A1-A0SF      1463     False
-        4  ../../selected/TCGA-A1-A0SH-01Z-00-DX1  TCGA-A1-A0SH      1437     False
+{\color{outcolor}Out[{\color{outcolor}37}]:} size  aug    num
+         256   False  380    40
+                      607    40
+               True   380    40
+                      607    40
+         512   False  380    40
+                      607    40
+               True   380    40
+                      607    40
+         dtype: int64
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}18}]:} \PY{n+nb}{print}\PY{p}{(}\PY{n}{f}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZob{}}\PY{l+s+s1}{len(merge\PYZus{}table)\PYZcb{} cases are used}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}38}]:} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{to\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/performance\PYZus{}p1.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-759 cases are used
-
-    \end{Verbatim}
-
-    Use space to save time. I saved the image paths for each case in a dict.
+    \hypertarget{without-augmentation-256}{%
+\subsection{Without augmentation, 256}\label{without-augmentation-256}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}13}]:} \PY{k}{def} \PY{n+nf}{saving}\PY{p}{(}\PY{n}{merge\PYZus{}table}\PY{p}{)}\PY{p}{:}
-             \PY{n}{img\PYZus{}disk} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
-             \PY{n}{img\PYZus{}count} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
-             \PY{k}{for} \PY{n}{item} \PY{o+ow}{in} \PY{n}{merge\PYZus{}table}\PY{o}{.}\PY{n}{iterrows}\PY{p}{(}\PY{p}{)}\PY{p}{:}
-                 \PY{n}{path} \PY{o}{=} \PY{n}{item}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
-                 \PY{n}{case} \PY{o}{=} \PY{n}{item}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
-                 \PY{n}{pool} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{listdir}\PY{p}{(}\PY{n}{path}\PY{p}{)}
-                 \PY{n}{img\PYZus{}disk}\PY{p}{[}\PY{n}{case}\PY{p}{]} \PY{o}{=} \PY{n+nb}{tuple}\PY{p}{(}\PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{abspath}\PY{p}{(}\PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{path}\PY{p}{,} \PY{n}{f}\PY{p}{)}\PY{p}{)} \PY{k}{for} \PY{n}{f} \PY{o+ow}{in} \PY{n}{pool}\PY{p}{)}
-                 \PY{n}{img\PYZus{}count}\PY{p}{[}\PY{n}{case}\PY{p}{]} \PY{o}{=} \PY{n+nb}{len}\PY{p}{(}\PY{n}{pool}\PY{p}{)}
-             \PY{n}{save\PYZus{}pickle}\PY{p}{(}\PY{n}{img\PYZus{}disk}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../../archive/}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{name}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{img\PYZus{}disk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-             \PY{k}{return} \PY{n}{img\PYZus{}count}
+{\color{incolor}In [{\color{incolor}40}]:} \PY{n}{noaug256} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{o}{\PYZam{}}
+                                  \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}14}]:} \PY{n}{img\PYZus{}count} \PY{o}{=} \PY{n}{saving}\PY{p}{(}\PY{n}{merge\PYZus{}table}\PY{p}{)}
-\end{Verbatim}
-
-
-    Check the minimum of img number
+    \hypertarget{section}{%
+\subsubsection{2/8}\label{section}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}16}]:} \PY{k+kn}{from} \PY{n+nn}{math} \PY{k}{import} \PY{n}{inf}
-         \PY{k}{def} \PY{n+nf}{check\PYZus{}min}\PY{p}{(}\PY{n}{img\PYZus{}count}\PY{p}{)}\PY{p}{:}
-             \PY{n}{ceil} \PY{o}{=} \PY{n}{inf}
-             \PY{n}{record} \PY{o}{=} \PY{k+kc}{None}
-             \PY{k}{for} \PY{n}{k}\PY{p}{,} \PY{n}{v} \PY{o+ow}{in} \PY{n}{img\PYZus{}count}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{:}
-                 \PY{k}{if} \PY{n}{v} \PY{o}{\PYZlt{}} \PY{n}{ceil}\PY{p}{:}
-                     \PY{n}{ceil} \PY{o}{=} \PY{n}{v}
-                     \PY{n}{record} \PY{o}{=} \PY{n}{k}
-             \PY{n+nb}{print}\PY{p}{(}\PY{n}{f}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+si}{\PYZob{}record\PYZcb{}}\PY{l+s+s1}{ has the minimum number of imgs }\PY{l+s+si}{\PYZob{}ceil\PYZcb{}}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{check\PYZus{}min}\PY{p}{(}\PY{n}{img\PYZus{}count}\PY{p}{)}
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-TCGA-A2-A0EQ has the minimum number of imgs 50
-
-    \end{Verbatim}
-
-    \hypertarget{compare-with-raw-slides}{%
-\subsubsection{Compare with raw slides}\label{compare-with-raw-slides}}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}19}]:} \PY{n}{pixel\PYZus{}to\PYZus{}micron} \PY{o}{=} \PY{l+m+mf}{2.43} \PY{c+c1}{\PYZsh{} 10X power}
-\end{Verbatim}
-
-
-    Next, combine slides metainfo and the outcome of Nesnet selection.
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}35}]:} \PY{n}{img\PYZus{}size} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/power.txt}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{sep}\PY{o}{=}\PY{l+s+sa}{r}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{t}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{engine}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{python}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-         \PY{n}{img\PYZus{}size}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{img\PYZus{}size}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{p}{[}\PY{p}{:}\PY{l+m+mi}{12}\PY{p}{]}
-         \PY{n}{img\PYZus{}size}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{img\PYZus{}size}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{,}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-         \PY{n}{img\PYZus{}sel} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{o}{.}\PY{n}{from\PYZus{}dict}\PY{p}{(}\PY{n}{img\PYZus{}count}\PY{p}{,} \PY{n}{orient}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-         \PY{n}{img\PYZus{}sel}\PY{o}{.}\PY{n}{columns} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
-         \PY{n}{img\PYZus{}comp} \PY{o}{=} \PY{n}{img\PYZus{}sel}\PY{o}{.}\PY{n}{merge}\PY{p}{(}\PY{n}{img\PYZus{}size}\PY{p}{,} \PY{n}{left\PYZus{}index}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} 
-                                  \PY{n}{right\PYZus{}on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{how}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{inner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{.}\PY{n}{drop\PYZus{}duplicates}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}36}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}43}]:} \PY{n}{noaug256}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}36}]:}       num          Name  Power                  Size
-         535    91  TCGA-A1-A0SB     40  ['82945',  '112314']
-         122  1046  TCGA-A1-A0SD     40   ['80287',  '94075']
-         414  5687  TCGA-A1-A0SE     40  ['73336',  '122873']
-         599   611  TCGA-A1-A0SF     40   ['84727',  '65276']
-         710  3441  TCGA-A1-A0SH     40   ['64427',  '98874']
+{\color{outcolor}Out[{\color{outcolor}43}]:}         train       val
+         num                    
+         380  0.552027  0.618779
+         607  0.547878  0.676822
 \end{Verbatim}
             
-    Then, get useful information from raw data.
-
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}38}]:} \PY{n}{tile\PYZus{}area} \PY{o}{=} \PY{l+m+mi}{96} \PY{o}{*} \PY{l+m+mi}{96}
-         \PY{n}{p\PYZus{}to\PYZus{}area} \PY{o}{=} \PY{n}{pixel\PYZus{}to\PYZus{}micron} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}
-         
-         \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{area\PYZus{}10X}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{apply}\PY{p}{(}
-             \PY{k}{lambda} \PY{n}{x}\PY{p}{:}\PY{n+nb}{int}\PY{p}{(}\PY{n}{x}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{replace}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZsq{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{)}\PY{o}{*}\PY{n+nb}{int}\PY{p}{(}\PY{n}{x}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{.}\PY{n}{replace}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZsq{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{)}
-         \PY{p}{)}\PY{o}{/}\PY{p}{(}\PY{p}{(}\PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{/}\PY{l+m+mi}{10}\PY{p}{)}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{)}
-         
-         \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{tile\PYZus{}area} \PY{o}{*} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{/} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{area\PYZus{}10X}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
-         \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ori\PYZus{}real\PYZus{}area}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{area\PYZus{}10X}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{*} \PY{n}{p\PYZus{}to\PYZus{}area}
-         \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{sel\PYZus{}real\PYZus{}area}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{*} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ori\PYZus{}real\PYZus{}area}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
-\end{Verbatim}
-
-
-    The case with the most selected image is TCGA-D8-A1XR. It's also the one
-with the largest seletion ratio.
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}39}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}44}]:} \PY{n}{noaug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.67}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}39}]:}       num          Name  Power                 Size      area\_10X     ratio  \textbackslash{}
-         74  27971  TCGA-D8-A1XR     40  ['90174',  '81671']  4.602875e+08  0.560043   
-         
-             ori\_real\_area  sel\_real\_area  
-         74   2.717952e+09   1.522169e+09  
+{\color{outcolor}Out[{\color{outcolor}44}]:}            day  num                time     train       val    aug  size
+         125 2019-03-20  607 2019-03-20 23:06:09  0.515839  0.676822  False   256
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}41}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}46}]:} \PY{n}{noaug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.54}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}41}]:}       num          Name  Power                 Size      area\_10X     ratio  \textbackslash{}
-         74  27971  TCGA-D8-A1XR     40  ['90174',  '81671']  4.602875e+08  0.560043   
-         
-             ori\_real\_area  sel\_real\_area  
-         74   2.717952e+09   1.522169e+09  
+{\color{outcolor}Out[{\color{outcolor}46}]:}            day  num                time     train       val    aug  size
+         135 2019-03-21  607 2019-03-21 00:01:19  0.547878  0.626643  False   256
 \end{Verbatim}
             
+    \hypertarget{section}{%
+\subsubsection{5/5}\label{section}}
+
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}42}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ratio}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{min}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}49}]:} \PY{n}{noaug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.618}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}42}]:}      num          Name  Power                  Size      area\_10X     ratio  \textbackslash{}
-         511   60  TCGA-A8-A07E     20  ['110336',  '77824']  2.146697e+09  0.000258   
-         
-              ori\_real\_area  sel\_real\_area  
-         511   1.267603e+10    3265173.504  
+{\color{outcolor}Out[{\color{outcolor}49}]:}            day  num                time     train       val    aug  size
+         239 2019-03-21  380 2019-03-21 13:05:18  0.530431  0.618779  False   256
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}43}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{n}{img\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{min}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}50}]:} \PY{n}{noaug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.55}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}43}]:}      num          Name  Power                  Size      area\_10X     ratio  \textbackslash{}
-         764   50  TCGA-A2-A0EQ     40  ['87178',  '121613']  6.626236e+08  0.000695   
-         695   50  TCGA-A8-A07O     20   ['58624',  '42240']  6.190694e+08  0.000744   
-         780   50  TCGA-A8-A08G     20   ['51456',  '47872']  6.158254e+08  0.000748   
-         651   50  TCGA-A8-A09R     20   ['65792',  '32000']  5.263360e+08  0.000875   
-         647   50  TCGA-C8-A26X     40   ['60051',  '50456']  1.893708e+08  0.002433   
-         290   50  TCGA-E9-A1NF     40   ['85372',  '81394']  4.342980e+08  0.001061   
-         188   50  TCGA-E9-A1NG     40   ['74666',  '80437']  3.753693e+08  0.001228   
-         174   50  TCGA-E9-A1NH     40   ['61330',  '49794']  1.908666e+08  0.002414   
-         
-              ori\_real\_area  sel\_real\_area  
-         764   3.912726e+09     2720977.92  
-         695   3.655543e+09     2720977.92  
-         780   3.636387e+09     2720977.92  
-         651   3.107961e+09     2720977.92  
-         647   1.118216e+09     2720977.92  
-         290   2.564486e+09     2720977.92  
-         188   2.216518e+09     2720977.92  
-         174   1.127048e+09     2720977.92  
+{\color{outcolor}Out[{\color{outcolor}50}]:}            day  num                time     train       val    aug  size
+         228 2019-03-21  380 2019-03-21 12:49:49  0.552027  0.554513  False   256
 \end{Verbatim}
             
-    I have clipped the minimal number to 50 to better train the model. So
-lots of cases are with 50 imgs selected.
-
-    \hypertarget{summary}{%
-\subsubsection{Summary}\label{summary}}
+    \hypertarget{without-augmentation-512}{%
+\subsection{Without augmentation, 512}\label{without-augmentation-512}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}44}]:} \PY{n}{img\PYZus{}comp}\PY{o}{.}\PY{n}{describe}\PY{p}{(}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}51}]:} \PY{n}{noaug512} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{512}\PY{p}{)}\PY{o}{\PYZam{}}
+                                  \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}52}]:} \PY{n}{noaug512}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}44}]:}                 num       Power      area\_10X       ratio  ori\_real\_area  \textbackslash{}
-         count    759.000000  759.000000  7.590000e+02  759.000000   7.590000e+02   
-         mean    2977.586298   38.234519  5.382403e+08    0.057310   3.178255e+09   
-         std     3381.354334    5.677602  2.857446e+08    0.061695   1.687293e+09   
-         min       50.000000   20.000000  2.308479e+07    0.000258   1.363134e+08   
-         25\%      491.000000   40.000000  3.793671e+08    0.010588   2.240125e+09   
-         50\%     1874.000000   40.000000  5.176180e+08    0.039773   3.056482e+09   
-         75\%     4359.500000   40.000000  6.433840e+08    0.084139   3.799118e+09   
-         max    27971.000000   40.000000  2.699035e+09    0.560043   1.593753e+10   
-         
-                sel\_real\_area  
-         count   7.590000e+02  
-         mean    1.620389e+08  
-         std     1.840118e+08  
-         min     2.720978e+06  
-         25\%     2.672000e+07  
-         50\%     1.019823e+08  
-         75\%     2.372421e+08  
-         max     1.522169e+09  
+{\color{outcolor}Out[{\color{outcolor}52}]:}         train       val
+         num                    
+         380  0.567733  0.635937
+         607  0.593266  0.663680
 \end{Verbatim}
             
+    \hypertarget{section}{%
+\subsubsection{2/8}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}54}]:} \PY{n}{noaug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.66}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}54}]:}            day  num                time     train      val    aug  size
+         255 2019-03-21  607 2019-03-21 14:43:33  0.586026  0.66368  False   512
+         261 2019-03-21  607 2019-03-21 14:53:07  0.593266  0.66368  False   512
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}55}]:} \PY{n}{noaug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.59}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}55}]:}            day  num                time     train      val    aug  size
+         261 2019-03-21  607 2019-03-21 14:53:07  0.593266  0.66368  False   512
+\end{Verbatim}
+            
+    \hypertarget{section}{%
+\subsubsection{5/5}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}57}]:} \PY{n}{noaug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.635}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}57}]:}            day  num                time     train       val    aug  size
+         374 2019-03-22  380 2019-03-22 10:45:16  0.489895  0.635937  False   512
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}58}]:} \PY{n}{noaug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{noaug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.567}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}58}]:}            day  num                time     train       val    aug  size
+         381 2019-03-22  380 2019-03-22 10:56:28  0.567733  0.576788  False   512
+\end{Verbatim}
+            
+    \hypertarget{with-10-times-augmentation-256}{%
+\subsection{With 10 times augmentation,
+256}\label{with-10-times-augmentation-256}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}59}]:} \PY{n}{aug256} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{o}{\PYZam{}}
+                                 \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{True}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}60}]:} \PY{n}{aug256}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}60}]:}         train       val
+         num                    
+         380  0.598914  0.551423
+         607  0.546430  0.614695
+\end{Verbatim}
+            
+    \hypertarget{section}{%
+\subsubsection{5/5}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}63}]:} \PY{n}{aug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.55}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}63}]:}            day  num                time    train       val   aug  size
+         100 2019-03-19  380 2019-03-19 12:21:56  0.53147  0.551423  True   256
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}64}]:} \PY{n}{aug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.598}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}64}]:}            day  num                time     train       val   aug  size
+         116 2019-03-19  380 2019-03-19 12:52:36  0.598914  0.542577  True   256
+\end{Verbatim}
+            
+    \hypertarget{section}{%
+\subsubsection{2/8}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}66}]:} \PY{n}{aug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.61}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}66}]:}            day  num                time     train       val   aug  size
+         302 2019-03-21  607 2019-03-21 18:48:30  0.487963  0.614695  True   256
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}65}]:} \PY{n}{aug256}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug256}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.546}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}65}]:}            day  num                time    train      val   aug  size
+         293 2019-03-21  607 2019-03-21 18:16:27  0.54643  0.46595  True   256
+\end{Verbatim}
+            
+    \hypertarget{with-10-times-augmentation-512}{%
+\subsection{With 10 times augmentation,
+512}\label{with-10-times-augmentation-512}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}67}]:} \PY{n}{aug512} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{512}\PY{p}{)}\PY{o}{\PYZam{}}
+                                 \PY{p}{(}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{True}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \hypertarget{section}{%
+\subsubsection{2/8}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}68}]:} \PY{n}{aug512}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}68}]:}         train       val
+         num                    
+         380  0.478577  0.581051
+         607  0.519097  0.615890
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}70}]:} \PY{n}{aug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.519}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}70}]:}           day  num                time     train       val   aug  size
+         55 2019-03-20  607 2019-03-20 16:42:07  0.519097  0.506571  True   512
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}71}]:} \PY{n}{aug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.61}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}71}]:}           day  num                time     train      val   aug  size
+         84 2019-03-20  607 2019-03-20 18:27:30  0.488053  0.61589  True   512
+\end{Verbatim}
+            
+    \hypertarget{section}{%
+\subsubsection{5/5}\label{section}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}72}]:} \PY{n}{aug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.58}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}72}]:}            day  num                time     train       val   aug  size
+         349 2019-03-22  380 2019-03-22 01:01:09  0.402818  0.581051  True   512
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}73}]:} \PY{n}{aug512}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{aug512}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.47}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}73}]:}            day  num                time     train       val   aug  size
+         360 2019-03-22  380 2019-03-22 01:31:59  0.478577  0.502505  True   512
+\end{Verbatim}
+            
+    \hypertarget{superpara}{%
+\subsection{Superpara}\label{superpara}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}76}]:} \PY{n}{group} \PY{o}{=} \PY{n}{log\PYZus{}df\PYZus{}clean}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{log\PYZus{}df\PYZus{}clean}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}77}]:} \PY{n+nb}{len}\PY{p}{(}\PY{n}{group}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}77}]:} 160
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}78}]:} \PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+         \PY{k+kn}{import} \PY{n+nn}{seaborn} \PY{k}{as} \PY{n+nn}{sns}
+         \PY{k+kn}{from} \PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{stats} \PY{k}{import} \PY{n}{ttest\PYZus{}ind}\PY{p}{,} \PY{n}{pearsonr}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}130}]:} \PY{n}{fig}\PY{p}{,} \PY{n}{axes} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{14}\PY{p}{,} \PY{l+m+mi}{7}\PY{p}{)}\PY{p}{,} \PY{n}{sharex}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{col}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{sharey}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{row}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{;}
+          \PY{n}{axes\PYZus{}f} \PY{o}{=} \PY{n}{axes}\PY{o}{.}\PY{n}{flatten}\PY{p}{(}\PY{p}{)}
+          \PY{c+c1}{\PYZsh{} sns.set()}
+          \PY{n}{test\PYZus{}loc} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{A B C D}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{p}{)}
+          \PY{k}{for} \PY{n}{idx}\PY{p}{,} \PY{p}{(}\PY{n}{num}\PY{p}{,} \PY{n}{title}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}\PY{p}{(}\PY{l+m+mi}{256}\PY{p}{,} \PY{l+m+mi}{512}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{narmal size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{large size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{)}\PY{p}{)} \PY{p}{:}
+              \PY{n}{ax} \PY{o}{=} \PY{n}{axes\PYZus{}f}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+              \PY{n}{g\PYZus{}y} \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{True}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{num}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+              \PY{n}{g\PYZus{}x}  \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{num}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+              \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{with augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+              \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}x}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{without augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}title}\PY{p}{(}\PY{n}{title}\PY{p}{)}
+              \PY{n}{p} \PY{o}{=} \PY{n}{ttest\PYZus{}ind}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{g\PYZus{}x}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.9}\PY{p}{,} \PY{l+m+mf}{0.15}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value = }\PY{l+s+si}{\PYZob{}:.3f\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{p}\PY{p}{)}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+              \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+m+mf}{0.92}\PY{p}{,} \PY{n}{test\PYZus{}loc}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                  \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{small}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{bbox\PYZus{}to\PYZus{}anchor}\PY{o}{=}\PY{p}{(}\PY{l+m+mf}{0.98}\PY{p}{,} \PY{l+m+mf}{0.9}\PY{p}{)}\PY{p}{,} \PY{n}{loc}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{borderaxespad}\PY{o}{=}\PY{l+m+mf}{0.}\PY{p}{)}
+              
+          \PY{k}{for} \PY{n}{idx}\PY{p}{,} \PY{p}{(}\PY{n}{aug}\PY{p}{,} \PY{n}{title}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}\PY{p}{(}\PY{k+kc}{True}\PY{p}{,} \PY{k+kc}{False}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{with augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{without augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{n}{start}\PY{o}{=}\PY{n}{idx}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{)} \PY{p}{:}
+              \PY{n}{ax} \PY{o}{=} \PY{n}{axes\PYZus{}f}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+              \PY{n}{g\PYZus{}y} \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{aug}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+              \PY{n}{g\PYZus{}x}  \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{aug}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{512}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+              \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{normal size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+              \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}x}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{large size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}title}\PY{p}{(}\PY{n}{title}\PY{p}{)}
+              \PY{n}{p} \PY{o}{=} \PY{n}{ttest\PYZus{}ind}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{g\PYZus{}x}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.9}\PY{p}{,} \PY{l+m+mf}{0.15}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value = }\PY{l+s+si}{\PYZob{}:.4f\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{p}\PY{p}{)}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+              \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+m+mf}{0.92}\PY{p}{,} \PY{n}{test\PYZus{}loc}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+              \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{small}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+              \PY{n}{ax}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{bbox\PYZus{}to\PYZus{}anchor}\PY{o}{=}\PY{p}{(}\PY{l+m+mf}{0.98}\PY{p}{,} \PY{l+m+mf}{0.9}\PY{p}{)}\PY{p}{,} \PY{n}{loc}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{borderaxespad}\PY{o}{=}\PY{l+m+mf}{0.}\PY{p}{)}
+          
+          \PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_64_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}132}]:} \PY{k+kn}{import} \PY{n+nn}{matplotlib} \PY{k}{as} \PY{n+nn}{mpl}
+          
+          \PY{n}{sns}\PY{o}{.}\PY{n}{set}\PY{p}{(}\PY{p}{)}
+          \PY{n}{mpl}\PY{o}{.}\PY{n}{rcParams}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{font.sans\PYZhy{}serif}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SimHei}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+          \PY{n}{mpl}\PY{o}{.}\PY{n}{rcParams}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{font.serif}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SimHei}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+          
+          \PY{n}{sns}\PY{o}{.}\PY{n}{set\PYZus{}style}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{darkgrid}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{font.sans\PYZhy{}serif}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{simhei}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Arial}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{fig}\PY{p}{,} \PY{n}{axes} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{13}\PY{p}{,} \PY{l+m+mi}{7}\PY{p}{)}\PY{p}{,} \PY{n}{sharex}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{col}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{sharey}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{row}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{;}
+        \PY{n}{axes\PYZus{}f} \PY{o}{=} \PY{n}{axes}\PY{o}{.}\PY{n}{flatten}\PY{p}{(}\PY{p}{)}
+        \PY{n}{test\PYZus{}loc} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{A B C D}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{p}{)}
+        \PY{k}{for} \PY{n}{idx}\PY{p}{,} \PY{p}{(}\PY{n}{num}\PY{p}{,} \PY{n}{title}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}\PY{p}{(}\PY{l+m+mi}{256}\PY{p}{,} \PY{l+m+mi}{512}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{narmal size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{增大模型}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{)}\PY{p}{)} \PY{p}{:}
+            \PY{n}{ax} \PY{o}{=} \PY{n}{axes\PYZus{}f}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+            \PY{n}{g\PYZus{}y} \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{True}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{num}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+            \PY{n}{g\PYZus{}x}  \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{num}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+            \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{使用数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+            \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}x}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{不使用数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{c+c1}{\PYZsh{}     ax.set\PYZus{}title(title)}
+            \PY{n}{p} \PY{o}{=} \PY{n}{ttest\PYZus{}ind}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{g\PYZus{}x}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.88}\PY{p}{,} \PY{l+m+mf}{0.25}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p值 = }\PY{l+s+si}{\PYZob{}:.3f\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{p}\PY{p}{)}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+            \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+m+mf}{0.92}\PY{p}{,} \PY{n}{test\PYZus{}loc}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{bbox\PYZus{}to\PYZus{}anchor}\PY{o}{=}\PY{p}{(}\PY{l+m+mf}{0.98}\PY{p}{,} \PY{l+m+mf}{0.9}\PY{p}{)}\PY{p}{,} \PY{n}{loc}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{borderaxespad}\PY{o}{=}\PY{l+m+mf}{0.}\PY{p}{)}
+        \PY{c+c1}{\PYZsh{}     ax.set(ylabel=\PYZsq{}c值 (c index)\PYZsq{})}
+            
+        \PY{k}{for} \PY{n}{idx}\PY{p}{,} \PY{p}{(}\PY{n}{aug}\PY{p}{,} \PY{n}{title}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}\PY{p}{(}\PY{k+kc}{True}\PY{p}{,} \PY{k+kc}{False}\PY{p}{)}\PY{p}{,} \PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{使用数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{不使用数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{n}{start}\PY{o}{=}\PY{n}{idx}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{)} \PY{p}{:}
+            \PY{n}{ax} \PY{o}{=} \PY{n}{axes\PYZus{}f}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+            \PY{n}{g\PYZus{}y} \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{aug}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+            \PY{n}{g\PYZus{}x}  \PY{o}{=} \PY{n}{group}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{n}{aug}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{group}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{512}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+            \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{基本模型}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+            \PY{n}{sns}\PY{o}{.}\PY{n}{distplot}\PY{p}{(}\PY{n}{g\PYZus{}x}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{ax}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{增大模型}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{c+c1}{\PYZsh{}     ax.set\PYZus{}title(title)}
+            \PY{n}{p} \PY{o}{=} \PY{n}{ttest\PYZus{}ind}\PY{p}{(}\PY{n}{g\PYZus{}y}\PY{p}{,} \PY{n}{g\PYZus{}x}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.88}\PY{p}{,} \PY{l+m+mf}{0.25}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p值 = }\PY{l+s+si}{\PYZob{}:.3f\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{p}\PY{p}{)}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+            \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+m+mf}{0.92}\PY{p}{,} \PY{n}{test\PYZus{}loc}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+            \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{n}{transform} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{transAxes}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{medium}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{ax}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{bbox\PYZus{}to\PYZus{}anchor}\PY{o}{=}\PY{p}{(}\PY{l+m+mf}{0.98}\PY{p}{,} \PY{l+m+mf}{0.9}\PY{p}{)}\PY{p}{,} \PY{n}{loc}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{borderaxespad}\PY{o}{=}\PY{l+m+mf}{0.}\PY{p}{)}
+        \PY{c+c1}{\PYZsh{}     ax.set(xlabel=\PYZsq{}密度\PYZsq{}, ylabel=\PYZsq{}c值 (c index)\PYZsq{})}
+        \PY{n}{fig}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mf}{0.5}\PY{p}{,}\PY{l+m+mf}{0.}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c值 (c index)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{ha}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{center}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{va}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{center}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{n}{fig}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mf}{0.5}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{密度}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{ha}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{center}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{va}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{center}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{rotation}\PY{o}{=}\PY{l+m+mi}{90}\PY{p}{)}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{savefig}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{comp.png}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,} \PY{n}{bbox\PYZus{}inches}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{tight}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{times}{%
+\subsubsection{400 Times}\label{times}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}138}]:} \PY{n}{p0} \PY{o}{=} \PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 00:01:19}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                           \PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ 2019\PYZhy{}03\PYZhy{}20 21:29:28}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}135}]:} \PY{n}{p1} \PY{o}{=} \PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 02:03:50}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                           \PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}21 00:23:23}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}146}]:} \PY{n}{p2} \PY{o}{=} \PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZlt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 19:01:44}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{\PYZam{}}
+                           \PY{p}{(}\PY{n}{log\PYZus{}df1}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}03\PYZhy{}22 11:36:15}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}147}]:} \PY{n}{p} \PY{o}{=} \PY{p}{(}\PY{n}{p0}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{p1}\PY{p}{)}\PY{p}{)}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{p2}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}148}]:} \PY{n+nb}{len}\PY{p}{(}\PY{n}{p}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}148}]:} 400
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}149}]:} \PY{n}{p}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}149}]:}            day                time     train  num       val
+          96  2019-03-20 2019-03-20 21:30:52  0.488777  607  0.522700
+          97  2019-03-20 2019-03-20 21:32:34  0.514662  607  0.560335
+          98  2019-03-20 2019-03-20 21:34:15  0.485881  607  0.547192
+          99  2019-03-20 2019-03-20 21:35:56  0.522717  607  0.581243
+          100 2019-03-20 2019-03-20 21:37:37  0.519278  607  0.591398
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}150}]:} \PY{n}{p}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{p}\PY{o}{.}\PY{n}{val}\PY{o}{==}\PY{n}{p}\PY{o}{.}\PY{n}{val}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}150}]:}            day                time     train  num       val
+          468 2019-03-22 2019-03-22 13:10:34  0.525975  607  0.725806
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}151}]:} \PY{n}{p}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{p}\PY{o}{.}\PY{n}{train}\PY{o}{==}\PY{n}{p}\PY{o}{.}\PY{n}{train}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}151}]:}            day                time     train  num       val
+          673 2019-03-22 2019-03-22 18:19:32  0.610915  607  0.691756
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}152}]:} \PY{n}{vals} \PY{o}{=} \PY{n}{p}\PY{o}{.}\PY{n}{val}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+          \PY{n}{trains} \PY{o}{=} \PY{n}{p}\PY{o}{.}\PY{n}{train}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}155}]:} \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{)}
+          \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{vals}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}155}]:} [<matplotlib.lines.Line2D at 0x22765d5de10>]
+\end{Verbatim}
+            
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_77_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}156}]:} \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{)}
+          \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{trains}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}156}]:} [<matplotlib.lines.Line2D at 0x22765d8b0f0>]
+\end{Verbatim}
+            
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_78_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
 
     % Add a bibliography block to the postdoc
     

@@ -1,8 +1,9 @@
 from keras.models import Model, Sequential
-from keras.layers import Input, GlobalMaxPooling2D, GlobalAveragePooling2D, Flatten, Concatenate, Dropout, Dense, Conv2D, BatchNormalization, MaxPooling2D
+from keras.layers import Input, GlobalMaxPooling2D, GlobalAveragePooling2D, Flatten, Concatenate, Dropout, Dense, Conv2D, BatchNormalization, MaxPooling2D, Lambda
 from keras.applications.nasnet import NASNetMobile
 from keras.regularizers import l2
 from keras import backend as K
+from keras.optimizers import SGD
 
 def negative_log_likelihood(E):
 	def loss(y_true,y_pred):
@@ -33,7 +34,6 @@ def model_pns():
     model.add(Dropout(0.5))
     model.add(Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
     kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01)))
-    
     return model
 
 def model_nas(d_size=256):
@@ -52,7 +52,6 @@ def model_nas(d_size=256):
     model = Model(inputs, out)
     model.load_weights('model.h5', by_name='NASNet')
     model.layers[1].trainable = False
-    
     return model
 
 def model_nas_clf():
@@ -67,5 +66,23 @@ def model_nas_clf():
     out = Dense(1, activation="sigmoid", name="3_")(out)
     model = Model(inputs, out)
     model.load_weights('model.h5')
-    
+    return model
+
+def global_average_pooling(x):
+    return K.mean(x, axis = (2, 3))
+
+def global_average_pooling_shape(input_shape):
+    return input_shape[0:2]
+
+def model_vis(): # learn from https://github.com/jacobgil/keras-cam
+    inputs = Input((96, 96, 3))
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    x = base_model(inputs)
+    out = Lambda(global_average_pooling, 
+              output_shape=global_average_pooling_shape)(x)
+    out = Dense(2, activation = 'softmax', init='uniform')(out)
+    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.5, nesterov=True)
+    model = Model(inputs, out)
+    model.load_weights('model.h5', by_name='NASNet')
+    model.compile(loss = 'categorical_crossentropy', optimizer = sgd, metrics=['accuracy'])
     return model

@@ -3,6 +3,7 @@ import cv2
 import random
 from math import inf
 from collections import defaultdict
+from functools import lru_cache
 import numpy as np
 from keras.applications.nasnet import preprocess_input
 from keras.optimizers import Adagrad
@@ -49,6 +50,7 @@ class SNAS:
         x = os.path.join(dir_p, sel)
         return cv2.imread(x)
 
+    @lru_cache(maxsize=759) # cache in memory, speed up the process of multiple validations
     def _read_val_dir(self, dir_p, use_filter=False) -> list:
         pool = self._get_pool(dir_p, bound=self.sel_num)
         pool_size = len(pool)

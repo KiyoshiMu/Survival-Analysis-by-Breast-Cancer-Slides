@@ -4,8 +4,10 @@ import argparse
 import os
 
 def models_val(dir_p, logger, sel_num=42):
-    model = SNAS('..', dst=dir_p, val_sel_num=sel_num)
-    logger.info(f'test {dir_p}')
+    para = os.path.basename(dir_p)
+    d_size = 512 if '512' in para else 256
+    model = SNAS('..', dst=dir_p, val_sel_num=sel_num, d_size=d_size)
+    logger.info(f'test {dir_p} {d_size}')
     for fn in filter(lambda x:x.endswith('h5'), os.listdir(dir_p)):
         fp = os.path.join(dir_p, fn)
         logger.info(f'now {fp}')

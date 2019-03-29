@@ -181,7 +181,11 @@ GitHub
 
 ### 乳腺癌特征
 
-乳腺癌现状
+乳腺癌的生存情况取决于癌症类型，发展程度和年龄。（"Breast Cancer Treatment (PDQ®)". NCI. 26 June 2014. Archived from the original on 5 July 2014. Retrieved 29 June 2014.）在发达国家，乳腺癌的生存率很高，（Breast cancer screening in developing countries - NCBI - NIH）比如，在美国，乳腺癌的五年生存率在89.4％左右。（"SEER Stat Fact Sheets: Breast Cancer". NCI. Archived from the original on 3 July 2014. Retrieved 18 June 2014.） 在发展中国家，存活率却不容乐观，仅为57%。（Breast cancer screening in developing countries - NCBI - NIH）就世界范围而言，乳腺癌是女性的主要癌症类型，占所有病例的25.2％，占癌症死亡成因的14.7%。（World Cancer Report 2014. World Health Organization. 2014. pp. Chapter 1.1. ISBN 978-92-832-0429-9.） 2018年，它导致了超过200万新病例，同时它在发达国家更常见（Bray F, Ferlay J, Soerjomataram I, Siegel RL, Torre LA, Jemal A. Global Cancer Statistics 2018: GLOBOCAN estimates of incidence and mortality worldwide for 36 cancers in 185 countries. CA Cancer J Clin, in press.）。
+
+多种分级系统能对乳腺癌进行分类。不同类型的乳腺癌会影响预后并影响治疗反应。
+
+乳腺癌通常主要通过其组织学外观进行分类。大多数乳腺癌来源于导管或小叶内衬的上皮细胞，这些癌症被归类为导管或小叶癌。此外，原位癌由特定组织隔室（例如乳腺导管）内的低级癌或癌前细胞发展而来，它不会侵入周围组织。相比之下，浸润性癌并不局限于最初的组织隔室。（Merck Manual, Professional Edition Archived 10 November 2011 at the Wayback Machine, Ch. 253, Breast Cancer.）在细胞层面，分级将比较乳腺癌细胞的外观与正常乳房细胞的外观。像乳房这样的器官中，正常细胞会进行分化，即它们会形成反映其作为该器官一部分的功能的特定形态。癌细胞失去了这种分化能力。在癌症中，通常以有序的方式排列以构成乳管的细胞排列无序；细胞分裂不受控制；细胞核不均匀。病理学家按细胞的分化程度将其分为良好（低级），中度分化（中级）和低分化（高级），分别对应细胞的正常乳腺细胞中所见特征的丧失程度。分化差的癌症（其组织与正常乳腺组织细胞最不相似）的预后较差。在分期上，乳腺癌使用TNM系统分期。该系统基于肿瘤的大小（T），肿瘤是否已经扩散到腋窝的淋巴结（N），以及肿瘤是否已经转移（M）（即扩散到肿瘤发生源头远处的身体部分）。体积较大，淋巴结扩散和转移具有较大的分期数和较差的预后。
 
 ### 模型情况
 

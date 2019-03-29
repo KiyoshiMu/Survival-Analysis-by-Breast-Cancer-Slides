@@ -1,7 +1,9 @@
 import os
 import cv2
 import random
+from math import inf
 from collections import defaultdict
+from functools import lru_cache
 import numpy as np
 from keras.applications.nasnet import preprocess_input
 from keras.optimizers import Adagrad
@@ -48,6 +50,7 @@ class SNAS:
         x = os.path.join(dir_p, sel)
         return cv2.imread(x)
 
+    @lru_cache(maxsize=759) # cache in memory, speed up the process of multiple validations
     def _read_val_dir(self, dir_p, use_filter=False) -> list:
         pool = self._get_pool(dir_p, bound=self.sel_num)
         pool_size = len(pool)
@@ -64,9 +67,11 @@ class SNAS:
             chunk_idx.sort()
             yield df_sort.iloc[chunk_idx]
 
-    def _data_val(self, df_sort, use_filter=False):
+    def _data_val(self, df_sort, use_filter=False, ceiling=inf):
         X, T, E = [], [], []
-        for item in df_sort.iterrows():
+        for idx, item in enumerate(df_sort.iterrows()):
+            if idx >= ceiling:
+                break
             path = item[1][0]
             dur = item[1][2]
             obs = item[1][3]
@@ -130,7 +135,7 @@ class SNAS:
             x_case = [preprocess_input(x) for x in x_case]
             x_case = np.array(x_case)
             hr_pred = self.model.predict(x_case)
-            hr_pred = sorted(hr_pred)[-2] # only the second most serious area
+            hr_pred = sorted(hr_pred)[1] # only the second most serious area, i.e. the second shorest time
             hr_preds.append(hr_pred)
         hr_preds = np.exp(hr_preds)
         ci = concordance_index(y,-hr_preds,e)
@@ -200,5 +205,5 @@ class SNAS:
         if sel_num is not None:
             self.sel_num = sel_num
         X, Y, E = self._data_val(self.train_table, use_filter=True)
-        X_val, Y_val, E_val = self._data_val(self.test_table, use_filter=True)
+        X_val, Y_val, E_val = self._data_val(self.test_table, use_filter=True, ceiling=152)
         self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}')

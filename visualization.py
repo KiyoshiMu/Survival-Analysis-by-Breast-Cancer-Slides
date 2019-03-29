@@ -11,41 +11,47 @@ from tools import gen_logger
 def read_dir(dir_p, sel_num) -> list:
     pool = os.listdir(dir_p)
     pool_size = len(pool)
-    cur, end = 0, 0
-    ori_carrier, pro_carrier = [], []
+    cur, end = 0, sel_num
+    fns, ori_carrier, pro_carrier = [], [], []
     while end < pool_size:
-        end += sel_num
         while cur < end:
-            ori_img = cv2.imread(os.path.join(dir_p, pool[cur]))
+            fn = pool[cur]
+            ori_img = cv2.imread(os.path.join(dir_p, fn))
+            fns.append(fn)
             ori_carrier.append(ori_img)
             pro_carrier.append(preprocess_input(ori_img))
             cur += 1
-        yield np.array(ori_carrier), np.array(pro_carrier)
+        yield fns, ori_carrier, pro_carrier
+        fns.clear()
         ori_carrier.clear()
         pro_carrier.clear()
+        end += sel_num
 
 def visualize_class_activation_map(dir_p, output_path, sel_num=1):
     model = model_nas()
-    
-    for ori_imgs, imgs in read_dir(dir_p, sel_num):
-        #Get the 512 input weights to the softmax.
-        class_weights = model.layers[-1].get_weights()
-        final_conv_layer = model.get_layer(name="NASNet")
-        get_output = K.function([model.layers[0].input], [final_conv_layer.output, model.layers[-1].output])
-        [conv_outputs, _] = get_output(imgs)
-        for idx, ori_img in enumerate(ori_imgs):
-            conv_output = conv_outputs[idx, :, :, :]
+    model.load_weights('371.h5')
+    for fns, ori_imgs, imgs in read_dir(dir_p, sel_num):
 
+        #Get the 512 input weights to the softmax.
+        # class_weights = model.layers[-1].get_weights()
+        final_conv_layer = model.get_layer(name="NASNet")
+        get_output = K.function([model.layers[0].input], [final_conv_layer.get_output_at(-1), model.layers[-1].output])
+        conv_outputs, _ = get_output([imgs])
+        for idx, ori_img in enumerate(ori_imgs):
+            fn = fns[idx]
+            conv_output = conv_outputs[idx, :, :, :]
+            # weights = np.mean(grads_vals[idx, :, :, :], axis = (0, 1))
             #Create the class activation map.
-            cam = np.zeros(dtype = np.float32, shape = conv_output.shape[1:3])
-            for i, w in enumerate(class_weights[:, 1]):
-                cam += w * conv_output[i, :, :]
+            cam = np.zeros(dtype = np.float32, shape = conv_output.shape[0:2])
+            # for i in range(conv_output.shape[-1]):
+            #     cam += conv_output[:, :, i]
+            cam += np.sum(conv_output, axis=2)
             cam /= np.max(cam)
             cam = cv2.resize(cam, (96, 96))
             heatmap = cv2.applyColorMap(np.uint8(255*cam), cv2.COLORMAP_JET)
             heatmap[np.where(cam < 0.2)] = 0
             img = heatmap*0.5 + ori_img
-            cv2.imwrite(output_path, img)
+            cv2.imwrite(os.path.join(output_path, f"{fn}"), img)
 
 
 
@@ -61,6 +67,6 @@ if __name__ == "__main__":
     dst = command.o
     os.makedirs(dst, exist_ok=True)
     try:
-        visualize_class_activation_map(command.o, dst, sel_num=command.s)
+        visualize_class_activation_map(command.i, dst, sel_num=command.s)
     except:
-        logger.Exception('debug')
+        logger.exception('debug')

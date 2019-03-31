@@ -4,142 +4,148 @@
 
 ### 癌症基因组图谱
 
-癌症基因组图谱（The Cancer Genome Atlas， TCGA）是一始于2005年的项目——使用基因组测序和生物信息学对癌症相关的基因突变进行编目。TCGA主要致力于应用高通量基因组分析技术，通过了解癌症的遗传基础，以提高医疗工作者诊断，治疗和预防它的能力。
+癌症基因组图谱（The Cancer Genome Atlas, TCGA）是一始于2005年的项目。其主要工作是使用基因组测序和生物信息学对癌症相关的基因突变进行编目。如此，其通过应用高通量基因组分析技术，能帮助医疗工作者了解癌症的遗传基础，以提高医疗工作者诊断，治疗和预防癌症的能力。
 
-TCGA受隶属于美国国立卫生研究院（National Institutes of Health，NIH）的国家癌症研究所（National Cancer Institute， NCI）的癌症基因组学中心和国家人类基因组研究监管。至2015年，TCGA完成了33种不同肿瘤类型的基因组表征和序列分析，包括10种罕见癌症。["Cancers Selected for Study". The Cancer Genome Atlas – National Cancer Institute. Retrieved 2015-11-02.]同时，NCI开启了基因组数据共享（Genomic Data Commons，GDC）研究计划与TCGA并行。GDC为癌症研究界提供统一的数据存储库，以便在癌症基因组研究中共享数据，以支持精准医学。当前，大量癌症图像分析相关的研究应用其中的影像数据。
+TCGA隶属于美国国立卫生研究院（National Institutes of Health, NIH）的国家癌症研究所（National Cancer Institute， NCI）的癌症基因组学中心。至2015年，TCGA完成了33种不同肿瘤类型的基因组表征和序列分析，包括10种罕见癌症。["Cancers Selected for Study". The Cancer Genome Atlas – National Cancer Institute. Retrieved 2015-11-02.]同时，NCI进行着与TCGA并行的基因组数据共享（Genomic Data Commons, GDC）研究计划。GDC为癌症研究界提供了统一的数据存储库。凭此，GDC实现了癌症基因组研究中的数据共享，促进了精准医疗的发展。当前，大量癌症图像分析相关的研究应用其中的影像数据。
 
-本文的影像数据均来自GDC中TCGA-BRCA项目的数据,可由此<https://portal.gdc.cancer.gov/projects/TCGA-BRCA>下载。
+本文的影像数据均来自GDC中TCGA-BRCA项目的数据,可由此<https://portal.gdc.cancer.gov/projects/TCGA-BRCA>访问。
 
 ### 切片选择
 
 TCGA-BRCA提供快速冷冻（Flash Frozen）和福尔马林固定石蜡包埋（Formalin-Fixed Paraffin-Embedded, FFPE）这两种类型的切片影像。
 
-快速冷冻样品通常在手术期间在冷冻液中制作，用来帮助外科医生确定肿瘤的边界是否清洁（即，肿瘤是否已被完全切除）。快速冷冻是一种快速且“简单”的过程，但经常会使组织受损，使其大致外观多孔，很可能致使图像中与肿瘤相关的关键信息丢失；FFPE切片是诊断医学的金标准。FFPE的制作需要先将样本固定在甲醛中，然后将其嵌入石蜡块中进行切割。它呈现的组织更为完整，使其更适合应用于计算分析。
+快速冷冻样品通常在手术期间在冷冻液中制作，主要用于帮助外科医生确定肿瘤的边界是否清洁（即，肿瘤是否已在手术中被完全切除）。快速冷冻是一种快速且简单的过程，但经常会使组织受损，使其外观呈多孔状。于是，相应的，快速冷冻图像中与肿瘤相关的关键信息很可能已经丢失；FFPE切片是诊断医学的金标准。FFPE的制作需要先将样本固定在甲醛中，然后将其嵌入石蜡块中进行切割。它呈现的组织更为完整，使其更适合应用于计算分析。因此，本研究仅选择使用FFPE类型的数字影像数据。
 
-### 人工识别特征
+### 专家识别特征
+
+本文使用的专家识别特征数据库来自于2018年发表的某一对乳腺癌形态学及相应分子机制的研究。在该研究中，15名病理学家从TCGA-BRCA获得图像数据对850例侵入性乳腺癌案例进行了组织病理学分析。他们评估了11项形态学特征，包括组织学分级：上皮小管形成（Epithelial Tubule Formation），核多形性（Nuclear Pleomorphism），有丝分裂数量（Mitotic Count）；原位癌情况：导管原位癌（Ductal Carcinoma in Situ, DCIS），小叶原位癌（Lobular Carcinoma in Situ, LCIS）；其他特征：基质炎症（Stromal Inflammation），坏疽（Necrosis），上皮癌百分比（% Cancerous Epithelium），大汗腺特征（Apocrine Features），淋巴血管侵入（Lymphovascular Invasion），基质中央纤维化聚集（Stromal Central Fibrotic Focus）。所有评估结果均通过相互评估（Inter-rater Reliability）检验。
+
+本研究使用的专家识别特征信息均可于<http://legacy.dx.ai/tcga_breast/annotations.html>获得。
 
 ## 实验内容
 
-我们先以人工识别特征建立Cox HP模型得到参照基本线（baseline）。之后，我们对初始切片图进行区域分割及预筛选。在训练得到分类器后，对区域再次进行筛选。将筛选区域作为样本内容，采用一系列方法训练得到生存模型。最后对生存模型进行评价和优化。
+总体的实验流程如下图。我们先以专家识别特征建立Cox HP模型得到参照基本线（baseline）。之后，我们对初始切片图进行区域分割及预筛选。在训练得到NASNet分类器后，使用该分类器对区域再次进行筛选。接着，我们将筛选区域作为样本内容，采用包括迁移学习在内的一系列方法对生存模型进行训练。最后对生存模型进行相应的优化好评估。
 
-### 人工识别特征建立Cox HP模型
+[!chartflow](/imgs/chartflow.png "实验流程图")
 
-比例风险模型（Proportional hazards models， PH models）是统计学中生存模型的一类。生存模型通过分析在某事件发生之前经过的时间与可能与该时间量相关联的一个或多个协变量的关系能建立“时间-事件”模型。在比例风险模型中，协变量中单位增加的效应与相应的危险率是乘积关系。例如，服用药物可能会使一个人发生中风的危险率降低一半。其他类型的生存模型，如加速失效时间模型（accelerated failure time models），不能表现比例风险。
+### 专家识别特征建立Cox HP模型
+
+比例风险模型（Proportional hazards models, PH models）是统计学中生存模型的一类。通过分析在事件发生前经过的时间与和该时间量可能相关联的一个或多个协变量的关系，生存分析建立起“时间-事件”模型。在PH模型中，协变量中单位增加的效应与相应的危险率是乘积关系。例如，服用药物可能会使一个人发生中风的危险率降低一半。
 （ Breslow, N. E. (1975). "Analysis of Survival Data under the Proportional Hazards Model". International Statistical Review / Revue Internationale de Statistique. 43 (1): 45–57. doi:10.2307/1402659. JSTOR 1402659.
 ）
 
-在Cox比例风险模型（Cox Proportional hazards model，Cox PH model）（Cox 1972）常被医学统计用于研究患者存活时间和一个或多个预测变量之间的关联。它和Kaplan-Meier曲线和logrank测试不同——Kaplan-Meier曲线和logrank测试是单变量分析，它们探究一个因素与生存时间的关联，但忽略了其他因素的影响；同时它们需要的变量类型是分类的，如疗法A，疗法B或男性、女性，而不适用于定量的变量。Cox比例风险回归分析则不同，它适用于定量变量和分类变量。此外，Cox回归模型扩展了生存分析方法，能同时评估多个风险因素对生存时间的影响。
-http://www.sthda.com/english/wiki/cox-proportional-hazards-model#references
+Cox比例风险模型（Cox Proportional hazards model, Cox PH model）（Cox 1972）是PH模型中的一种。
+$$
+{h(t | x)} = {b_0(t)} {\exp {\left(\sum_{i=1}^n b_i (x_i - \overline{x_i})\right)}}
+$$
+其常被医学统计用于研究患者存活时间和一个或多个预测变量之间的关联。它和Kaplan-Meier曲线、logrank测试不同——Kaplan-Meier曲线和logrank测试是单变量分析，它们会忽略其他因素的影响，只能探究一个因素与生存时间的关联；同时它们需要的变量类型是分类类型，如疗法A、疗法B或男性、女性，而不适用于定量类型的变量。Cox比例风险回归分析则不同，它能同时评估多个风险因素对生存时间的影响。并且，除了分析分类类型变量外，它也能分析定量类型变量。
 (Cox DR (1972). Regression models and life tables (with discussion). J R Statist Soc B 34: 187–220)
 
 本文应用基于Python的生存分析应用lifelines,<https://lifelines.readthedocs.io/en/latest/index.html>,进行Cox PH模型的建立。
 
 ### 区域分割及预筛选
 
-影像数据分析的一大挑战是其包含的图像非常大，以至于其难以被读取至随机读取内存（random access memory, RAM），或者应用一般的流水线（pipeline）进行分析。以本研究所使用的TACG-BRCA数据为例，其以Aperio公司SVS文件为格式，759个样本的10倍镜成像平均包含5.38e+08个像素点，40倍成像平均图包含8.61e+09个像素点。如果在RGB模式，uint8数据格式下读取，40倍成像的图像将占用近26GB的RAM空间，此外，之后的运算还需要空间存储中间结果。而当前常规的计算机一般配备8至16GB的RAM。因此，直接读取文件进行分析是不可取的。同时，我们观察到10倍镜成像下，肿瘤细胞聚集分布在图中的某些区域，一个细胞仅占8*8的区域。此外，图中有大量的空白区域或重复的大块区域，直接使用全图是不明智的。从经验上讲，对空白区域可用简单的算法进行预筛选。
+影像数据分析的一大挑战是样本的图像非常大。因此，其难以全部直接读取至随机读取内存（random access memory, RAM），或者应用一般的流水线（pipeline）进行分析。以本研究所使用的TACG-BRCA数据为例。其以Aperio公司SVS文件为格式，759个样本的10倍镜成像平均包含5.38e+08个像素点，40倍成像图平均包含8.61e+09个像素点。如果在RGB模式，uint8数据格式下读取，40倍成像的图像将占用近26GB的RAM空间，此外，之后的运算还需要空间存储中间结果。而当前常规的计算机一般配备8至16GB的RAM。因此，直接读取文件进行分析是不可取的。同时，我们观察到10倍镜成像下，肿瘤细胞聚集分布在图中的某些区域，一个细胞仅占8*8的区域。此外，图中有大量的空白区域或重复的大块区域，直接使用全图是不明智的。从经验上讲，对空白区域可用简单的算法进行预筛选。
 
 #### 显微放大倍数选择
 
 10倍镜下细胞占8*8，包含一定的信息，虽相较于40倍镜有一定的损失，但相关的研究使用10倍（？？）得到较好的结果。故10倍镜放大倍数保留了足够的有效信息。
 
-此外，后续我们NASNet分类器及迁移学习使用的Kaggle数据库（见方法）数据为10倍镜下成像。于是，我们在研究中也选用了10倍镜下的成像，以在计算机资源使用和有效信息保留上取得平衡。
+此外，后续我们NASNet分类器及迁移学习使用的Kaggle数据库（见方法）数据为10倍镜下成像。于是，我们在研究中也选用了10倍镜下的成像，以在计算机资源使用和有效信息保留上取得良好的平衡。
 
 #### openslide进行96*96区域切割
 
-openslide是基于C语言的读取大图的开源工具。本文使用最新的3.4.1版。
+openslide是基于C语言的读取此类大型图像的开源工具。本文使用最新的3.4.1版。
 （OpenSlide: A Vendor-Neutral Software Foundation for Digital Pathology
 Adam Goode, Benjamin Gilbert, Jan Harkes, Drazen Jukic, M. Satyanarayanan
 Journal of Pathology Informatics 2013, 4:27）
-显而易见地，我们需要将整个图像分割为小的区域，对每个区域进行分析，再将分析结果进行整合。当前图像深度学习使用的图片一般会缩小为96*96的小图，以便于分析。
+显而易见地，我们需要将整个图像分割为多个小的区域。在对每个区域进行分析之后，再将分析结果进行整合。当前图像深度学习使用的图片一般会缩小为96*96的小图，以便于分析。因此，我们使用openslide将原始的大图在调节至10倍成像。然后，openslide将10倍镜成像图分割为96\*96的小图。
 
 #### OpenCV预选
 
-OpenCV，即开源计算机视觉库，是一个开源的应用于计算机视觉及机器学习的软件。OpenCV是计算机视觉的应用常用的平台。
+OpenCV，即开源计算机视觉库，是一个开源的应用于计算机视觉及机器学习的软件。OpenCV是计算机视觉应用常用的平台。
 
-在分割过程中，采用简单的灰度分析，即将小图由RGB模式转化为灰度模式，计算全图的平均灰度值，以此由一个平均灰度值代表整个小图，能去除空白的区域对区域进行预筛选。
+在分割过程中，我们利用简单的灰度分析对区域进行预筛选。具体而言，我们将小图由RGB模式转化为灰度模式。通过计算，我们能得到全图的平均灰度值以代表整个小图。该平均灰度值在0~255之间。一般地，包含大量空白的区域的平均灰度值会很低。于是，我们能通过观察设置一个阈值，低于该值的即为包含大量空白的区域。这样，我们使用OpenCV执行上述操作，以筛选除去了空白的区域。
 
 ### NASNet区域分类器
 
-2017年5月，Google Brain设计的能产生人工智能(artificial intelligence, AI)的人工智能，AutoML。NASNet是Google的研究人员使用强化学习，以AutoML作为控制神经网络自动训练出来的神经网络模型。在2018年，NASNet已是图像识别领域的最佳模型。
+2017年5月，Google Brain设计了能产生人工智能(artificial intelligence, AI)的人工智能，AutoML。NASNet是Google的研究人员使用强化学习，以AutoML作为控制神经网络自动训练出来的神经网络模型。在2018年，NASNet已是图像识别领域的最佳模型。
 
-#### NASNet分类模型架构
+#### NASNet分类器架构
 
-NASNet模型分为NASNet large模型和NASNet mobile模型。NASNet mobile是其中较小的模型，其硬件需求更小，但仍能实现强大的识别功能。
+NASNet模型分为NASNet large模型和NASNet mobile模型。NASNet mobile是其中较小的模型，其硬件需求更小，但仍能实现强大的图像识别功能。
 
-我们的模型的第一层由96\*96\*3的数据输入，之后则是NASNet mobile层。NASNet层会产生3组数据，下一合并层（concatenate layer）将3组数据合并，之后是一个随机丢失层（dropout layer），最后是sigmoid函数激活的1维全连接层（dense layer）。
+NASNet分类器的第一层为96\*96\*3的数据输入层。之后，则是NASNet mobile（文中的NASNet均指NASNet mobile）层。NASNet层会产生3组数据，下一层的合并层（concatenate layer）将3组数据合并。接着，一个随机丢失层（dropout layer）用于防止过度拟合（overfitting），增强模型鲁棒性（robustness）。最后是sigmoid函数激活的1维全连接层（dense layer）。
 
-该分类模型使用分类任务常用的二元交叉熵函数（binary cross entropy function）
+该分类器使用分类任务常用的二元交叉熵函数（binary cross entropy function）
 $$
 C = -\frac{1}{n} \sum_x [y \ln y+(1-y) \ln(1-y)]
 $$
-作为损失函数。
+作为损失函数（loss function）。
 
 #### Kaggle数据库
 
-Kaggle组织病理肿瘤识别（Histopathologic Cancer Detection, HCD)数据来自<https://www.kaggle.com/c/histopathologic-cancer-detection>。
+Kaggle是Google旗下的用于数据科学研究和机器学习的平台。Kaggle组织病理肿瘤识别（Histopathologic Cancer Detection, HCD)数据库是其2018年开展组织病理肿瘤识别挑战时创建的数据库。
 
-Kaggle HCD数据库的源头是Camelyon16挑战数据库。该数据库包含400张40倍镜下的H&E染色切片全图。PCam数据库产生于将Camelyon16挑战数据库的40倍镜成像缩小为10倍成像，且分割为96*96的小区域。本文训练NASNet分类器使用的Kaggle数据库是Pcam数据库的子集。Kaggle数据库和Pcam数据库的差别在于Pcam数据库中的重复的图片全部被去除了。
+Kaggle HCD数据库的源头是Camelyon16挑战数据库。该数据库包含400张40倍镜下的H&E染色切片全图。PCam数据库产生于将Camelyon16挑战数据库的40倍镜成像缩小为10倍成像，且分割为96*96的小区域。本文训练NASNet分类器使用的Kaggle数据库是Pcam数据库的子集。Kaggle数据库和Pcam数据库的差别在于Pcam数据库中的重复的图片全部被去除了。（[1] B. S. Veeling, J. Linmans, J. Winkens, T. Cohen, M. Welling. "Rotation Equivariant CNNs for Digital Pathology". arXiv:1806.03962[2] Ehteshami Bejnordi et al. Diagnostic Assessment of Deep Learning Algorithms for Detection of Lymph Node Metastases in Women With Breast Cancer. JAMA: The Journal of the American Medical Association, 318(22), 2199–2210. doi:jama.2017.14585）
 
-Kaggle HCD数据库以在图像中心（32*32）区域是否包含至少一个像素肿瘤组织为评判标准将所有图像数据进行了分类。60%的图像为阴性，即图像中心没有肿瘤组织；40%的图像为阳性，即图像中心至少有一个像素的肿瘤组织。因此，该数据库也很适合于用于之后生存模型的迁移学习。
+Kaggle HCD数据库以在图像中心（32*32）区域是否包含至少一个像素的肿瘤组织为评判标准对所有图像数据进行了分类。60%的图像为阴性，即图像中心没有肿瘤组织；40%的图像为阳性，即图像中心至少有一个像素的肿瘤组织。于是，能实现出色分类的模型一定有分析肿瘤组织的能力。因为我们所研究的生存模型是以分析肿瘤组织的图像为基础，所以该数据库训练出的模型很适用于之后生存模型的迁移学习。
+
+可于<https://www.kaggle.com/c/histopathologic-cancer-detection>访问Kaggle HCD数据库。
 
 #### “数据增强”训练
 
-由于新的高质量数据的获取需要大量资源，如人力、金钱、时间，对数据量不足这一问题的解决不能仅仅依靠收集更多数据这一手段。于是，在机器学习领域，通过对原始数据添加随机的轻微“扰动”生成新数据，即“数据增强”，很好地以低成本方式解决了数据量不足这一问题。
+由于高质量数据的获取需要大量资源，如人力、金钱、时间，数据量不足这一问题的解决不能仅仅依靠收集更多数据这一手段。于是，在机器学习领域，通过对原始数据添加随机的轻微“扰动”生成新数据，即“数据增强”，研究人员很好地以低成本方式解决了数据量不足这一问题。
 
 在图像中，“数据增强”的手段一般有翻转、旋转、亮度变化、切割等。我们在训练模型使用的“数据增强”方式如下表。
 
 #### 区域采集量
 
-生存模型的损失函数是受事件发生的时间影响的。因此，生存模型训练时，每次训练需要将数据按时间顺序输入，故一般图像识别为避免数据次序影响时所用的乱序（shuffle）方法在此处一定不能使用。同时，分批（batch）的数据输入策略也不应使用。合理的方法是每次将全部样本一起输入进行训练。这样，每次训练时，一个样本只能从待选区域里面选择一张作为代表。此时，有效区域数量一定，如果待选区域数量过多，那么选择到有效区域的几率将大大减小。故我们需要设置NASNet分类器的筛选阈值，以最大程度地提高训练时训练数据选择到有效区域的可能。
+事件发生的时间能影响生存模型的损失函数。因此，训练生存模型时，每次训练需要将数据按时间顺序输入。于是，在此处，一般图像识别为避免数据次序影响时所用的乱序（shuffle）方法一定不能使用。同时，分批（batch）的数据输入策略也不应使用。我们采用的方法是每次将全部样本一起输入进行训练。这样，每次训练时，一个样本需要从待选区域里面选择一张作为代表。此时，有效区域数量一定，如果待选区域数量过多，那么选择到有效区域的几率将大大减小。故我们需要设置NASNet分类器的筛选阈值，以最大程度地提高训练时训练数据选择到有效区域的可能。
 
 ### 训练
 
-在训练时，我们运用了迁移学习（Transfer learning）的方法。它是一种机器学习的研究方法——将解决一个问题的策略“知识”存储，然后应用于其他但相关的问题。比如识别轿车的模型能被尝试应用于识别卡车。
+在训练时，我们运用了迁移学习（Transfer learning）策略。迁移学习是一种机器学习研究方法。简单而言，该方法将解决一个问题的“知识”存储，然后应用于不同但类似的问题。比如，可尝试使用识别轿车的模型对卡车进行识别。
 （West, Jeremy; Ventura, Dan; Warnick, Sean (2007). "Spring Research Presentation: A Theoretical Foundation for Inductive Transfer". Brigham Young University, College of Physical and Mathematical Sciences. Archived from the original on 2007-08-01. Retrieved 2007-08-05.）
 
 #### SNAS生存模型架构
 
-我们的模型的第一层由96\*96\*3的数据输入，之后则是NASNet层。NASNet层会产生3组数据，合并层将3组数据合并；合并的数据经过一个随机丢失层后输入一个全连接层；最后是基于全连接层的生存预测层。两个全连接层均使用L2函数
+SNAS生存模型的第一层由96\*96\*3的数据输入层，之后则是NASNet层。NASNet层会产生3组数据，合并层将3组数据合并；合并的数据经过一个随机丢失层后输入一个全连接层；最后是基于全连接层的生存预测层。两个全连接层均使用L2函数
 $$
 L_2=\sum_{i=1}^{n}(y^{(i)}-\hat{y}^{(i)})^{2}
 $$
-作为核规范器（kernel regularizer）、运算规范器（activity regularizer），以Glorot均衡起始器（Glorot uniform initializer,或称Xavier uniform initializer）以促进损失函数收敛，防止过度拟合（overfitting），增强其普遍化的能力。（Understanding the difficulty of training deep feedforward neural networks）
+作为核规范器（kernel regularizer）、运算规范器（activity regularizer），以Glorot均衡起始器（Glorot uniform initializer,或称Xavier uniform initializer）以促进损失函数收敛，防止过度拟合，增强其普遍化的能力。（Understanding the difficulty of training deep feedforward neural networks）
 
 从架构可见，我们将NASNet同样应用于生存模型中，设计得到我们的SNAS。NASNet含有近4.27e+07个参数。这些参数由学习Kaggle数据库得到。我们将NASNet层的参数冻结，以存储训练于Kaggle数据库能识别肿瘤区域的能力，实现迁移学习。
 
-生存模型在机器学习中使用了一个特殊的损失函数（loss function），即负对数似然损失函数（negative log likelihood loss function）
+生存模型在机器学习中使用了一个特殊的损失函数，即负对数似然损失函数（negative log likelihood loss function）
 $$
 \boldsymbol{\mathcal{L}}=-\frac{1}{n}\sum_{i=1}^{n}\log(\hat{y}^{(i)})
 $$
 
 #### 随机区域选择
 
-如我们在区域采集量中提到的生存模型训练的需求——数据需要按照时间顺序排序，同时损失函数会因数据选取（不同时间点，数量大小）而变化。于是我们每次选取一个区域代表样本，然后将所有样本输入进行训练。
-
-由于我们没有相应的专业人员对我们的区域进行人工筛选或鉴定，此处我们只能采用随机选取的方法。
+如我们在区域采集量中提到的生存模型训练的需求——数据需要按照时间顺序排序，同时损失函数会因数据选取（不同时间点，数量大小）而变化。于是，我们每次选取一个区域代表样本，然后将所有样本输入进行训练。由于我们没有相应的专业人员对我们的区域进行人工筛选或鉴定，此处我们只能采用随机选取的方法，即从NASNet分类器筛选的某样本区域中随机挑选一个区域代表该样本。
 
 ### 批量预测
 
-应对肿瘤内异质性，我们参考了PNAs文章中使用的方法，即随机选取多个区域进行预测，然后选择风险预测值最大或者第二大的结果代表此样本的生存风险。在临床中，医务工作者对肿瘤发展的评估是根据肿瘤患者以各病患处表现出的最严重的特征。比如，若患者某处的组织已表现出转移瘤特征，而其他地方的肿瘤尚处于良性阶段，该患者的生存情况将会依据转移瘤的特征进行评估。在TNM（Tumor，Node，Metastasis；肿瘤，结节，转移）系统中会被评估为M阶段。（Brierley, J.D.; Gospodarowicz, M.K.; Wittekind, Ch., eds. (2017). TNM classification of malignant tumors (8th ed.). Chichester, West Sussex, UK: Wiley-Blackwell. ISBN 978-1-4443-3241-4.）同时，从肿瘤学上讲，在很大程度上，癌症的治疗和存活是通过其是否保持局部化或已扩散到身体的其他位置来决定的。如果癌症已经能转移到其他组织或器官，患者的死亡可能性通常会显着增加。（ Klein CA (September 2008). "Cancer. The metastasis cascade". Science. 321 (5897): 1785–7. doi:10.1126/science.1164853. PMID 18818347.
-）
+应对肿瘤内异质性，我们参考了PNAs文章中使用的方法，即随机选取多个区域进行预测，然后选择风险预测值最大或者第二大的结果代表此样本的生存风险。在临床中，医务工作者对肿瘤发展的评估是根据肿瘤患者以各病患处表现出的最严重的特征。比如，若患者某处的组织已表现出转移瘤特征，而其他地方的肿瘤尚处于良性阶段，该患者的生存情况将会依据转移瘤的特征进行评估。在TNM（Tumor，Node，Metastasis；肿瘤，结节，转移）系统中会被评估为M阶段。（Brierley, J.D.; Gospodarowicz, M.K.; Wittekind, Ch., eds. (2017). TNM classification of malignant tumors (8th ed.). Chichester, West Sussex, UK: Wiley-Blackwell. ISBN 978-1-4443-3241-4.）同时，从肿瘤学上讲，在很大程度上，癌症的治疗和存活是通过其是否保持局部化或已扩散到身体的其他位置来决定的。如果癌症已经能转移到其他组织或器官，患者的死亡可能性通常会显着增加。（ Klein CA (September 2008). "Cancer. The metastasis cascade". Science. 321 (5897): 1785–7. doi:10.1126/science.1164853. PMID 18818347.）
 
 #### 随机多区域选择
 
-经验上讲，参考的区域越多，得到准确预测的可能性越大。然而，增加区域参考量的同时，需要的计算资源也会同时增加。于是我们需要在计算资源的限制下，尽可能多得选择区域的情况下。
+经验上讲，分析参考的区域越多，得到准确预测的可能性越大。然而，增加区域参考量的同时，需要的计算资源也会同时增加。于是，我们需要在计算资源的限制下，尽可能多地选择区域的情况。同时，由于用NASNet分类器选择出的有效区域数量有限，如果选择的区域数量太大，只会重复分析同一区域，平白消耗计算资源。结合计算机科学中对42的经验认同，在模型评估时，我们选择的42个区域供模型分析。
 
 ### 超参数（hyperparameter）优化
 
-在机器学习中，在学习过程开始之前需要对模型设置的参数为超参数。而其他参数的值是通过训练得出的。因此，超参数需要通过实验进行设定。
+在机器学习中，虽然参数的值可以通过训练得出，但在学习过程开始之前，我们需要对模型本身设置参数。这一模型训练前需要设置的参数即为超参数。需要通过实验测试以实现合理超参数的设定。
 
-超参数的选择能决定训练和测试模型所需的时间。同时，超参数能显著影响模型的表现。然而，超参数通常是连续或整数类型，其模型相应的表现结果变化不一定是有规律的；比较模型的表现又需要用新的超参数重头训练。因此，找到良好的超参数组合是极其重要的，而在有限的计算资源下，找到最优的超参数组合又是不大可能实现的事。
+超参数的选择能决定训练和测试模型所需的时间。同时，超参数能显著影响模型的表现。然而，超参数通常是连续或整数类型，其模型相应的表现结果变化不一定是有规律的；比较模型的表现又需要用新的超参数重头训练。因此，虽然找到良好的超参数组合是极其重要的，但在有限的计算资源下，找到最优的超参数组合又是不大可能实现的事。（"Claesen, Marc, and Bart De Moor. "Hyperparameter Search in Machine Learning." arXiv preprint arXiv:1502.02127 (2015)". arXiv:1502.02127. Bibcode:2015arXiv150202127C.）
 
 目前我们采取的策略是：选择最有影响力的超参数进行组合，然后在这些搭配中，找到当前资源限制下，较优的一个超参数的组合。
 
-"Claesen, Marc, and Bart De Moor. "Hyperparameter Search in Machine Learning." arXiv preprint arXiv:1502.02127 (2015)". arXiv:1502.02127. Bibcode:2015arXiv150202127C.
-
 #### 模型大小
 
-从我们SNAS的模型架构可见，合并层后全连接层的大小直接影响这模型的大小。我们需要从具有256节点（node）的全连接层和具有512节点的全连接层中选择一个适合该生产预测任务的。
+从我们SNAS的模型架构可见，合并层后全连接层的大小直接影响着该模型的大小。我们需要从具有256节点（node）的全连接层和具有512节点的全连接层中选择一个适合该生存预测任务的。
 
 #### “数据增强”选择
 
@@ -149,16 +155,13 @@ $$
 
 一致性指数（concordance index, c index），通过量化排名（ranking）质量评估模型能力，是生存分析中模型表现评估的标准指标。 (On Ranking in Survival Analysis: Bounds on the Concordance Index）本研究中对模型优劣的评估均以c index为准。
 
-如果存在访问缺失去（censoring），即在数据收集时间内目标事件没有发生。在本研究中即乳腺癌患者在数据收集时间内未死亡。此时，不应使用如均方误差或平均绝对损失之类的损失函数。此时，应当使用一致性指数（concordance index, c index）。该指数评估预测时间排序的准确性，以量化排名（ranking）质量评估模型能力，是生存分析中模型表现评估的标准指标。它实际上是另一种常见的损失函数AUC（）的泛化，对其数值有类似的解释：0.5，随机预测的结果；1.0，完美的一致性；0.0，完美的反一致性（乘以-1即得到1.0的预测）。合适的生存模型通常具有介于0.55和0.7之间的c index。生存分析相关的数据中往往会包含很多噪音，因此，即使模型非常优秀，其c index也不会很高。
+如果数据存在访问缺失（censoring），即在数据收集时间内目标事件没有发生，使用如均方误差或平均绝对损失之类的损失函数是不合理的。在本研究中，许多（？）乳腺癌患者在数据收集时间内未死亡。因此，不应使用如均方误差或平均绝对损失之类的损失函数。此时，应当使用一致性指数（concordance index, c index）。该指数评估预测时间排序的准确性，以量化排名（ranking）质量评估模型能力，是生存分析中评估模型表现的标准指标。它实际上是另一种常见的损失函数AUC（）的泛化。和AUC类似，c index的数值有如下解释：0.5，随机预测；1.0，预测与事实完全一致；0.0，预测与事实完全不一致（乘以-1即得到1.0的预测）。质量一般的生存模型的c index通常介于0.55到0.7之间。因为生存分析相关的数据中往往会包含很多噪音，所以，即使模型非常优秀，其c index也不会特别高。
 
 ### Cox HP基础模型表现
 
-$$
-{h(t | x)} = {b_0(t)} {\exp {\left(\sum_{i=1}^n b_i (x_i - \overline{x_i})\right)}}
-$$
 五次Cross Validation（CV）的平均CI为0.71， 标准差为0.03。可见，使用人工分析图像得出数据建模的预测能力中等。之后的深度学习模型若超过该预测水平，则说明该研究下使用的方法优于人工。
 
-### NASNet分类模型表现
+### NASNet分类器表现
 
 ![图1](/imgs/clf_test_performance.png "clf_test_performance")
 
@@ -224,4 +227,5 @@ $$
 ### 应用
 
 随着发达国家老龄化的加剧，以及全球人口人均寿命的普遍提高，癌症的发病率逐年提高。然而，此时人口结构变化，发达国家新生代人数逐年减少，发展中国家的人口出生率随着经济的发展也在下降中。于是，更重的医疗问题需要更少的人去解决。
+从2011年11月到2014年3月，
 健康产业，eHealth

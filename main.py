@@ -4,7 +4,7 @@ import argparse
 import os
 
 if __name__ == "__main__":
-    logger = gen_logger('main')
+    logger = gen_logger('main+')
     parse = argparse.ArgumentParser()
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('-o', default='..', help='the path for output')
@@ -29,7 +29,8 @@ if __name__ == "__main__":
         if command.m:
             model.load(command.m)
         if model.trained and command.v:
-            model.feedback()
+            for _ in range(command.t):
+                model.feedback()
         else:
             model.whole_train()
     except:

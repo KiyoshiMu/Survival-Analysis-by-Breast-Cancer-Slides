@@ -24,6 +24,7 @@ class SNAS:
         self.train_table = trainer.train_table
         self.test_table = trainer.test_table
         self.sel_num = val_sel_num
+        self.d_size = d_size
         self.epochs = epochs
         self.start_epoch = 0
         self.inner_train_time = inner_train_time
@@ -50,7 +51,7 @@ class SNAS:
         x = os.path.join(dir_p, sel)
         return cv2.imread(x)
 
-    @lru_cache(maxsize=759) # cache in memory, speed up the process of multiple validations
+    # @lru_cache(maxsize=759) # cache in memory, speed up the process of multiple validations
     def _read_val_dir(self, dir_p, use_filter=False) -> list:
         pool = self._get_pool(dir_p, bound=self.sel_num)
         pool_size = len(pool)
@@ -69,7 +70,7 @@ class SNAS:
 
     def _data_val(self, df_sort, use_filter=False, ceiling=inf):
         X, T, E = [], [], []
-        for idx, item in enumerate(df_sort.iterrows()):
+        for idx, item in enumerate(df_sort.iterrows(), start=0):
             if idx >= ceiling:
                 break
             path = item[1][0]
@@ -135,7 +136,7 @@ class SNAS:
             x_case = [preprocess_input(x) for x in x_case]
             x_case = np.array(x_case)
             hr_pred = self.model.predict(x_case)
-            hr_pred = sorted(hr_pred)[1] # only the second most serious area, i.e. the second shorest time
+            hr_pred = sorted(hr_pred)[-2] # only the second most serious area, i.e. the second shorest time
             hr_preds.append(hr_pred)
         hr_preds = np.exp(hr_preds)
         ci = concordance_index(y,-hr_preds,e)
@@ -157,7 +158,7 @@ class SNAS:
             self.seq = get_seq()
 
     def plot(self):
-        plot_model(self.model, to_file=f'{self.dst}/model.png', show_shapes=True) 
+        plot_model(self.model, to_file=f'{self.dst}/model.png') 
 
     def set_start_epoch(self, start_epoch):
         self.start_epoch = start_epoch
@@ -206,4 +207,4 @@ class SNAS:
             self.sel_num = sel_num
         X, Y, E = self._data_val(self.train_table, use_filter=True)
         X_val, Y_val, E_val = self._data_val(self.test_table, use_filter=True, ceiling=152)
-        self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}')
+        self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}; aug:{self.aug_time}; size:{self.d_size}')

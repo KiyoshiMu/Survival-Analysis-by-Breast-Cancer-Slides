@@ -86,3 +86,24 @@ def model_vis(): # learn from https://github.com/jacobgil/keras-cam
     model.load_weights('model.h5', by_name='NASNet')
     model.compile(loss = 'categorical_crossentropy', optimizer = sgd, metrics=['accuracy'])
     return model
+
+def model_gn(f_num):
+    inputs = Input((96, 96, 3))
+    inputs_g = Input((f_num,) )
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    x = base_model(inputs)
+    out1 = GlobalMaxPooling2D()(x)
+    out2 = GlobalAveragePooling2D()(x)
+    out3 = Flatten()(x)
+    out = Concatenate(axis=-1)([out1, out2, out3])
+    out = Dropout(0.5)(out)
+    out = Concatenate(axis=-1)([out, inputs_g])
+    out = Dense(256, kernel_initializer='glorot_uniform', 
+    kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01), name="dense_g1")(out)
+    out = Dense(1, activation="linear", kernel_initializer='glorot_uniform', 
+    kernel_regularizer=l2(0.01), activity_regularizer=l2(0.01), name="dense_g2")(out)
+    model = Model([inputs, inputs_g], out)
+    model.load_weights('model.h5', by_name='NASNet')
+    model.load_weights('371.h5', by_name=True)
+    model.layers[1].trainable = False
+    return model

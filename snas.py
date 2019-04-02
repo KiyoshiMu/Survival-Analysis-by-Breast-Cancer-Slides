@@ -9,14 +9,13 @@ from keras.applications.nasnet import preprocess_input
 from keras.optimizers import Adagrad
 from keras.utils.vis_utils import plot_model
 from lifelines.utils import concordance_index
-from models import model_nas, negative_log_likelihood
+from models import model_nas, negative_log_likelihood, model_gn
 from tools import Train_table_creator, gen_logger, get_seq
 random.seed(42)
 
 class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
-    val_sel_num=10, aug_time=10, logger=None, d_size=256):
-        self.model = model_nas(d_size=d_size)
+    val_sel_num=10, aug_time=10, logger=None, d_size=256, gene=False):
         self.dst = dst
         self.logger = logger if logger is not None else gen_logger('SNAS')
         trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio, logger=self.logger)
@@ -30,10 +29,16 @@ class SNAS:
         self.inner_train_time = inner_train_time
         self.aug_time = aug_time
         self.trained = False
+        self.gene = gene
         self.ada = None 
         self.seq = None
         self.pool = defaultdict(list)
         self.train_pool = defaultdict(list)
+        if self.gene:
+            self.train_gene, self.test_gene = trainer.get_gene_table()
+            self.model = model_gn(f_num=len(self.train_gene.columns))
+        else:
+            self.model = model_nas(d_size=d_size)
 
     def _get_pool(self, dir_p, bound=0):
         pool = self.pool if bound == 0 else self.train_pool
@@ -132,9 +137,17 @@ class SNAS:
 
     def _model_eval(self, X_val, y, e):
         hr_preds = []
-        for x_case in X_val:
+        if self.gene:
+            if len(X_val) != 152:
+                gene_array = self.train_gene.values
+            else:
+                gene_array = self.test_gene.values
+        assert len(gene_array) == len(X_val), 'impossible match'
+        for idx, x_case in enumerate(X_val):
             x_case = [preprocess_input(x) for x in x_case]
             x_case = np.array(x_case)
+            if self.gene:
+                x_case = [x_case, np.array([gene_array[idx]]*len(x_case))]
             hr_pred = self.model.predict(x_case)
             hr_pred = sorted(hr_pred)[-2] # only the second most serious area, i.e. the second shorest time
             hr_preds.append(hr_pred)
@@ -144,6 +157,8 @@ class SNAS:
 
     def _train_aux(self, X, Y, event_size=None):
         for X in self._x_aug(X):
+            if self.gene:
+                X = [X, self.train_gene.values]
             self.model.fit(
                 X, Y,
                 batch_size=event_size,
@@ -179,6 +194,7 @@ class SNAS:
             self.feedback()
 
     def batch_train(self, batch_size=64):
+        assert self.gene == False, 'Currently gene mode only supports whole train'
         event_size = batch_size
         self._train_init()
         for epoch, (X, Y, E) in enumerate(self._data_gen_batch(self.train_table, batch_size=batch_size),start=self.start_epoch):

@@ -42,6 +42,11 @@ class Train_table_creator:
     def __repr__(self):
         print(f'Current img directory is {self.selected_p}, Cache is {self.cache()}')
 
+    def get_gene_table(self, gene_p='data/gene.xlsx'):
+        assert self.train_table is not None, 'train gene samples error'
+        gene = pd.read_excel(gene_p, index_col=0)
+        return gene.loc[self.train_table['sample']], gene.loc[self.test_table['sample']]
+
     def cache(self):
         return self.train_table is not None and self.test_table is not None
 

@@ -280,6 +280,12 @@
     
 
     
+    \hypertarget{plot-the-results}{%
+\section{Plot the results}\label{plot-the-results}}
+
+    Make the figures I need in my thesis. Almost all data are gathered via
+testing model performance.
+
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
         \PY{k+kn}{import} \PY{n+nn}{seaborn} \PY{k}{as} \PY{n+nn}{sns}
@@ -288,6 +294,9 @@
         \PY{k+kn}{from} \PY{n+nn}{scipy} \PY{k}{import} \PY{n}{stats}
 \end{Verbatim}
 
+
+    \hypertarget{model-performance}{%
+\subsection{600 model performance}\label{model-performance}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}2}]:} \PY{n}{p600} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/600time.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
@@ -299,34 +308,51 @@
 \end{Verbatim}
 
 
+    sns.scatterplot is used to plot, scatter can show the exact every
+sample's result. sns.lineplot is used to show the trend of change in
+training.
+
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}10}]:} \PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{9}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}51}]:} \PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{15}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{)}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{批次}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{600}\PY{p}{)}
          \PY{n}{ax}\PY{o}{.}\PY{n}{axhline}\PY{p}{(}\PY{l+m+mf}{0.665}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{600}\PY{p}{,}\PY{n}{linestyle}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZhy{}\PYZhy{}}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{r}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{参考表现}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{sns}\PY{o}{.}\PY{n}{lineplot}\PY{p}{(}\PY{n}{data}\PY{o}{=}\PY{n}{line}\PY{p}{,} \PY{n}{palette}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Set2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{dashes}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
-         \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{upper left}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{ax}\PY{o}{.}\PY{n}{scatter}\PY{p}{(}\PY{n}{x} \PY{o}{=} \PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.665}\PY{p}{]} \PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{,}
+         \PY{n}{y} \PY{o}{=} \PY{n}{p600}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.665}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{p}{,} \PY{n}{marker}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{x}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} 
+                    \PY{n}{c}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.9}\PY{p}{,} \PY{n}{s}\PY{o}{=}\PY{l+m+mi}{22}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{优于人工}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{savefig}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{perf.png}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,} \PY{n}{bbox\PYZus{}inches}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{tight}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_3_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_7_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}11}]:} \PY{p}{(}\PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.665}\PY{p}{)} \PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}27}]:} \PY{n}{ax}\PY{o}{.}\PY{n}{scatter}\PY{p}{(}\PY{n}{x} \PY{o}{=} \PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.665}\PY{p}{]} \PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{,}
+         \PY{n}{y} \PY{o}{=} \PY{n}{p600}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{p}{,} \PY{n}{marker}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{x}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{c}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.9}\PY{p}{,} \PY{n}{s}\PY{o}{=}\PY{l+m+mi}{22}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{优于人工}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}11}]:} 78
+{\color{outcolor}Out[{\color{outcolor}27}]:} <matplotlib.axes.\_subplots.AxesSubplot at 0x2ab56594d30>
 \end{Verbatim}
             
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_8_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \hypertarget{the-differences-caused-by-the-size-of-snas}{%
+\subsection{The differences caused by the size of
+SNAS}\label{the-differences-caused-by-the-size-of-snas}}
+
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}5}]:} \PY{n}{d\PYZus{}raw} \PY{o}{=}  \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/512\PYZus{}400time.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{d\PYZus{}raw} \PY{o}{=}  \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/512\PYZus{}400time.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
@@ -389,7 +415,8 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}77}]:} \PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{p}{)}
          \PY{n}{sns}\PY{o}{.}\PY{n}{boxplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{类型}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c index}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{hue}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{大小}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{data}\PY{o}{=}\PY{n}{merge\PYZus{}re}\PY{p}{,} \PY{n}{palette}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Set2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
-         \PY{n}{sns}\PY{o}{.}\PY{n}{stripplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{类型}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c index}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{hue}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{大小}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{data}\PY{o}{=}\PY{n}{merge\PYZus{}re}\PY{p}{,} \PY{n}{dodge}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.1}\PY{p}{,}\PY{n}{jitter}\PY{o}{=}\PY{l+m+mf}{0.2}\PY{p}{,}\PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{sns}\PY{o}{.}\PY{n}{stripplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{类型}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c index}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{hue}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{大小}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{data}\PY{o}{=}\PY{n}{merge\PYZus{}re}\PY{p}{,} 
+                       \PY{n}{dodge}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.1}\PY{p}{,}\PY{n}{jitter}\PY{o}{=}\PY{l+m+mf}{0.2}\PY{p}{,}\PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{ax}\PY{o}{.}\PY{n}{axhline}\PY{p}{(}\PY{l+m+mf}{0.665}\PY{p}{,} \PY{l+m+mf}{0.51}\PY{p}{,} \PY{l+m+mf}{0.99}\PY{p}{,}\PY{n}{linestyle}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZhy{}\PYZhy{}}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{r}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{参考表现}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{upper left}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
          \PY{n}{plt}\PY{o}{.}\PY{n}{savefig}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ssci\PYZus{}para.png}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,} \PY{n}{bbox\PYZus{}inches}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{tight}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
@@ -397,7 +424,7 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_14_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_19_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -421,6 +448,10 @@ overv Ttest\_indResult(statistic=-11.554647340797029, pvalue=1.1556037181553833e
 
     \end{Verbatim}
 
+    \hypertarget{the-influence-of-hyperparameters}{%
+\subsection{The influence of
+hyperparameters}\label{the-influence-of-hyperparameters}}
+
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor} }]:} \PY{n}{train} \PY{o}{=} \PY{n}{merge\PYZus{}re}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{merge\PYZus{}re}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{类型}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{训练}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
         \PY{n}{val} \PY{o}{=} \PY{n}{merge\PYZus{}re}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{merge\PYZus{}re}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{类型}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{测试}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
@@ -429,7 +460,7 @@ overv Ttest\_indResult(statistic=-11.554647340797029, pvalue=1.1556037181553833e
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}52}]:} \PY{n}{data} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/performance\PYZus{}p1.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}7}]:} \PY{n}{data} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/performance\PYZus{}p1.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
@@ -453,38 +484,29 @@ midt Ttest\_indResult(statistic=2.607293833605387, pvalue=0.010930688122953733)
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}46}]:} \PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Model Size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+m+mi}{256}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Normal}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Large}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-         \PY{n}{english\PYZus{}plot} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data number}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index in test}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index in train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+         \PY{n}{english\PYZus{}plot} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data augmentation}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data number}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                                     \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index in test}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index in train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} sns.set(style=\PYZdq{}whitegrid\PYZdq{})}
-        \PY{c+c1}{\PYZsh{} plt.figure()}
-        \PY{c+c1}{\PYZsh{} sns.boxplot(x=\PYZdq{}Model Size\PYZdq{}, y=\PYZdq{}c index in test\PYZdq{}, hue=\PYZdq{}data augmentation\PYZdq{}, data=english\PYZus{}plot.loc[english\PYZus{}plot[\PYZsq{}data number\PYZsq{}]!=380])}
-        \PY{c+c1}{\PYZsh{} plt.savefig(\PYZsq{}se\PYZus{}para.png\PYZsq{}, dpi=300)}
+{\color{incolor}In [{\color{incolor}8}]:} \PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{模型大小}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+m+mi}{256}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{正常}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}  \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{增大}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} sns.set(style=\PYZdq{}whitegrid\PYZdq{})}
-        \PY{c+c1}{\PYZsh{} plt.figure()}
-        \PY{c+c1}{\PYZsh{} sns.boxplot(x=\PYZdq{}Model Size\PYZdq{}, y=\PYZdq{}c index in train\PYZdq{}, hue=\PYZdq{}data augmentation\PYZdq{}, data=english\PYZus{}plot.loc[english\PYZus{}plot[\PYZsq{}data number\PYZsq{}]!=380])}
-        \PY{c+c1}{\PYZsh{} plt.savefig(\PYZsq{}ste\PYZus{}para.png\PYZsq{}, dpi=300)}
+{\color{incolor}In [{\color{incolor}9}]:} \PY{n}{chinese\PYZus{}plot} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是否数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{数据量}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                                    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{测试集c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{训练集c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}53}]:} \PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{模型大小}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{==} \PY{l+m+mi}{256}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{正常}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}  \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{增大}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}11}]:} \PY{c+c1}{\PYZsh{} chinese\PYZus{}plot = pd.read\PYZus{}excel(\PYZsq{}../data/附表4.xlsx\PYZsq{})}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}54}]:} \PY{n}{chinese\PYZus{}plot} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{aug}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是否数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{数据量}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{val}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{测试集c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{train}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{训练集c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}55}]:} \PY{n}{refer} \PY{o}{=} \PY{p}{\PYZob{}}\PY{k+kc}{False}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{否}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{k+kc}{True}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+{\color{incolor}In [{\color{incolor}10}]:} \PY{n}{refer} \PY{o}{=} \PY{p}{\PYZob{}}\PY{k+kc}{False}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{否}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{k+kc}{True}\PY{p}{:}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
          \PY{n}{chinese\PYZus{}plot}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是否数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{chinese\PYZus{}plot}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是否数据增强}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{map}\PY{p}{(}\PY{n}{refer}\PY{p}{)}
 \end{Verbatim}
 
@@ -522,10 +544,14 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 
     
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_26_1.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_31_1.png}
     \end{center}
     { \hspace*{\fill} \\}
     
+    \hypertarget{the-affect-of-the-population-of-training-data}{%
+\subsection{The affect of the population of training
+data}\label{the-affect-of-the-population-of-training-data}}
+
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}6}]:} \PY{n}{np}\PY{o}{.}\PY{n}{unique}\PY{p}{(}\PY{n}{d\PYZus{}raw}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
 \end{Verbatim}
@@ -536,35 +562,31 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{d\PYZus{}compp1} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/performance\PYZus{}p1.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        \PY{n}{d\PYZus{}compp1} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{aug}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}12}]:} \PY{n}{d\PYZus{}compp1} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{../data/performance\PYZus{}p1.xlsx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{d\PYZus{}compp1} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{aug}\PY{o}{==}\PY{k+kc}{False}\PY{p}{)}\PY{o}{\PYZam{}}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{256}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{d\PYZus{}compp11} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{|}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}13}]:} \PY{n}{d\PYZus{}compp11} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{380}\PY{p}{)}\PY{o}{|}\PY{p}{(}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}6}]:} \PY{n}{d\PYZus{}compp12} \PY{o}{=} \PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}raw}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{455}\PY{p}{)}\PY{o}{|}\PY{p}{(}\PY{n}{d\PYZus{}raw}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{531}\PY{p}{)}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}14}]:} \PY{n}{d\PYZus{}compp12} \PY{o}{=} \PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{p}{(}\PY{n}{d\PYZus{}raw}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{455}\PY{p}{)}\PY{o}{|}\PY{p}{(}\PY{n}{d\PYZus{}raw}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{num}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{531}\PY{p}{)}\PY{p}{]}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}7}]:} \PY{n}{d\PYZus{}comp} \PY{o}{=} \PY{n}{d\PYZus{}compp11}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{d\PYZus{}compp12}\PY{p}{,} \PY{n}{sort}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}15}]:} \PY{n}{d\PYZus{}comp} \PY{o}{=} \PY{n}{d\PYZus{}compp11}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{d\PYZus{}compp12}\PY{p}{,} \PY{n}{sort}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}19}]:} \PY{n+nb}{len}\PY{p}{(}\PY{n}{d\PYZus{}comp}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}16}]:} \PY{c+c1}{\PYZsh{} d\PYZus{}comp = pd.read\PYZus{}excel(\PYZsq{}../data/附表7.xlsx\PYZsq{})}
 \end{Verbatim}
 
 
-\begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}19}]:} 160
-\end{Verbatim}
-            
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}20}]:} \PY{n}{d\PYZus{}comp\PYZus{}re} \PY{o}{=} \PY{n}{d\PYZus{}comp}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{d\PYZus{}comp}\PY{p}{)}
          \PY{n}{d\PYZus{}comp\PYZus{}re}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c index}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{d\PYZus{}comp}\PY{o}{.}\PY{n}{train}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{d\PYZus{}comp}\PY{o}{.}\PY{n}{val}\PY{p}{)}
@@ -596,7 +618,7 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 \end{Verbatim}
             
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_34_1.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_40_1.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -631,23 +653,27 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 
     \end{Verbatim}
 
+    \hypertarget{the-outcome-of-snas-with-gene-infomation}{%
+\subsection{The outcome of SNAS with gene
+infomation}\label{the-outcome-of-snas-with-gene-infomation}}
+
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{gene} \PY{o}{=} \PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}04\PYZhy{}02 19:49:01}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{gene} \PY{o}{=} \PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{d\PYZus{}raw}\PY{o}{.}\PY{n}{time}\PY{o}{\PYZgt{}}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{2019\PYZhy{}04\PYZhy{}02 19:49:01}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}19}]:} \PY{n}{comp} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{]}
+{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{comp} \PY{o}{=} \PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{d\PYZus{}compp1}\PY{o}{.}\PY{n}{num}\PY{o}{==}\PY{l+m+mi}{607}\PY{p}{]}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}20}]:} \PY{n}{gecomp} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{comp}\PY{p}{,} \PY{n}{sort}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}19}]:} \PY{n}{gecomp} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{comp}\PY{p}{,} \PY{n}{sort}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}28}]:} \PY{n}{gecomp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{使用基因组信息}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是}\PY{l+s+s1}{\PYZsq{}}
+{\color{incolor}In [{\color{incolor}20}]:} \PY{n}{gecomp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{使用基因组信息}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{是}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{gecomp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{使用基因组信息}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{40}\PY{p}{:}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{否}\PY{l+s+s1}{\PYZsq{}}
 \end{Verbatim}
 
@@ -660,6 +686,11 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
   
 
     \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}21}]:} \PY{c+c1}{\PYZsh{} gecomp = pd.read\PYZus{}excel(\PYZsq{}../data/附表8.xlsx\PYZsq{})}
+\end{Verbatim}
+
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}29}]:} \PY{n}{gecomp\PYZus{}re} \PY{o}{=} \PY{n}{gecomp}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{gecomp}\PY{p}{)}
@@ -691,7 +722,7 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 
 
     \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_41_0.png}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_49_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
@@ -706,28 +737,6 @@ gene compare nogene train Ttest\_indResult(statistic=26.957637568328938, pvalue=
 gene compare nogene  val Ttest\_indResult(statistic=-2.608615992006099, pvalue=0.010891994144940213)
 
     \end{Verbatim}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}41}]:} \PY{k+kn}{import} \PY{n+nn}{cv2}
-         \PY{k+kn}{import} \PY{n+nn}{os}
-         \PY{k+kn}{import} \PY{n+nn}{random}
-\end{Verbatim}
-
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}65}]:} \PY{k}{def} \PY{n+nf}{showcase}\PY{p}{(}\PY{n}{dir\PYZus{}p}\PY{p}{)}\PY{p}{:}
-             \PY{n}{cases} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{listdir}\PY{p}{(}\PY{n}{dir\PYZus{}p}\PY{p}{)}
-             \PY{n}{show\PYZus{}cases} \PY{o}{=} \PY{n}{random}\PY{o}{.}\PY{n}{choices}\PY{p}{(}\PY{n}{cases}\PY{p}{,} \PY{n}{k}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{)}
-             \PY{n}{fig}\PY{p}{,} \PY{n}{axes} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{ncols}\PY{o}{=}\PY{l+m+mi}{5}\PY{p}{,} \PY{n}{nrows}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{25}\PY{p}{,}\PY{l+m+mi}{10}\PY{p}{)}\PY{p}{)}
-             \PY{n}{axes} \PY{o}{=} \PY{n}{axes}\PY{o}{.}\PY{n}{flatten}\PY{p}{(}\PY{p}{)}
-             \PY{k}{for} \PY{n}{idx}\PY{p}{,} \PY{n}{case} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{show\PYZus{}cases}\PY{p}{)}\PY{p}{:}
-                 \PY{n}{img} \PY{o}{=} \PY{n}{cv2}\PY{o}{.}\PY{n}{imread}\PY{p}{(}\PY{n}{os}\PY{o}{.}\PY{n}{path}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{dir\PYZus{}p}\PY{p}{,} \PY{n}{case}\PY{p}{)}\PY{p}{)}
-                 \PY{n}{axes}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{o}{.}\PY{n}{imshow}\PY{p}{(}\PY{n}{cv2}\PY{o}{.}\PY{n}{cvtColor}\PY{p}{(}\PY{n}{img}\PY{p}{,} \PY{n}{cv2}\PY{o}{.}\PY{n}{COLOR\PYZus{}BGR2RGB}\PY{p}{)}\PY{p}{)}
-                 \PY{n}{axes}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{o}{.}\PY{n}{axis}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{off}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-             \PY{n}{fig}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
-             \PY{n}{plt}\PY{o}{.}\PY{n}{savefig}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{showheat.png}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{)}
-\end{Verbatim}
-
 
 
     % Add a bibliography block to the postdoc

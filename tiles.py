@@ -130,10 +130,7 @@ def is_useless(image) -> bool:
 
 def batch_tiling(path, out_dir):
     filter_func = None
-    # if os.path.isdir(out_dir):
-    cache = os.listdir('c:/special')
-    cache.extend(os.listdir('e:/special'))
-    filter_func = lambda x:get_name(x) not in cache
+    # filter_func = lambda x:get_name(x) not in cache
     slides = list(filter(filter_func, get_files(path)))
     work_load = len(slides)
 

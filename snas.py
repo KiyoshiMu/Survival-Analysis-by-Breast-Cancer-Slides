@@ -15,7 +15,7 @@ random.seed(42)
 
 class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
-    val_sel_num=10, aug_time=10, logger=None, d_size=256, gene=False):
+    val_sel_num=42, aug_time=0, logger=None, d_size=256, gene=False):
         self.dst = dst
         self.logger = logger if logger is not None else gen_logger('SNAS')
         trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio, logger=self.logger)

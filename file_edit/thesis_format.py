@@ -1,6 +1,10 @@
 # from collections import defaultdict
-with open('back.md', 'r', encoding='utf8') as base:
-    with open('temp.md', 'w', encoding='utf8') as temp:
+import sys
+back_md = sys.argv[1]
+temp_md = sys.argv[2]
+assert back_md.endswith('md'), 'input_format error'
+with open(back_md, 'r', encoding='utf8') as base:
+    with open(temp_md, 'w', encoding='utf8') as temp:
         counts = [0]
         pre = 0
         for line in base.readlines():

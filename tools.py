@@ -2,8 +2,8 @@ import logging
 import os
 import pickle
 import sys
-# from imgaug import augmenters as iaa
-# import imgaug as ia
+from imgaug import augmenters as iaa
+import imgaug as ia
 import pandas as pd
 import random
 

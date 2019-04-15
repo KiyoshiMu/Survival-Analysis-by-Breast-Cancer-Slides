@@ -2,13 +2,13 @@
 
 A backup for my undergraduate thesis.
 
-## Construction
+## 1 Construction
 
-### Baseline Data Preparation
+### 1.1 Baseline Data Preparation
 
 I used the morphologic data created doctors manually to set up a Cox Proportional Hazard model. The outcome of this model will help me to judge whether the deep learning model is better than the professionals.
 
-### Data Preparation
+### 1.2 Data Preparation
 
 I used the authentic National Institutes of Health (NIH)'s Harmonized Cancer Datasets as my data source. I aimed to do survival analysis based on images. For survival analysis, the indispensable part of information is the duration from the start to the occurrence of the event and whether the event is censoed, that is the event didn't happen during the certain period of time.
 
@@ -18,7 +18,7 @@ The server I worked on is a RedHat system. I am not familiar with this kind of c
 
 Luckily, the GDC download software (GDC Data Transfer Tool) published by NIH have a python version. So, I can download the TCGA slices I needed automaticly. All slices are Formalin-Fixed Paraffin-Embedded (FFPE) from TCGA-BRCA.
 
-### Image Data Preprocession
+### 1.3 Image Data Preprocession
 
 The slices are [.svs files](http://fileformats.archiveteam.org/wiki/Aperio_SVS). Those files have pyramid-like magnitude, that is they have three or four magnitudes or powers, and in different magnitudes, the resolution they are in is different. Recent researchs using medical slices usually set the slides in 20X or 10 X power, which can achieve a beautiful balance between computing usage and outcome quality, like this [paper](http://www.pnas.org/content/early/2018/03/09/1717139115).
 
@@ -32,9 +32,9 @@ To begin with, I segment whole slides in 10X power into 96 pixel * 96 pixels sma
 
 ---
 
-### Home-made Model
+### 1.4 Home-made Model
 
-#### DATA PROFILE
+#### 1.4.1 DATA PROFILE
 
 The PCam dataset is derived from the Camelyon16 Challenge dataset which contains 400 H&E stained whole slide images using a 40x objective. This one uses 10x undersampling to increase the field of view, which gives the resultant pixel resolution of 2.43 microns.
 
@@ -44,17 +44,17 @@ The negative/positive ratio is not entirely 50/50, as the label mean is well bel
 
 The ratio is closer to 60/40 meaning that there are 1.5 times more negative images than positives.
 
-#### AUGMENTATION
+#### 1.4.2 AUGMENTATION
 
-horizontally flip 50% of all images
-vertically flip 20% of all images
-scale images to 80-120% of their size, individually per axis
-translate by -20 to +20 percent (per axis)
-rotate by -45 to +45 degrees
-blur images with a sigma between 0 and 3.0
-...​
+- horizontally flip 50% of all images
+- vertically flip 20% of all images
+- scale images to 80-120% of their size, individually per axis
+- translate by -20 to +20 percent (per axis)
+- rotate by -45 to +45 degrees
+- blur images with a sigma between 0 and 3.0
+- ...​
 
-#### NASNET
+#### 1.4.3 NASNET
 
 NASNet performs 1.2% better than all previously published results.
 
@@ -64,15 +64,21 @@ NASNet may be resized to produce a family of models that achieve good accuracies
 
 Zoph B , Vasudevan V , Shlens J , et al. Learning Transferable Architectures for Scalable Image Recognition[J]. 2017.
 
-#### PERFORMANCE
-
-![clf test performance](/imgs/clf_test_performance.png "clf_test_performance")
+#### 1.4.4 PERFORMANCE
 
 ![kaggle performance](imgs/Kaggle_performance.png "Kaggle_performance")
 
-### SNAS Architecture
+### 1.5 SNAS Architecture
 
-#### Loss function
+The raw model.
+
+![Architecture](imgs/model.png "SNAS Architecture")
+
+Put genome data into the model, and form the one below.
+
+![Architecture with gene](imgs/modelg.png "SNAS Architecture with gene")
+
+#### 1.5.1 Loss function
 
 ```python
 from keras import backend as K
@@ -89,11 +95,97 @@ def negative_log_likelihood(E):
 
 Adapted from [DeepSurv_Keras](https://github.com/mexchy1000/DeepSurv_Keras)
 
-#### Completed model
+#### 1.5.2 Completed model
 
-### Result
+The main function is in **main.py**.
 
-## Progress
+### 1.6 Result
+
+![Result](imgs/result.png "Result")
+
+The models with red marker are which with better performance than base Cox PH model.
+
+(My thesis is required to be written in Chinese. I have to spare time to complete my thesis, and then, I have no time to do the translation job, sorry. More results are in **/data/figs.zip**. However, they are created in Chinese. Raw data are in **/data/tables.zip**)
+
+## 2 Usage
+
+There are two major ways to use the software.
+
+### 2.1 Installation
+
+#### 2.1.1 Miniconda -- Python data science platform
+
+To shorten the download time. We first recommend download Miniconda, which provides the basic *conda* platform for our application. See [Miniconda](https://conda.io/miniconda.html) download page. Currently, you need to download Python 3.7 version.
+
+Or, see [Anaconda](https://www.anaconda.com/download/) download page. Currently, you need to download Python 3.7 version as well. For more details, please check its [official documentation](https://docs.anaconda.com/anaconda/).
+
+There is no difference between these two versions if you only consider testing our software. If you are interested in Python and want to learn more about it, Anaconda is a better choice. Anaconda supply many pre-installed packages that can save lots of time in the long run.
+
+#### 2.1.2 Required packages
+
+**For Chinese Users, we recommend you input following commands in your Anaconda Prompt to use the [mirror](https://mirror.tuna.tsinghua.edu.cn/help/anaconda/) from Tsinghua University.**
+
+    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+
+    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+
+    conda config --set show_channel_urls yes
+
+Follow the messages [here](https://openslide.org/download/) to install Openslide.
+
+To Continue, input following commands in your Anaconda Prompt
+
+    conda create --name snas python=3.6 tensorflow opencv pandas keras scikit-learn matplotlib scikit-image openpyxl tqdm six numpy scipy Pillow imageio Shapely
+
+    pip install lifelines, imgaug
+
+If you have GPU in your computer, add the following line to improve the speed of procession.
+
+    conda install tensorflow-gpu
+
+#### 2.1.3 Clone or Download
+
+We recommend you use git to _clone_ the repository. by
+
+    git clone https://github.com/Moo-YewTsing/Survival-Analysis-by-Breast-Cancer-Slides.git
+
+Or you can simply _download_ all by this [link](https://github.com/Moo-YewTsing/Survival-Analysis-by-Breast-Cancer-Slides/archive/master.zip).
+
+Open your terminal, _cd_ to the directory where the repository's files are.
+
+### 2.2 Train model from tiled images
+
+    python main.py input_dir output_dir **other_para
+
+It's self-explanatory.
+
+```python
+    parse.add_argument('i', help='the path of directory that saves imgs for cases')
+    parse.add_argument('-o', default='..', help='the path for output')
+    parse.add_argument('-r', type=float, default=0.8, help='training size')
+    parse.add_argument('-m', type=str, default='', help='the path of trained weights')
+    parse.add_argument('-t', type=int, default=40, help='epochs')
+    parse.add_argument('-v', type=bool, default=False, help='validation only')
+    parse.add_argument('-s', type=int, default=42, help='the num of imgs used for validation')
+    parse.add_argument('-a', type=int, default=0, help='the time of augmentation during training')
+    parse.add_argument('-p', type=bool, default=False, help='whether plot the model and save it in dst')
+    parse.add_argument('-d', type=int, default=256, help="the size of model's key dense layer")
+    parse.add_argument('-g', type=bool, default=False, help="use gene info to train")
+```
+
+### 2.3 Pipeline from .sys files to model
+
+    python from_svs.py input_dir output_dir **other_para
+
+Also, it's self-explanatory.  
+
+```python
+    parse.add_argument('i', help='the path of directory that saves imgs for cases')
+    parse.add_argument('o', help='the path for output')
+    parse.add_argument('-n', default='outcome', help='the name of .pkl file')
+```
+
+## 3 Progress
 
 - [x] Set baseline.
 
@@ -105,11 +197,13 @@ Adapted from [DeepSurv_Keras](https://github.com/mexchy1000/DeepSurv_Keras)
 
 - [x] Move the patches to local, so that I can use my computer with GPU to train the SNAS.
 
-- [ ] Analysis the performance of SNAS.
+- [x] Analysis the performance of SNAS.
 
-- [ ] Wrap up to form a ".svs to model" end-to-end pipeline.
+- [x] Wrap up to form a ".svs to model" end-to-end pipeline.
 
-## Links for Further Reading
+- [ ] Test.
+
+## 4 Links for Further Reading
 
 Data Source
 [GDC](https://portal.gdc.cancer.gov/)

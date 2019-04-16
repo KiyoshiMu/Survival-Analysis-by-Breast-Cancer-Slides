@@ -16,8 +16,8 @@ if __name__ == "__main__":
     dst = command.o
     tile_dst = os.path.join(dst, 'tiles')
     batch_tiling(command.i, tile_dst)
-    judge_area(command.o, dst=tile_dst, pkl_name=command.n)
+    judge_area(tile_dst, dst=dst, pkl_name=command.n)
     sel_dst = os.path.join(dst, 'sel')
     pkl_select(os.path.join(dst, command.n), sel_dst)
     model_dst = os.path.join(dst, 'models')
-    model = SNAS(command.i, model_dst, logger=logger)
+    model = SNAS(sel_dst, model_dst, logger=logger)

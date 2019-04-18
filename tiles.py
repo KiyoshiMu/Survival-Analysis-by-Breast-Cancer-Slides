@@ -1,12 +1,12 @@
-import openslide
 import os
 import sys
-import numpy as np
-from tqdm import tqdm
-from tools import get_files, get_name, gen_logger
 import argparse
 # from zipfile import ZipFile
 import pickle
+import numpy as np
+from tqdm import tqdm
+import openslide
+from tools import get_files, get_name, gen_logger
 
 def base_10x(properties:dict) ->int and bool:
     ori_mag = int(properties.get('openslide.objective-power', 0))
@@ -20,7 +20,7 @@ def base_10x(properties:dict) ->int and bool:
         elif ori_mag / ratio < 10:
             return level-1, False
 
-def divide_prepare(slide_path, width:int):
+def divide_prepare(slide_path, width:int, logger):
     slide = openslide.OpenSlide(slide_path)
     properties = slide.properties
     try:
@@ -43,11 +43,11 @@ def divide_prepare(slide_path, width:int):
 
     return slide, level, base10, dimension_ref, d_step, size
 
-def divide_certain(slide_path: str, out_dir: str, width=96) -> None:
+def divide_certain(slide_path: str, out_dir: str, logger, width=96) -> None:
     """The origin slide is too large, the function can segment the large one into small tiles.
     In this project, we set the height equals to the width. It aims to tile images in 10X power using
     less resource as possibel"""
-    slide, level, base10, dimension_ref, d_step, size = divide_prepare(slide_path, width)
+    slide, level, base10, dimension_ref, d_step, size = divide_prepare(slide_path, width, logger)
     # begin segment tiles
     cwp = os.getcwd()
     case_name = get_name(slide_path)
@@ -104,7 +104,9 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
                 width = dimension_ref[0] - x
             if j == len(heights_point) - 1:
                 height = dimension_ref[1] - y
-            size = (int(width * ratio), int(height * ratio))
+            width = int(width * ratio)
+            height = int(height * ratio)
+            size = (width, height)
             # get the small image
             small_image = large_image.read_region(location=loc, level=level, size=size)
             # filter the useless image
@@ -113,7 +115,7 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
             # save the small image
             height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
-            fp = os.path.join(out_path, '{:010d}{:010d}.tiff'.format(j, i))
+            fp = os.path.join(out_path, '{}-{}-{}-{}.tiff'.format(x, y, width, height))
             resize_image.save(fp)
     
 def is_useless(image) -> bool:
@@ -128,7 +130,7 @@ def is_useless(image) -> bool:
     # to select the informative images.
     return np.mean(gray) > 230
 
-def batch_tiling(path, out_dir):
+def batch_tiling(path, out_dir, logger):
     filter_func = None
     # filter_func = lambda x:get_name(x) not in cache
     slides = list(filter(filter_func, get_files(path)))
@@ -143,10 +145,10 @@ def batch_tiling(path, out_dir):
         pbar.update(1)
     pbar.close()
 
-logger = gen_logger('tile')
 if __name__ == '__main__':
+    logger = gen_logger('tile')
     parse = argparse.ArgumentParser(description='A patch to separate large .svs file into 10X 96*96 .tif files.')
     parse.add_argument('-i', required=True)
     parse.add_argument('-o', required=True)
     command = parse.parse_args()
-    batch_tiling(command.i, command.o)
+    batch_tiling(command.i, command.o, logger)

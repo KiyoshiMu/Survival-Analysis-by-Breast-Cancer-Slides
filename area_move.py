@@ -6,7 +6,7 @@ import numpy as np
 from bisect import bisect_right
 from copy import deepcopy
 
-def weird_load(fp, sys='win_H'):
+def weird_load(fp, sys='win_H'): # to cure sudden stop
     if sys == 'win_H': 
         length = 2064
     elif sys == 'win':
@@ -39,7 +39,7 @@ def to_case(result):
             case_n = area.split('.zip', 1)[0]
         else:
             case_n = os.path.basename(os.path.dirname(area)) # for moving
-            case_n = os.path.basename(os.path.dirname(area)).split('.')[0]
+            # case_n = os.path.basename(os.path.dirname(area)).split('.')[0]
         outcome[case_n].append(area)
     return outcome
 

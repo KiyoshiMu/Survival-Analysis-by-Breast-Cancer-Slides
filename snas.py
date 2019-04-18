@@ -33,7 +33,7 @@ class SNAS:
         self.ada = None 
         self.seq = None
         self.pool = defaultdict(list)
-        self.train_pool = defaultdict(list)
+        self.train_pool = defaultdict(list) # avoid too much repeat in training
         if self.gene:
             self.train_gene, self.test_gene = trainer.get_gene_table()
             self.model = model_gn(f_num=len(self.train_gene.columns))
@@ -224,3 +224,36 @@ class SNAS:
         X, Y, E = self._data_val(self.train_table, use_filter=True)
         X_val, Y_val, E_val = self._data_val(self.test_table, use_filter=True, ceiling=152)
         self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}; aug:{self.aug_time}; size:{self.d_size}')
+
+class SNAS_predictor:
+    def __init__(self, selected_p, dst, slides_p, logger=None):
+        self.selected_p = selected_p
+        self.dst = dst
+        self.slides_p = slides_p
+        self.case = None
+        self.logger = logger if logger is not None else gen_logger('SNAS_predictor')
+        self.model = model_nas(d_size=256)
+        self.model.load_weights('371.h5', by_name=True)
+
+    def _read_dir(self, case_p) -> list:
+        pool = os.listdir(case_p)
+        sels = random.choices(pool, k=42)
+        xs = [os.path.join(case_p, sel) for sel in sels]
+        self._locator(sels)
+        return np.array([preprocess_input(cv2.imread(x)) for x in xs])
+
+    def _locator(self, sels):
+        with open(os.path.join(self.dst, 'locs.txt'), 'a') as locs:
+            sels = ','.join([sel.rsplit('.', 1)[0] for sel in sels])
+            locs.write(f'{os.path.join(self.slides_p, self.case)}:{sels}\n')
+
+    def work(self):
+        hr_preds = {}
+        for case in os.listdir(self.selected_p):
+            self.case = case
+            case_p = os.path.join(self.selected_p, case)
+            x_case = self._read_dir(case_p)
+            hr_pred = self.model.predict(x_case)
+            hr_pred = sorted(hr_pred)[-2] # only the second most serious area, i.e. the second shorest time
+            hr_preds[case] = hr_pred
+        self.logger.info(hr_preds)

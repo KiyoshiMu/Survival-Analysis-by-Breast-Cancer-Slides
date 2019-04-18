@@ -1,11 +1,13 @@
 import logging
 import os
-import pickle
+import random
 import sys
+import pickle
 from imgaug import augmenters as iaa
 import imgaug as ia
 import pandas as pd
-import random
+import openslide
+from PIL import ImageDraw
 
 class Train_table_creator:
     def __init__(self, selected_p, dst, train_ratio=0.8, logger=None):
@@ -126,6 +128,26 @@ def gen_logger(name='', stream=True):
         logger.addHandler(stream_handler)
     
     return logger
+
+def marking(mark_info:list, dst, name):
+    os.makedirs(dst, exist_ok=True)
+    for slide_path, makrers in mark_info:
+        large_image = openslide.OpenSlide(slide_path)
+        size = large_image.level_dimensions[0]
+        raw_image = large_image.read_region(location=(0,0), level=0, size=size)
+        draw = ImageDraw.draw(raw_image)
+        for marker in makrers:
+            draw.rectangle(marker, outline='blue')
+        raw_image.save(os.path.join(dst, name), "JPEG")
+
+def load_locs(dst):
+    mark_info = []
+    with open(os.path.join(dst, 'locs.txt'), 'r') as locs:
+        for line in locs:
+            case_p, sels = line.split(':')
+            markers = [[int(n) for n in info.split('-')] for info in sels.split(',')]
+            mark_info.append(tuple(case_p, markers))
+    return mark_info
 
 def get_seq():
     """From kaggle, augment an array of images. However, in this study, the performance of SNAS is better without augmentation"""

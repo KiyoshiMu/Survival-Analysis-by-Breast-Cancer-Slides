@@ -173,7 +173,7 @@ It's self-explanatory.
     parse.add_argument('-g', type=bool, default=False, help="use gene info to train")
 ```
 
-### 2.3 Pipeline from .sys files to model
+### 2.3 Pipeline train & predict from .sys files
 
     python from_svs.py input_dir output_dir **other_para
 
@@ -183,6 +183,7 @@ Also, it's self-explanatory.
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('o', help='the path for output')
     parse.add_argument('-n', default='outcome', help='the name of .pkl file')
+    parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "val"')
 ```
 
 ## 3 Progress

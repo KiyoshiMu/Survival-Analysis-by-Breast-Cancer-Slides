@@ -131,17 +131,15 @@ There is no difference between these two versions if you only consider testing o
 
     conda config --set show_channel_urls yes
 
-Follow the messages [here](https://openslide.org/download/) to install Openslide.
+**Follow the messages [here](https://openslide.org/download/) to install Openslide.**
+
+Make sure your CUDA driving is [updated](https://www.nvidia.com/Download/index.aspx?lang=en-us).
 
 To Continue, input following commands in your Anaconda Prompt
 
-    conda create --name snas python=3.6 tensorflow opencv pandas keras scikit-learn matplotlib scikit-image openpyxl tqdm six numpy scipy Pillow imageio Shapely
+    conda create --name snas python=3.7 tensorflow tensorflow-gpu opencv pandas keras scikit-learn matplotlib scikit-image openpyxl tqdm six numpy scipy Pillow imageio Shapely
 
-    pip install lifelines, imgaug
-
-If you have GPU in your computer, add the following line to improve the speed of procession.
-
-    conda install tensorflow-gpu
+    pip install lifelines imgaug
 
 #### 2.1.3 Clone or Download
 
@@ -182,7 +180,6 @@ Also, it's self-explanatory.
 ```python
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('o', help='the path for output')
-    parse.add_argument('-n', default='outcome', help='the name of .pkl file')
     parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "val"')
 ```
 

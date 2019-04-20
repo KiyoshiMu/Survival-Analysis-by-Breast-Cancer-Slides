@@ -55,16 +55,19 @@ def divide_certain(slide_path: str, out_dir: str, logger, width=96) -> None:
     os.makedirs(out_path, exist_ok=True)
 
     # set start points of tiles
-    for i, x in enumerate(range(0, dimension_ref[0], d_step)):
-        for j, y in enumerate(range(0, dimension_ref[1], d_step)):
+    height = width
+    x_bound = dimension_ref[0] - width
+    y_bound = dimension_ref[1] - height
+    for x in enumerate(range(0, x_bound, d_step)):
+        for y in enumerate(range(0, y_bound, d_step)):
             loc = (x, y)
             # print(loc, level, size)
             small_image = slide.read_region(location=loc, level=level, size=size)
             if is_useless(small_image):
                 continue
             if not base10:
-                small_image = small_image.resize((width, width))
-            fp = os.path.join(out_path, '{:010d}{:010d}.tiff'.format(j, i))
+                small_image = small_image.resize((width, height))
+            fp = os.path.join(out_path, '{}-{}-{}-{}.tiff'.format(x, y, width, height))
             small_image.save(fp)
         
 def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None:
@@ -85,35 +88,28 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
     dimension_ref = dimensions[0]
     dimension = dimensions[level]
     ratio = dimension[0] / dimension_ref[0]
-    # set start points of tiles
-    widths_point = list(range(0, dimension_ref[0], tile))
-    heights_point = list(range(0, dimension_ref[1], tile))
     # begin segment tiles
-
     case_name = get_name(slide_path)
     # print(case_name)
     out_path = os.path.join(out_dir, case_name)
     os.makedirs(out_path, exist_ok=True)
-    for i, x in enumerate(widths_point):
-        for j, y in enumerate(heights_point):
+    # calculate individual size
+    height_rel = width_rel
+    width = int(tile * ratio)
+    height = int(width)
+    size = (width, height)
+    x_bound = dimension_ref[0] - width
+    y_bound = dimension_ref[1] - height
+    for x in tqdm(enumerate(range(0, x_bound, tile))):
+        for y in enumerate(range(0, y_bound, tile)):
             # locate start point
             loc = (x, y)
-            # calculate individual size
-            width, height = tile, tile
-            if i == len(widths_point) - 1:
-                width = dimension_ref[0] - x
-            if j == len(heights_point) - 1:
-                height = dimension_ref[1] - y
-            width = int(width * ratio)
-            height = int(height * ratio)
-            size = (width, height)
             # get the small image
             small_image = large_image.read_region(location=loc, level=level, size=size)
             # filter the useless image
             if is_useless(small_image):
                 continue
             # save the small image
-            height_rel = width_rel
             resize_image = small_image.resize((width_rel, height_rel))
             fp = os.path.join(out_path, '{}-{}-{}-{}.tiff'.format(x, y, width, height))
             resize_image.save(fp)

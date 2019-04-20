@@ -226,10 +226,9 @@ class SNAS:
         self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}; aug:{self.aug_time}; size:{self.d_size}')
 
 class SNAS_predictor:
-    def __init__(self, selected_p, dst, slides_p, logger=None):
+    def __init__(self, selected_p, dst, logger=None):
         self.selected_p = selected_p
         self.dst = dst
-        self.slides_p = slides_p
         self.case = None
         self.logger = logger if logger is not None else gen_logger('SNAS_predictor')
         self.model = model_nas(d_size=256)
@@ -245,7 +244,7 @@ class SNAS_predictor:
     def _locator(self, sels):
         with open(os.path.join(self.dst, 'locs.txt'), 'a') as locs:
             sels = ','.join([sel.rsplit('.', 1)[0] for sel in sels])
-            locs.write(f'{os.path.join(self.slides_p, self.case)}:{sels}\n')
+            locs.write(f'{self.case}\t{sels}\n')
 
     def work(self):
         hr_preds = {}
@@ -256,4 +255,4 @@ class SNAS_predictor:
             hr_pred = self.model.predict(x_case)
             hr_pred = sorted(hr_pred)[-2] # only the second most serious area, i.e. the second shorest time
             hr_preds[case] = hr_pred
-        self.logger.info(hr_preds)
+        self.logger.info(f'the predicted time is {hr_preds} days')

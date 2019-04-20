@@ -7,7 +7,8 @@ from imgaug import augmenters as iaa
 import imgaug as ia
 import pandas as pd
 import openslide
-from PIL import ImageDraw
+import cv2
+import shutil
 
 class Train_table_creator:
     def __init__(self, selected_p, dst, train_ratio=0.8, logger=None):
@@ -129,24 +130,41 @@ def gen_logger(name='', stream=True):
     
     return logger
 
-def marking(mark_info:list, dst, name):
+def marking(mark_info:list, slides_p, dst):
     os.makedirs(dst, exist_ok=True)
-    for slide_path, makrers in mark_info:
+    for case, makrers in mark_info:
+        slide_path = os.path.join(slides_p, f'{case}.svs')
         large_image = openslide.OpenSlide(slide_path)
-        size = large_image.level_dimensions[0]
-        raw_image = large_image.read_region(location=(0,0), level=0, size=size)
-        draw = ImageDraw.draw(raw_image)
+        size = tuple(large_image.level_dimensions[2])
+        ratio = large_image.level_dimensions[0][0] / size[0]
+        assert len(size) == 2, 'size error'
+        raw_image = large_image.read_region(location=(0,0), level=2, size=size).convert("RGB")
+        fp = f'{os.path.join(dst, case)}.jpg'
+        raw_image.save(fp)
+        raw_image = cv2.imread(fp)
         for marker in makrers:
-            draw.rectangle(marker, outline='blue')
-        raw_image.save(os.path.join(dst, name), "JPEG")
+            p1 = (int(marker[0]/ratio), int(marker[1]/ratio))
+            p2 = (int((marker[0]+marker[2])/ratio), int((marker[1]+marker[3])/ratio))
+            cv2.rectangle(raw_image, p1, p2, (0,255,0), 5)
+            # cv2.line(raw_image, p1, (int(size[1]*0.9), p1[1]), (0,255,0), 5)
+        cv2.imwrite(fp, raw_image)
+
+def move_model_val(sel_p, loc_dst, dst):
+    with open(os.path.join(loc_dst, 'locs.txt'), 'r') as locs:
+        for line in locs:
+            case, sels = line.split('\t')
+            val_p = os.path.join(dst, case)
+            os.makedirs(val_p, exist_ok=True)
+            for info in sels.split(','):
+                shutil.copy(os.path.join(sel_p, case, f'{info.strip()}.tiff'), val_p)
 
 def load_locs(dst):
     mark_info = []
     with open(os.path.join(dst, 'locs.txt'), 'r') as locs:
         for line in locs:
-            case_p, sels = line.split(':')
+            case, sels = line.split('\t')
             markers = [[int(n) for n in info.split('-')] for info in sels.split(',')]
-            mark_info.append(tuple(case_p, markers))
+            mark_info.append((case, markers))
     return mark_info
 
 def get_seq():

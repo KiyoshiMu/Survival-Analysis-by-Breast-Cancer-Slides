@@ -11,7 +11,7 @@ import cv2
 import shutil
 
 class Train_table_creator:
-    def __init__(self, selected_p, dst, train_ratio=0.8, logger=None):
+    def __init__(self, selected_p, dst, train_ratio=0.8, target_p='data/Target.xlsx', logger=None):
         self.selected_p = selected_p
         self.dst = dst
         self.train_table_p = None
@@ -19,9 +19,9 @@ class Train_table_creator:
         self.train_table = None
         self.test_table = None
         self.logger = logger if logger is not None else gen_logger('tools')
-        self.create(train_ratio)
+        self.create(train_ratio, target_p=target_p)
 
-    def create(self, train_ratio=0.8):
+    def create(self, train_ratio=0.8, target_p='data/Target.xlsx'):
         """Change the ratio, then a new train table and a test table will be created"""
         self.train_table_p = os.path.join(self.dst, f'{train_ratio}train_table.xlsx')
         self.test_table_p = os.path.join(self.dst, f'{train_ratio}test_table.xlsx')
@@ -34,7 +34,7 @@ class Train_table_creator:
             return
         try:
             case_path_df = self._case2path(self.selected_p)
-            merge_table = self._merge_table_creator(case_path_df)
+            merge_table = self._merge_table_creator(case_path_df, target_p=target_p)
             self.train_table, self.test_table = self._train_table_creator(merge_table, train_ratio)
         except:
             self.logger.exception('check here')

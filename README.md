@@ -159,6 +159,7 @@ It's self-explanatory.
 
 ```python
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
+    parse.add_argument('-e', default='data/Target.xlsx', help='the path of event/censor table')
     parse.add_argument('-o', default='..', help='the path for output')
     parse.add_argument('-r', type=float, default=0.8, help='training size')
     parse.add_argument('-m', type=str, default='', help='the path of trained weights')
@@ -180,8 +181,28 @@ Also, it's self-explanatory.
 ```python
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('o', help='the path for output')
-    parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "val"')
+    parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "pred"')
+    parse.add_argument('-e', default='data/Target.xlsx', help='if mode is train, the path of event/censor table is needed')
 ```
+
+Then, in your output path, the directory structure is like below.
+
+* mark (pred only)
+    * images with marked used-areas
+* pkl
+    * results of area selection for each case
+* sel (pred only)
+    * each case
+        * seltected small images
+* tiles
+    * each case
+        * tiled small images
+* used (pred only)
+    * each case
+        * used small images
+* loc.txt (the loctions of used areas, pred only)
+* result.pkl (the result of prediction, pred only)
+* models (.h5 file, train only)
 
 ## 3 Progress
 

@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('o', help='the path for output')
     parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "val"')
+    parse.add_argument('-e', default='data/Target.xlsx', help='if mode is train, the path of event/censor table is needed')
     command = parse.parse_args()
     dst = command.o
     tile_dst = os.path.join(dst, 'tiles')
@@ -26,7 +27,7 @@ if __name__ == "__main__":
     # logger.info('selection done')
     if command.o == 'train':
         model_dst = os.path.join(dst, 'models')
-        model = SNAS(sel_dst, model_dst, logger=logger)
+        model = SNAS(sel_dst, model_dst, logger=logger, target_p=command.e)
         model.whole_train()
     else:
         model = SNAS_predictor(sel_dst, dst, logger=logger)

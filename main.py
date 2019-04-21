@@ -7,6 +7,7 @@ if __name__ == "__main__":
     logger = gen_logger('main+')
     parse = argparse.ArgumentParser()
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
+    parse.add_argument('-e', default='data/Target.xlsx', help='the path of event/censor table')
     parse.add_argument('-o', default='..', help='the path for output')
     parse.add_argument('-r', type=float, default=0.8, help='training size')
     parse.add_argument('-m', type=str, default='', help='the path of trained weights')
@@ -23,7 +24,8 @@ if __name__ == "__main__":
     os.makedirs(dst, exist_ok=True)
     try:
         model = SNAS(command.i, dst, train_size_ratio=command.r,
-        epochs=command.t, val_sel_num=command.s, aug_time=command.a, logger=logger, d_size=command.d, gene=command.g)
+        epochs=command.t, val_sel_num=command.s, aug_time=command.a, logger=logger,
+        d_size=command.d, gene=command.g, target_p=command.e)
         # model.model.summary(print_fn=logger.info)
         if command.p:
             model.plot()

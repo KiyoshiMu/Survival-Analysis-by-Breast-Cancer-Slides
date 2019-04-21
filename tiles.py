@@ -58,8 +58,8 @@ def divide_certain(slide_path: str, out_dir: str, logger, width=96) -> None:
     height = width
     x_bound = dimension_ref[0] - width
     y_bound = dimension_ref[1] - height
-    for x in enumerate(range(0, x_bound, d_step)):
-        for y in enumerate(range(0, y_bound, d_step)):
+    for x in tqdm(range(0, x_bound, d_step)):
+        for y in range(0, y_bound, d_step):
             loc = (x, y)
             # print(loc, level, size)
             small_image = slide.read_region(location=loc, level=level, size=size)
@@ -100,8 +100,8 @@ def divide(slide_path: str, out_dir: str, level=0, width_rel=96, mag=10) -> None
     size = (width, height)
     x_bound = dimension_ref[0] - width
     y_bound = dimension_ref[1] - height
-    for x in tqdm(enumerate(range(0, x_bound, tile))):
-        for y in enumerate(range(0, y_bound, tile)):
+    for x in tqdm(range(0, x_bound, tile)):
+        for y in (range(0, y_bound, tile)):
             # locate start point
             loc = (x, y)
             # get the small image
@@ -130,21 +130,19 @@ def batch_tiling(path, out_dir, logger):
     filter_func = None
     # filter_func = lambda x:get_name(x) not in cache
     slides = list(filter(filter_func, get_files(path)))
-    work_load = len(slides)
 
-    pbar = tqdm(total=work_load)
     for slide_path in slides:
+        name = get_name(slide_path)
         try:
+            logger.info(f'start {name}')
             divide(slide_path, out_dir)
         except:
-            logger.exception(f'{get_name(slide_path)} encountered error in batch')
-        pbar.update(1)
-    pbar.close()
+            logger.exception(f'{name} encountered error in batch')
 
 if __name__ == '__main__':
     logger = gen_logger('tile')
     parse = argparse.ArgumentParser(description='A patch to separate large .svs file into 10X 96*96 .tif files.')
-    parse.add_argument('-i', required=True)
-    parse.add_argument('-o', required=True)
+    parse.add_argument('i')
+    parse.add_argument('o')
     command = parse.parse_args()
     batch_tiling(command.i, command.o, logger)

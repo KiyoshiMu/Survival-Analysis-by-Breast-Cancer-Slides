@@ -101,11 +101,21 @@ The main function is in **main.py**.
 
 ### 1.6 Result
 
+![showcase](imgs/showcase.png "showcase")
+
+The image above shows the classfication result of NSANet classifier's. In the first line are the areas classfied as useful, and the areas that aren't judged as useful are in the second line. As you can see, the distinction is evident.
+
 ![Result](imgs/result.png "Result")
 
 The models with red marker are which with better performance than base Cox PH model.
 
 (My thesis is required to be written in Chinese. I have to spare time to complete my thesis, and then, I have no time to do the translation job, sorry. More results are in **/data/figs.zip**. However, they are created in Chinese. Raw data are in **/data/tables.zip**)
+
+For one case, the randomly selected useful areas are marked in the image below. They are marked by these green boxes.
+![overview](imgs/overview.png "overview")
+
+If we pore over these areas, we get the images below where the individual areas that are under 10X power imaging are gathered together.
+![selection](imgs/selection.png "selection")
 
 ## 2 Usage
 
@@ -131,17 +141,15 @@ There is no difference between these two versions if you only consider testing o
 
     conda config --set show_channel_urls yes
 
-Follow the messages [here](https://openslide.org/download/) to install Openslide.
+**Follow the messages [here](https://openslide.org/download/) to install Openslide.**
+
+Make sure your CUDA driving is [updated](https://www.nvidia.com/Download/index.aspx?lang=en-us).
 
 To Continue, input following commands in your Anaconda Prompt
 
-    conda create --name snas python=3.6 tensorflow opencv pandas keras scikit-learn matplotlib scikit-image openpyxl tqdm six numpy scipy Pillow imageio Shapely
+    conda create --name snas python=3.7 tensorflow tensorflow-gpu opencv pandas keras scikit-learn matplotlib scikit-image openpyxl tqdm six numpy scipy Pillow imageio Shapely
 
-    pip install lifelines, imgaug
-
-If you have GPU in your computer, add the following line to improve the speed of procession.
-
-    conda install tensorflow-gpu
+    pip install lifelines imgaug
 
 #### 2.1.3 Clone or Download
 
@@ -161,6 +169,7 @@ It's self-explanatory.
 
 ```python
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
+    parse.add_argument('-e', default='data/Target.xlsx', help='the path of event/censor table')
     parse.add_argument('-o', default='..', help='the path for output')
     parse.add_argument('-r', type=float, default=0.8, help='training size')
     parse.add_argument('-m', type=str, default='', help='the path of trained weights')
@@ -182,9 +191,28 @@ Also, it's self-explanatory.
 ```python
     parse.add_argument('i', help='the path of directory that saves imgs for cases')
     parse.add_argument('o', help='the path for output')
-    parse.add_argument('-n', default='outcome', help='the name of .pkl file')
-    parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "val"')
+    parse.add_argument('-m', default='train', help='the working mode, if you want to use the prediction mode, just type "pred"')
+    parse.add_argument('-e', default='data/Target.xlsx', help='if mode is train, the path of event/censor table is needed')
 ```
+
+Then, in your output path, the directory structure is like below.
+
+* mark (pred only)
+    * images with marked used-areas
+* pkl
+    * results of area selection for each case
+* sel (pred only)
+    * each case
+        * seltected small images
+* tiles
+    * each case
+        * tiled small images
+* used (pred only)
+    * each case
+        * used small images
+* loc.txt (the loctions of used areas, pred only)
+* result.pkl (the result of prediction, pred only)
+* models (.h5 file, train only)
 
 ## 3 Progress
 

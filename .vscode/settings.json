@@ -1,8 +1,0 @@
-{
-    "python.testing.pyTestArgs": [],
-    "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.pyTestEnabled": false,
-    "python.pythonPath": "D:\\Miniconda3\\envs\\sci\\python.exe",
-    "python.testing.promptToConfigure": false
-}

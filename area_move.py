@@ -6,30 +6,14 @@ import numpy as np
 from bisect import bisect_right
 from copy import deepcopy
 
-def weird_load(fp, sys='win_H'): # to cure sudden stop
-    if sys == 'win_H': 
-        length = 2064
-    elif sys == 'win':
-        length = 3624
-    elif sys == 'linux':
-        length = 3408
-        
+def pkl_dir_load(dir_p):
     container = {}
-    with open(fp, 'rb') as file:
-        while True:
-            chunk = file.read(length) #in windows system the length is 2064; in Linux it's 3408
-            if not chunk:
-                break
-            try:
-                data = pickle.loads(chunk)
+    for f_n in os.listdir(dir_p):
+        if f_n[-4:] == '.pkl':
+            f_p = os.path.join(dir_p, f_n)
+            with open(f_p, 'rb') as case:
+                data = pickle.load(case)
                 container.update(data)
-            except:
-                file.seek(length, 1)
-                probe = file.read(10)
-                while probe != b'\x80\x04\x95\x05\x08\x00\x00\x00\x00\x00':
-                    file.seek(-9, 1)
-                    probe = file.read(10)
-                file.seek(-10, 1)
     return container
 
 def to_case(result):
@@ -146,8 +130,8 @@ def lose_move(patch_supply, dst):
                 print(case, file)
                 break
 
-def pkl_select(pkl_p, dst):
-    result = weird_load(pkl_p)
+def pkl_select(pkl_dir_p, dst):
+    result = pkl_dir_load(pkl_dir_p)
     case_dict = to_case(result)
     threshes = np.arange(0.90, 1.01, 0.01)
     selected_area, _, _ = profile_threshold(case_dict, result, threshes=threshes)

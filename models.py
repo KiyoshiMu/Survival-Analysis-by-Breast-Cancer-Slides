@@ -38,7 +38,7 @@ def model_pns():
 
 def model_nas(d_size=256):
     inputs = Input((96, 96, 3))
-    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3), weights=None)
     x = base_model(inputs)
     out1 = GlobalMaxPooling2D()(x)
     out2 = GlobalAveragePooling2D()(x)
@@ -56,7 +56,7 @@ def model_nas(d_size=256):
 
 def model_nas_clf():
     inputs = Input((96, 96, 3))
-    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3), weights=None)
     x = base_model(inputs)
     out1 = GlobalMaxPooling2D()(x)
     out2 = GlobalAveragePooling2D()(x)
@@ -76,7 +76,7 @@ def global_average_pooling_shape(input_shape):
 
 def model_vis(): # learn from https://github.com/jacobgil/keras-cam
     inputs = Input((96, 96, 3))
-    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3), weights=None)
     x = base_model(inputs)
     out = Lambda(global_average_pooling, 
               output_shape=global_average_pooling_shape)(x)
@@ -90,7 +90,7 @@ def model_vis(): # learn from https://github.com/jacobgil/keras-cam
 def model_gn(f_num):
     inputs = Input((96, 96, 3))
     inputs_g = Input((f_num,) )
-    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3))#, weights=None
+    base_model = NASNetMobile(include_top=False, input_shape=(96, 96, 3), weights=None)
     x = base_model(inputs)
     out1 = GlobalMaxPooling2D()(x)
     out2 = GlobalAveragePooling2D()(x)

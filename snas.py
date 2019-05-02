@@ -1,6 +1,7 @@
 import os
 import cv2
 import random
+import pickle
 from math import inf
 from collections import defaultdict
 from functools import lru_cache
@@ -15,10 +16,10 @@ random.seed(42)
 
 class SNAS:
     def __init__(self, selected_p, dst, train_size_ratio=0.8, epochs=40, inner_train_time=22,
-    val_sel_num=42, aug_time=0, logger=None, d_size=256, gene=False):
+    val_sel_num=42, aug_time=0, d_size=256, target_p='data/Target.xlsx', gene=False, logger=None):
         self.dst = dst
         self.logger = logger if logger is not None else gen_logger('SNAS')
-        trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio, logger=self.logger)
+        trainer = Train_table_creator(selected_p, dst, train_ratio=train_size_ratio, logger=self.logger, target_p=target_p)
         assert trainer.cache() == True, 'imgs searching entounters error'
         self.train_table = trainer.train_table
         self.test_table = trainer.test_table
@@ -226,10 +227,9 @@ class SNAS:
         self.logger.info(f'train:{self._model_eval(X, Y, E)} num:{len(Y)}; val:{self._model_eval(X_val, Y_val, E_val)} num:{len(Y_val)}; aug:{self.aug_time}; size:{self.d_size}')
 
 class SNAS_predictor:
-    def __init__(self, selected_p, dst, slides_p, logger=None):
+    def __init__(self, selected_p, dst, logger=None):
         self.selected_p = selected_p
         self.dst = dst
-        self.slides_p = slides_p
         self.case = None
         self.logger = logger if logger is not None else gen_logger('SNAS_predictor')
         self.model = model_nas(d_size=256)
@@ -237,7 +237,7 @@ class SNAS_predictor:
 
     def _read_dir(self, case_p) -> list:
         pool = os.listdir(case_p)
-        sels = random.choices(pool, k=42)
+        sels = np.random.choice(pool, size=42, replace=False)
         xs = [os.path.join(case_p, sel) for sel in sels]
         self._locator(sels)
         return np.array([preprocess_input(cv2.imread(x)) for x in xs])
@@ -245,7 +245,7 @@ class SNAS_predictor:
     def _locator(self, sels):
         with open(os.path.join(self.dst, 'locs.txt'), 'a') as locs:
             sels = ','.join([sel.rsplit('.', 1)[0] for sel in sels])
-            locs.write(f'{os.path.join(self.slides_p, self.case)}:{sels}\n')
+            locs.write(f'{self.case}\t{sels}\n')
 
     def work(self):
         hr_preds = {}
@@ -254,6 +254,8 @@ class SNAS_predictor:
             case_p = os.path.join(self.selected_p, case)
             x_case = self._read_dir(case_p)
             hr_pred = self.model.predict(x_case)
-            hr_pred = sorted(hr_pred)[-2] # only the second most serious area, i.e. the second shorest time
+            hr_pred = tuple(np.exp(sorted(hr_pred)[-2])) # only the second most serious area, i.e. the second shorest time
             hr_preds[case] = hr_pred
-        self.logger.info(hr_preds)
+        self.logger.info(f'the hazard rate of {case} is {hr_pred}')
+        with open(os.path.join(self.dst, 'result.pkl'), 'wb') as ret:
+            pickle.dump(hr_preds, ret, pickle.HIGHEST_PROTOCOL)

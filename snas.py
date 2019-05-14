@@ -256,6 +256,6 @@ class SNAS_predictor:
             hr_pred = self.model.predict(x_case)
             hr_pred = tuple(np.exp(sorted(hr_pred)[-2])) # only the second most serious area, i.e. the second shorest time
             hr_preds[case] = hr_pred
-        self.logger.info(f'the hazard rate of {case} is {hr_pred}')
+            self.logger.info(f'the hazard rate of {case} is {hr_pred}')
         with open(os.path.join(self.dst, 'result.pkl'), 'wb') as ret:
             pickle.dump(hr_preds, ret, pickle.HIGHEST_PROTOCOL)
